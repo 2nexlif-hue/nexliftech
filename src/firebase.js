@@ -5,13 +5,13 @@ import { getStorage } from 'firebase/storage';
 import { getAnalytics, isSupported } from 'firebase/analytics';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBE1lyrgC3niddjlNfLUm8qpp2uz53XEBk",
-  authDomain: "nexliftech-1999c.firebaseapp.com",
-  projectId: "nexliftech-1999c",
-  storageBucket: "nexliftech-1999c.firebasestorage.app",
-  messagingSenderId: "1017293392883",
-  appId: "1:1017293392883:web:1a468650e06ac20e9de086",
-  measurementId: "G-DR12HRX1PT"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 const app = initializeApp(firebaseConfig);
