@@ -62,6 +62,25 @@ export default function Contact() {
           <p className="section-subtitle">
             Ready to start your next project? Reach out and we'll get back to you within 24 hours.
           </p>
+          <div className="contact-quick-info" style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: '1.5rem',
+            marginTop: '1.5rem',
+            fontSize: '0.95rem',
+            color: '#a855f7'
+          }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ color: '#06eeff' }}>●</span> <strong>Mobile:</strong> +91 9682547458
+            </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ color: '#06eeff' }}>●</span> <strong>Tehsil:</strong> Shangus
+            </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ color: '#06eeff' }}>●</span> <strong>District:</strong> Anantnag
+            </span>
+          </div>
         </div>
 
         <div className="contact-grid">
@@ -100,7 +119,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h4>Location</h4>
-                    <p>Jammu & Kashmir, India</p>
+                    <p>Tehsil: Shangus, District: Anantnag<br />Jammu & Kashmir, India</p>
                   </div>
                 </div>
               </div>
