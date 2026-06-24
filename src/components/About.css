@@ -1,0 +1,231 @@
+.about {
+  position: relative;
+  overflow: hidden;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.about-badge {
+  display: inline-block;
+  margin-bottom: 1rem;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.story-text {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+.story-text p {
+  margin-bottom: 1rem;
+}
+
+.story-text strong {
+  color: var(--text-primary);
+}
+
+.credentials-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.credential-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--bg-glass);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.credential-icon {
+  color: var(--accent-primary);
+}
+
+.about-visual {
+  position: relative;
+}
+
+.founder-card {
+  padding: 3rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.founder-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.15), transparent 70%);
+  pointer-events: none;
+}
+
+.founder-content {
+  position: relative;
+  z-index: 1;
+}
+
+.founder-avatar {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 1.5rem auto;
+  border-radius: 50%;
+  padding: 4px;
+  background: var(--gradient-accent);
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--bg-elevated);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.founder-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.founder-title {
+  color: var(--accent-primary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+.founder-quote {
+  font-style: italic;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  position: relative;
+}
+
+.founder-quote::before, .founder-quote::after {
+  color: rgba(139, 92, 246, 0.2);
+  font-size: 2rem;
+  position: absolute;
+}
+
+.founder-quote::before {
+  content: '"';
+  top: -10px;
+  left: -10px;
+}
+
+.founder-quote::after {
+  content: '"';
+  bottom: -20px;
+  right: -10px;
+}
+
+.mt-12 {
+  margin-top: 4rem;
+}
+
+.stats-container {
+  text-align: center;
+}
+
+.stat-item {
+  padding: 1rem;
+}
+
+.stat-number {
+  font-size: 3rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 992px) {
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  
+  .founder-card {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .credentials-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stat-item {
+    border-bottom: 1px solid var(--border-light);
+  }
+  
+  .stat-item:last-child {
+    border-bottom: none;
+  }
+}
+
+/* Loading skeletons */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--bg-glass-hover) 50%, var(--bg-elevated) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+.skeleton-line {
+  height: 1rem;
+  margin-bottom: 0.75rem;
+  width: 100%;
+}
+
+.skeleton-line.short {
+  width: 65%;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
