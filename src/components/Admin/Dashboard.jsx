@@ -555,6 +555,12 @@ export default function Dashboard() {
                         <span className="meta-item"><Calendar size={14} /> {formatDate(msg.createdAt)}</span>
                         <span className="meta-item project-badge"><Globe size={14} /> {formatProjectType(msg.projectType)}</span>
                         <span className="meta-item budget-badge"><DollarSign size={14} /> {formatBudget(msg.budget)}</span>
+                        {msg.mobile && <span className="meta-item" style={{color:'#06eeff'}}>📱 {msg.mobile}</span>}
+                        {(msg.tehsil || msg.district) && (
+                          <span className="meta-item" style={{color:'#a855f7'}}>
+                            📍 {[msg.tehsil, msg.district].filter(Boolean).join(', ')}
+                          </span>
+                        )}
                       </div>
                     </div>
                     

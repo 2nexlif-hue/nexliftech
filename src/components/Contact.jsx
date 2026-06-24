@@ -17,6 +17,9 @@ export default function Contact() {
     const formData = new FormData(form);
     const name = formData.get('name');
     const email = formData.get('email');
+    const mobile = formData.get('mobile');
+    const district = formData.get('district');
+    const tehsil = formData.get('tehsil');
     const projectType = formData.get('project-type');
     const budget = formData.get('budget');
     const message = formData.get('message');
@@ -26,6 +29,9 @@ export default function Contact() {
       await addDoc(collection(db, 'contactMessages'), {
         name,
         email,
+        mobile,
+        district,
+        tehsil,
         projectType,
         budget,
         message,
@@ -148,6 +154,23 @@ export default function Contact() {
               <div className="form-group">
                 <label htmlFor="email">Email</label>
                 <input type="email" id="email" name="email" required placeholder="john@example.com" />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="mobile">Mobile No</label>
+                  <input type="tel" id="mobile" name="mobile" required placeholder="+91 9XXXXXXXXX" pattern="[+0-9]{7,15}" />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="district">District</label>
+                  <input type="text" id="district" name="district" required placeholder="e.g. Anantnag" />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="tehsil">Tehsil</label>
+                <input type="text" id="tehsil" name="tehsil" required placeholder="e.g. Shangus" />
               </div>
               
               <div className="form-row">
