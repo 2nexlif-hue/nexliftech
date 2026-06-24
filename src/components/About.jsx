@@ -36,7 +36,7 @@ const FALLBACK = {
     { label: 'Years Experience', value: 7, suffix: '+' },
     { label: 'Tech Stack Mastery', value: 12, suffix: '' }
   ],
-  photoURL: '',
+  photoURL: '/Gulfam.jpg',
   showPhoto: true
 };
 
@@ -194,6 +194,22 @@ export default function About() {
                 <h3>{data.name}</h3>
                 <p className="founder-title">{data.title}</p>
                 <div className="founder-quote">{data.quote}</div>
+
+                {/* Social profile links */}
+                <div className="founder-socials">
+                  <a href="https://www.linkedin.com/in/sheikh-gulfam-8a11ab124/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn" className="founder-social-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                  </a>
+                  <a href="https://www.researchgate.net/profile/Sheikh-Gulfam" target="_blank" rel="noopener noreferrer" aria-label="ResearchGate" title="ResearchGate" className="founder-social-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><text x="1" y="18" fontSize="16" fontFamily="Georgia,serif" fontWeight="bold">R</text><text x="9" y="18" fontSize="12" fontFamily="Georgia,serif">G</text></svg>
+                  </a>
+                  <a href="https://scholar.google.com/citations?user=kXQj-1EAAAAJ&hl=en" target="_blank" rel="noopener noreferrer" aria-label="Google Scholar" title="Google Scholar" className="founder-social-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zm0 7.5L4.5 6.2 3 7l9 4.5 9-4.5-1.5-.8L12 9.5zM12 12l-9-4.5V16c0 2.5 4 4.5 9 4.5s9-2 9-4.5V7.5L12 12z"/></svg>
+                  </a>
+                  <a href="https://twitter.com/Gulfam_91" target="_blank" rel="noopener noreferrer" aria-label="Twitter / X" title="@Gulfam_91 on Twitter/X" className="founder-social-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+                  </a>
+                </div>
               </div>
             </motion.div>
           </div>

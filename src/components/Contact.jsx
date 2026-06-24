@@ -1,35 +1,57 @@
 import { useState } from 'react';
 import { Mail, MapPin, Phone, Send, Loader2 } from 'lucide-react';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
+import { db } from '../firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import './Contact.css';
 
 export default function Contact() {
   const animateRef = useScrollAnimation();
   const [formStatus, setFormStatus] = useState('idle'); // idle, submitting, success, error
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setFormStatus('submitting');
     
-    // Using Netlify Forms, we submit the form data using fetch
     const form = e.target;
     const formData = new FormData(form);
+    const name = formData.get('name');
+    const email = formData.get('email');
+    const projectType = formData.get('project-type');
+    const budget = formData.get('budget');
+    const message = formData.get('message');
     
-    fetch('/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams(formData).toString()
-    })
-    .then(() => {
+    try {
+      // Save directly to Firestore under 'contactMessages'
+      await addDoc(collection(db, 'contactMessages'), {
+        name,
+        email,
+        projectType,
+        budget,
+        message,
+        createdAt: serverTimestamp(),
+        status: 'unread'
+      });
+
+      // Submit to Netlify forms as secondary fallback for notifications
+      try {
+        await fetch('/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(formData).toString()
+        });
+      } catch (netlifyError) {
+        console.warn('Netlify backup submission failed:', netlifyError);
+      }
+
       setFormStatus('success');
       form.reset();
       setTimeout(() => setFormStatus('idle'), 5000);
-    })
-    .catch((error) => {
-      console.error('Form submission error:', error);
+    } catch (error) {
+      console.error('Firebase save error:', error);
       setFormStatus('error');
       setTimeout(() => setFormStatus('idle'), 5000);
-    });
+    }
   };
 
   return (
@@ -57,7 +79,8 @@ export default function Contact() {
                   </div>
                   <div>
                     <h4>Email</h4>
-                    <a href="mailto:hello@nexliftech.com">hello@nexliftech.com</a>
+                    <a href="mailto:sheikhgulfam91@gmail.com">sheikhgulfam91@gmail.com</a><br />
+                    <a href="mailto:2nexlif@gmail.com" style={{fontSize: '0.9em', marginTop: '4px', display: 'inline-block'}}>2nexlif@gmail.com</a>
                   </div>
                 </div>
                 
@@ -66,8 +89,8 @@ export default function Contact() {
                     <Phone size={20} />
                   </div>
                   <div>
-                    <h4>Phone</h4>
-                    <a href="tel:+919000000000">+91 (900) 000-0000</a>
+                    <h4>Phone & WhatsApp</h4>
+                    <a href="tel:+919682547458">+91 9682547458</a>
                   </div>
                 </div>
                 
@@ -115,6 +138,7 @@ export default function Contact() {
                     <option value="" disabled>Select an option</option>
                     <option value="landing-page">Landing Page</option>
                     <option value="business-site">Business Website</option>
+                    <option value="school-website">School Website</option>
                     <option value="ecommerce">E-Commerce</option>
                     <option value="web-app">Web Application</option>
                     <option value="other">Other</option>

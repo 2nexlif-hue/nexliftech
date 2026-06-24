@@ -1,43 +1,48 @@
 :root {
-  /* Color Palette - Midnight Aurora */
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #12121a;
-  --bg-elevated: #1a1a2e;
-  --bg-glass: rgba(255, 255, 255, 0.04);
-  --bg-glass-hover: rgba(255, 255, 255, 0.08);
-  
-  --text-primary: #f0f0f5;
-  --text-secondary: #8888a0;
-  --text-inverse: #0a0a0f;
-  
-  --accent-primary: #8b5cf6;
-  --accent-secondary: #6366f1;
+  /* Color Palette - Neon Aurora (vibrant revision) */
+  --bg-primary: #07070f;
+  --bg-secondary: #0f0f1c;
+  --bg-elevated: #16162a;
+  --bg-glass: rgba(255, 255, 255, 0.05);
+  --bg-glass-hover: rgba(255, 255, 255, 0.10);
+
+  --text-primary: #f5f5ff;
+  --text-secondary: #9494b8;
+  --text-inverse: #07070f;
+
+  /* Vivid accent palette */
+  --accent-primary: #a855f7;       /* electric violet */
+  --accent-secondary: #7c3aed;     /* deep indigo */
+  --accent-cyan: #06eeff;          /* neon cyan */
+  --accent-pink: #f72585;          /* hot pink */
+  --accent-green: #00ff99;         /* mint neon */
   --success: #10b981;
-  
-  --border-light: rgba(255, 255, 255, 0.06);
-  --border-glow: rgba(139, 92, 246, 0.3);
-  
-  /* Gradients */
-  --gradient-accent: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
-  --gradient-glow: linear-gradient(135deg, #06b6d4, #3b82f6, #8b5cf6);
-  
+
+  --border-light: rgba(168, 85, 247, 0.12);
+  --border-glow: rgba(168, 85, 247, 0.5);
+
+  /* Vivid gradients */
+  --gradient-accent: linear-gradient(135deg, #7c3aed 0%, #a855f7 40%, #ec4899 80%, #f72585 100%);
+  --gradient-glow: linear-gradient(135deg, #06eeff 0%, #7c3aed 40%, #a855f7 70%, #f72585 100%);
+  --gradient-subtle: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(168,85,247,0.08));
+
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
-  
+
   /* Spacing & Layout */
   --nav-height: 80px;
   --section-padding: 6rem;
   --container-width: 1200px;
-  
+
   /* Transitions */
   --transition-fast: 0.2s ease;
   --transition-normal: 0.3s ease;
   --transition-slow: 0.5s ease;
-  
+
   /* Shadows */
-  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  --shadow-glow: 0 0 20px var(--border-glow);
+  --shadow-glass: 0 8px 40px 0 rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 30px var(--border-glow);
 }
 
 /* Reset & Base Styles */
@@ -70,11 +75,11 @@ body {
   background: var(--bg-primary);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--bg-elevated);
+  background: linear-gradient(180deg, var(--accent-secondary), var(--accent-primary));
   border-radius: 5px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
+  background: var(--gradient-accent);
 }
 
 /* Typography Utilities */
@@ -242,24 +247,27 @@ section {
 }
 
 .parallax-orb--purple {
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.08), transparent 70%);
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.28) 0%, rgba(124, 58, 237, 0.12) 50%, transparent 70%);
   animation: orbFloat1 12s ease-in-out infinite;
+  filter: blur(40px);
 }
 
 .parallax-orb--cyan {
-  width: 250px;
-  height: 250px;
-  background: radial-gradient(circle, rgba(6, 182, 212, 0.06), transparent 70%);
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(6, 238, 255, 0.22) 0%, rgba(6, 182, 212, 0.10) 50%, transparent 70%);
   animation: orbFloat2 15s ease-in-out infinite;
+  filter: blur(40px);
 }
 
 .parallax-orb--pink {
-  width: 200px;
-  height: 200px;
-  background: radial-gradient(circle, rgba(244, 114, 182, 0.06), transparent 70%);
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(247, 37, 133, 0.22) 0%, rgba(236, 72, 153, 0.10) 50%, transparent 70%);
   animation: orbFloat3 10s ease-in-out infinite;
+  filter: blur(40px);
 }
 
 @keyframes orbFloat1 {
@@ -309,6 +317,6 @@ section {
 
 /* Selection color */
 ::selection {
-  background: rgba(139, 92, 246, 0.3);
-  color: var(--text-primary);
+  background: rgba(168, 85, 247, 0.45);
+  color: #fff;
 }

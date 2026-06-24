@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, query, orderBy, onSnapshot, updateDoc, deleteDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../../firebase';
 import {
   ArrowLeft, Save, LogOut, Upload, Image, User, FileText,
-  Award, BookOpen, GraduationCap, Briefcase, CheckCircle, AlertCircle, Eye
+  Award, BookOpen, GraduationCap, Briefcase, CheckCircle, AlertCircle, Eye,
+  Mail, MailOpen, Trash2, Calendar, DollarSign, Globe, Inbox
 } from 'lucide-react';
 import './Admin.css';
 
@@ -49,6 +50,10 @@ export default function Dashboard() {
   const [loadingData, setLoadingData] = useState(true);
   const [toast, setToast] = useState({ show: false, type: '', message: '' });
 
+  const [activeTab, setActiveTab] = useState('content'); // 'content' | 'messages'
+  const [messages, setMessages] = useState([]);
+  const [loadingMessages, setLoadingMessages] = useState(true);
+
   // Fetch existing data from Firestore
   useEffect(() => {
     async function fetchData() {
@@ -71,6 +76,27 @@ export default function Dashboard() {
     }
     fetchData();
   }, []);
+
+  // Fetch contact form messages in real-time
+  useEffect(() => {
+    const q = query(collection(db, 'contactMessages'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const msgs = [];
+      snapshot.forEach((doc) => {
+        msgs.push({ id: doc.id, ...doc.data() });
+      });
+      setMessages(msgs);
+      setLoadingMessages(false);
+    }, (err) => {
+      console.error('Error loading messages:', err);
+      showToast('error', 'Failed to load contact messages.');
+      setLoadingMessages(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const unreadCount = messages.filter(m => m.status === 'unread').length;
 
   function showToast(type, message) {
     setToast({ show: true, type, message });
@@ -173,6 +199,65 @@ export default function Dashboard() {
     }
   }
 
+  async function toggleReadStatus(msgId, currentStatus) {
+    try {
+      const msgRef = doc(db, 'contactMessages', msgId);
+      await updateDoc(msgRef, {
+        status: currentStatus === 'unread' ? 'read' : 'unread'
+      });
+      showToast('success', `Marked message as ${currentStatus === 'unread' ? 'read' : 'unread'}`);
+    } catch (err) {
+      console.error('Error toggling read status:', err);
+      showToast('error', 'Failed to update message status.');
+    }
+  }
+
+  async function deleteMessage(msgId) {
+    if (!window.confirm('Are you sure you want to delete this message?')) return;
+    try {
+      await deleteDoc(doc(db, 'contactMessages', msgId));
+      showToast('success', 'Message deleted successfully.');
+    } catch (err) {
+      console.error('Error deleting message:', err);
+      showToast('error', 'Failed to delete message.');
+    }
+  }
+
+  function formatProjectType(type) {
+    const mapping = {
+      'landing-page': 'Landing Page',
+      'business-site': 'Business Website',
+      'school-website': 'School Website',
+      'ecommerce': 'E-Commerce',
+      'web-app': 'Web Application',
+      'other': 'Other'
+    };
+    return mapping[type] || type;
+  }
+
+  function formatBudget(budget) {
+    const mapping = {
+      '<20k': 'Less than ₹20,000',
+      '20k-50k': '₹20,000 - ₹50,000',
+      '50k-100k': '₹50,000 - ₹1,00,000',
+      '>100k': 'More than ₹1,00,000'
+    };
+    return mapping[budget] || budget;
+  }
+
+  function formatDate(timestamp) {
+    if (!timestamp) return 'Just now';
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    return date.toLocaleString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  }
+
   async function handleLogout() {
     try {
       await logout();
@@ -230,182 +315,274 @@ export default function Dashboard() {
       </div>
 
       <div className="dashboard-container">
-        <div className="dashboard-header">
-          <h1>Content Dashboard</h1>
-          <p className="dashboard-subtitle">Manage the "About the Developer" section and site content.</p>
-        </div>
-
-        <div className="dashboard-grid">
-          {/* Photo upload card */}
-          <div className="dashboard-card glass-panel">
-            <h2><Image size={20} /> Developer Photo</h2>
-            <div className="photo-upload-area">
-              {photoPreview ? (
-                <div className="photo-preview-wrapper">
-                  <img src={photoPreview} alt="Developer" className="photo-preview" />
-                </div>
-              ) : (
-                <div className="photo-placeholder" onClick={() => fileInputRef.current?.click()}>
-                  <User size={48} />
-                  <p>Click to upload photo</p>
-                </div>
+        <div className="dashboard-header-wrapper">
+          <div className="dashboard-header">
+            <h1>Admin Dashboard</h1>
+            <p className="dashboard-subtitle">Manage site content and view incoming customer messages.</p>
+          </div>
+          
+          <div className="dashboard-tabs">
+            <button 
+              className={`tab-btn ${activeTab === 'content' ? 'active' : ''}`}
+              onClick={() => setActiveTab('content')}
+            >
+              <User size={16} /> Edit Content
+            </button>
+            <button 
+              className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
+              onClick={() => setActiveTab('messages')}
+            >
+              <Mail size={16} /> Messages Inbox
+              {unreadCount > 0 && (
+                <span className="unread-badge">{unreadCount}</span>
               )}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoSelect}
-                className="hidden-input"
-              />
-              <div className="photo-controls">
-                <button
-                  className="btn btn-secondary btn-sm"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Upload size={16} /> {photoPreview ? 'Change Photo' : 'Upload Photo'}
-                </button>
-                <label className="toggle-label">
-                  <input
-                    type="checkbox"
-                    checked={formData.showPhoto}
-                    onChange={(e) => handleFieldChange('showPhoto', e.target.checked)}
-                  />
-                  <span className="toggle-slider"></span>
-                  Show photo on site
-                </label>
-              </div>
-            </div>
-          </div>
-
-          {/* Basic info card */}
-          <div className="dashboard-card glass-panel">
-            <h2><User size={20} /> Basic Information</h2>
-            <div className="admin-form-group">
-              <label>Developer Name</label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => handleFieldChange('name', e.target.value)}
-              />
-            </div>
-            <div className="admin-form-group">
-              <label>Title / Role</label>
-              <input
-                type="text"
-                value={formData.title}
-                onChange={(e) => handleFieldChange('title', e.target.value)}
-              />
-            </div>
-            <div className="admin-form-group">
-              <label>Quote</label>
-              <textarea
-                value={formData.quote}
-                onChange={(e) => handleFieldChange('quote', e.target.value)}
-                rows={3}
-              />
-            </div>
-          </div>
-
-          {/* Story paragraphs card */}
-          <div className="dashboard-card glass-panel full-width">
-            <h2><FileText size={20} /> About Story</h2>
-            {formData.storyParagraphs.map((para, index) => (
-              <div key={index} className="admin-form-group story-group">
-                <label>Paragraph {index + 1}</label>
-                <div className="story-input-row">
-                  <textarea
-                    value={para}
-                    onChange={(e) => handleStoryChange(index, e.target.value)}
-                    rows={3}
-                  />
-                  {formData.storyParagraphs.length > 1 && (
-                    <button
-                      className="btn-icon btn-danger"
-                      onClick={() => removeStoryParagraph(index)}
-                      aria-label="Remove paragraph"
-                    >
-                      ×
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-            <button className="btn btn-secondary btn-sm" onClick={addStoryParagraph}>
-              + Add Paragraph
             </button>
           </div>
-
-          {/* Credentials card */}
-          <div className="dashboard-card glass-panel">
-            <h2><Award size={20} /> Credentials</h2>
-            {formData.credentials.map((cred, index) => (
-              <div key={index} className="admin-form-group">
-                <label className="credential-label">
-                  {credentialIcons[cred.icon]} Credential {index + 1}
-                </label>
-                <input
-                  type="text"
-                  value={cred.label}
-                  onChange={(e) => handleCredentialChange(index, e.target.value)}
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Stats card */}
-          <div className="dashboard-card glass-panel">
-            <h2>📊 Statistics</h2>
-            {formData.stats.map((stat, index) => (
-              <div key={index} className="stat-edit-row">
-                <div className="admin-form-group stat-label-group">
-                  <label>Label</label>
-                  <input
-                    type="text"
-                    value={stat.label}
-                    onChange={(e) => handleStatChange(index, 'label', e.target.value)}
-                  />
-                </div>
-                <div className="admin-form-group stat-value-group">
-                  <label>Value</label>
-                  <input
-                    type="number"
-                    value={stat.value}
-                    onChange={(e) => handleStatChange(index, 'value', e.target.value)}
-                  />
-                </div>
-                <div className="admin-form-group stat-suffix-group">
-                  <label>Suffix</label>
-                  <input
-                    type="text"
-                    value={stat.suffix}
-                    onChange={(e) => handleStatChange(index, 'suffix', e.target.value)}
-                    placeholder="e.g. +"
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
 
-        {/* Save button */}
-        <div className="dashboard-actions">
-          <button
-            className="btn btn-primary btn-lg save-btn"
-            onClick={handleSave}
-            disabled={saving}
-          >
-            {saving ? (
-              <>
-                <span className="btn-spinner"></span>
-                Saving Changes...
-              </>
+        {activeTab === 'content' ? (
+          <>
+            <div className="dashboard-grid">
+              {/* Photo upload card */}
+              <div className="dashboard-card glass-panel">
+                <h2><Image size={20} /> Developer Photo</h2>
+                <div className="photo-upload-area">
+                  {photoPreview ? (
+                    <div className="photo-preview-wrapper">
+                      <img src={photoPreview} alt="Developer" className="photo-preview" />
+                    </div>
+                  ) : (
+                    <div className="photo-placeholder" onClick={() => fileInputRef.current?.click()}>
+                      <User size={48} />
+                      <p>Click to upload photo</p>
+                    </div>
+                  )}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoSelect}
+                    className="hidden-input"
+                  />
+                  <div className="photo-controls">
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Upload size={16} /> {photoPreview ? 'Change Photo' : 'Upload Photo'}
+                    </button>
+                    <label className="toggle-label">
+                      <input
+                        type="checkbox"
+                        checked={formData.showPhoto}
+                        onChange={(e) => handleFieldChange('showPhoto', e.target.checked)}
+                      />
+                      <span className="toggle-slider"></span>
+                      Show photo on site
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Basic info card */}
+              <div className="dashboard-card glass-panel">
+                <h2><User size={20} /> Basic Information</h2>
+                <div className="admin-form-group">
+                  <label>Developer Name</label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => handleFieldChange('name', e.target.value)}
+                  />
+                </div>
+                <div className="admin-form-group">
+                  <label>Title / Role</label>
+                  <input
+                    type="text"
+                    value={formData.title}
+                    onChange={(e) => handleFieldChange('title', e.target.value)}
+                  />
+                </div>
+                <div className="admin-form-group">
+                  <label>Quote</label>
+                  <textarea
+                    value={formData.quote}
+                    onChange={(e) => handleFieldChange('quote', e.target.value)}
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              {/* Story paragraphs card */}
+              <div className="dashboard-card glass-panel full-width">
+                <h2><FileText size={20} /> About Story</h2>
+                {formData.storyParagraphs.map((para, index) => (
+                  <div key={index} className="admin-form-group story-group">
+                    <label>Paragraph {index + 1}</label>
+                    <div className="story-input-row">
+                      <textarea
+                        value={para}
+                        onChange={(e) => handleStoryChange(index, e.target.value)}
+                        rows={3}
+                      />
+                      {formData.storyParagraphs.length > 1 && (
+                        <button
+                          className="btn-icon btn-danger"
+                          onClick={() => removeStoryParagraph(index)}
+                          aria-label="Remove paragraph"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                <button className="btn btn-secondary btn-sm" onClick={addStoryParagraph}>
+                  + Add Paragraph
+                </button>
+              </div>
+
+              {/* Credentials card */}
+              <div className="dashboard-card glass-panel">
+                <h2><Award size={20} /> Credentials</h2>
+                {formData.credentials.map((cred, index) => (
+                  <div key={index} className="admin-form-group">
+                    <label className="credential-label">
+                      {credentialIcons[cred.icon]} Credential {index + 1}
+                    </label>
+                    <input
+                      type="text"
+                      value={cred.label}
+                      onChange={(e) => handleCredentialChange(index, e.target.value)}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Stats card */}
+              <div className="dashboard-card glass-panel">
+                <h2>📊 Statistics</h2>
+                {formData.stats.map((stat, index) => (
+                  <div key={index} className="stat-edit-row">
+                    <div className="admin-form-group stat-label-group">
+                      <label>Label</label>
+                      <input
+                        type="text"
+                        value={stat.label}
+                        onChange={(e) => handleStatChange(index, 'label', e.target.value)}
+                      />
+                    </div>
+                    <div className="admin-form-group stat-value-group">
+                      <label>Value</label>
+                      <input
+                        type="number"
+                        value={stat.value}
+                        onChange={(e) => handleStatChange(index, 'value', e.target.value)}
+                      />
+                    </div>
+                    <div className="admin-form-group stat-suffix-group">
+                      <label>Suffix</label>
+                      <input
+                        type="text"
+                        value={stat.suffix}
+                        onChange={(e) => handleStatChange(index, 'suffix', e.target.value)}
+                        placeholder="e.g. +"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Save button */}
+            <div className="dashboard-actions">
+              <button
+                className="btn btn-primary btn-lg save-btn"
+                onClick={handleSave}
+                disabled={saving}
+              >
+                {saving ? (
+                  <>
+                    <span className="btn-spinner"></span>
+                    Saving Changes...
+                  </>
+                ) : (
+                  <>
+                    <Save size={20} /> Save All Changes
+                  </>
+                )}
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="inbox-container">
+            <div className="inbox-header">
+              <h2><Inbox size={20} /> Contact Messages Inbox</h2>
+              {messages.length > 0 && (
+                <span className="inbox-meta">
+                  {messages.length} message{messages.length !== 1 ? 's' : ''} total ({unreadCount} unread)
+                </span>
+              )}
+            </div>
+
+            {loadingMessages ? (
+              <div className="inbox-loading">
+                <div className="admin-spinner"></div>
+                <p>Loading messages...</p>
+              </div>
+            ) : messages.length === 0 ? (
+              <div className="inbox-empty glass-panel">
+                <Mail size={48} className="empty-icon" />
+                <h3>Your Inbox is Empty</h3>
+                <p>When visitors submit the contact form on your site, their messages will appear here in real-time.</p>
+              </div>
             ) : (
-              <>
-                <Save size={20} /> Save All Changes
-              </>
+              <div className="messages-list">
+                {messages.map((msg) => (
+                  <div 
+                    key={msg.id} 
+                    className={`message-card glass-panel ${msg.status === 'unread' ? 'unread' : 'read'}`}
+                  >
+                    <div className="message-card-header">
+                      <div className="sender-info">
+                        <div className="sender-name-row">
+                          <h3>{msg.name}</h3>
+                          {msg.status === 'unread' && <span className="unread-dot-badge">New</span>}
+                        </div>
+                        <a href={`mailto:${msg.email}`} className="sender-email">{msg.email}</a>
+                      </div>
+                      <div className="message-meta">
+                        <span className="meta-item"><Calendar size={14} /> {formatDate(msg.createdAt)}</span>
+                        <span className="meta-item project-badge"><Globe size={14} /> {formatProjectType(msg.projectType)}</span>
+                        <span className="meta-item budget-badge"><DollarSign size={14} /> {formatBudget(msg.budget)}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="message-body">
+                      <p>{msg.message}</p>
+                    </div>
+                    
+                    <div className="message-actions">
+                      <button 
+                        className={`btn btn-secondary btn-sm read-toggle-btn ${msg.status === 'unread' ? 'action-read' : 'action-unread'}`}
+                        onClick={() => toggleReadStatus(msg.id, msg.status)}
+                      >
+                        {msg.status === 'unread' ? <MailOpen size={14} /> : <Mail size={14} />}
+                        {msg.status === 'unread' ? 'Mark as Read' : 'Mark as Unread'}
+                      </button>
+                      <button 
+                        className="btn btn-secondary btn-sm delete-btn"
+                        onClick={() => deleteMessage(msg.id)}
+                      >
+                        <Trash2 size={14} /> Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
-          </button>
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
