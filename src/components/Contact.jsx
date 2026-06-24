@@ -68,25 +68,6 @@ export default function Contact() {
           <p className="section-subtitle">
             Ready to start your next project? Reach out and we'll get back to you within 24 hours.
           </p>
-          <div className="contact-quick-info" style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            gap: '1.5rem',
-            marginTop: '1.5rem',
-            fontSize: '0.95rem',
-            color: '#a855f7'
-          }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ color: '#06eeff' }}>●</span> <strong>Mobile:</strong> +91 9682547458
-            </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ color: '#06eeff' }}>●</span> <strong>Tehsil:</strong> Shangus
-            </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ color: '#06eeff' }}>●</span> <strong>District:</strong> Anantnag
-            </span>
-          </div>
         </div>
 
         <div className="contact-grid">
@@ -151,26 +132,26 @@ export default function Contact() {
                 <input type="text" id="name" name="name" required placeholder="John Doe" />
               </div>
               
-              <div className="form-group">
-                <label htmlFor="email">Email</label>
-                <input type="email" id="email" name="email" required placeholder="john@example.com" />
-              </div>
-
               <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="email">Email</label>
+                  <input type="email" id="email" name="email" required placeholder="john@example.com" />
+                </div>
                 <div className="form-group">
                   <label htmlFor="mobile">Mobile No</label>
                   <input type="tel" id="mobile" name="mobile" required placeholder="+91 9XXXXXXXXX" pattern="[+0-9]{7,15}" />
                 </div>
+              </div>
 
+              <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="district">District</label>
                   <input type="text" id="district" name="district" required placeholder="e.g. Anantnag" />
                 </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="tehsil">Tehsil</label>
-                <input type="text" id="tehsil" name="tehsil" required placeholder="e.g. Shangus" />
+                <div className="form-group">
+                  <label htmlFor="tehsil">Tehsil</label>
+                  <input type="text" id="tehsil" name="tehsil" required placeholder="e.g. Shangus" />
+                </div>
               </div>
               
               <div className="form-row">
