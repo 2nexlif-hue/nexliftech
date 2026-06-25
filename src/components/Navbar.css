@@ -29,7 +29,18 @@
   font-size: 1.5rem;
   font-weight: 800;
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.navbar-logo-svg {
+  width: 30px;
+  height: 30px;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover .navbar-logo-svg {
+  transform: rotate(-8deg) scale(1.1);
 }
 
 .logo-text {
@@ -139,4 +150,52 @@
   .nav-mobile-toggle {
     display: flex;
   }
+}
+
+.nav-search-trigger-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  width: 54px;
+  height: 34px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.nav-search-trigger-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(6, 182, 212, 0.3);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.15);
+}
+
+.search-hotkey {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: #8888a0;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px 4px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mobile-search-btn {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  transition: opacity 0.2s;
+}
+
+.mobile-search-btn:hover {
+  opacity: 0.8;
 }

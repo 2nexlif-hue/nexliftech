@@ -11,6 +11,25 @@
   margin-bottom: 4rem;
 }
 
+.footer-brand .logo {
+  text-decoration: none;
+  font-size: 1.5rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.footer-logo-svg {
+  width: 28px;
+  height: 28px;
+  transition: transform 0.3s ease;
+}
+
+.footer-brand .logo:hover .footer-logo-svg {
+  transform: rotate(-8deg) scale(1.1);
+}
+
 .footer-desc {
   color: var(--text-secondary);
   margin: 1.5rem 0;
