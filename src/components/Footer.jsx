@@ -5,9 +5,9 @@ const LogoSVG = () => (
   <svg className="footer-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="footer-logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#8b5cf6" />
-        <stop offset="50%" stop-color="#6366f1" />
-        <stop offset="100%" stop-color="#06b6d4" />
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="50%" stopColor="#6366f1" />
+        <stop offset="100%" stopColor="#06b6d4" />
       </linearGradient>
     </defs>
     <path d="M 42 85 C 18 70 15 40 38 22 C 45 16 50 12 50 12 C 50 12 48 22 44 32 C 34 55 46 78 42 85 Z" fill="url(#footer-logo-grad)" opacity="0.9" />
@@ -133,7 +133,7 @@ export default function Footer() {
         <div className="footer-bottom">
           <p>&copy; {currentYear} NexLifTech. All rights reserved.</p>
           <div className="footer-bottom-right">
-            <p className="built-with">Built with <span className="heart">❤️</span> by Sheikh Gulfam</p>
+            <p className="built-with">Developed by Sheikh Gulfam</p>
             <a href="/admin/dashboard" className="admin-lock-link" aria-label="Admin Login">
               <Lock size={12} />
             </a>

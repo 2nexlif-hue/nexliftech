@@ -79,6 +79,10 @@ export default function About() {
   const animateRef = useScrollAnimation();
   const statsRef = useRef(null);
   const statsInView = useInView(statsRef, { once: true, margin: '-100px' });
+  const combinedStatsRef = (el) => {
+    statsRef.current = el;
+    animateRef(el);
+  };
   const [data, setData] = useState(FALLBACK);
   const [loading, setLoading] = useState(true);
 
@@ -215,7 +219,7 @@ export default function About() {
           </div>
         </div>
 
-        <div ref={statsRef} className="stats-container glass-card mt-12 animate-on-scroll" id="about-stats">
+        <div ref={combinedStatsRef} className="stats-container glass-card mt-12 animate-on-scroll" id="about-stats">
           <div className="grid grid-cols-4">
             {data.stats.map((stat, index) => (
               <StatItem key={index} stat={stat} isVisible={statsInView} />

@@ -8,6 +8,13 @@ import './Contact.css';
 export default function Contact() {
   const animateRef = useScrollAnimation();
   const [formStatus, setFormStatus] = useState('idle'); // idle, submitting, success, error
+  const [messageText, setMessageText] = useState('');
+
+  const sanitizeInput = (val) => {
+    if (typeof val !== 'string') return '';
+    // Strip HTML tags and trim whitespace
+    return val.replace(/<[^>]*>/g, '').trim();
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,14 +22,22 @@ export default function Contact() {
     
     const form = e.target;
     const formData = new FormData(form);
-    const name = formData.get('name');
-    const email = formData.get('email');
-    const mobile = formData.get('mobile');
-    const district = formData.get('district');
-    const tehsil = formData.get('tehsil');
-    const projectType = formData.get('project-type');
-    const budget = formData.get('budget');
-    const message = formData.get('message');
+    
+    const name = sanitizeInput(formData.get('name')).slice(0, 100);
+    const email = sanitizeInput(formData.get('email')).slice(0, 150);
+    const mobile = sanitizeInput(formData.get('mobile')).slice(0, 15);
+    const district = sanitizeInput(formData.get('district')).slice(0, 100);
+    const tehsil = sanitizeInput(formData.get('tehsil')).slice(0, 100);
+    const projectType = sanitizeInput(formData.get('project-type'));
+    const budget = sanitizeInput(formData.get('budget'));
+    const message = sanitizeInput(formData.get('message')).slice(0, 2000);
+
+    // Basic validation check
+    if (!name || !email || !mobile || !district || !tehsil || !projectType || !budget || !message) {
+      setFormStatus('error');
+      setTimeout(() => setFormStatus('idle'), 5000);
+      return;
+    }
     
     try {
       // Save directly to Firestore under 'contactMessages'
@@ -41,10 +56,21 @@ export default function Contact() {
 
       // Submit to Netlify forms as secondary fallback for notifications
       try {
+        const sanitizedFormData = new FormData();
+        sanitizedFormData.append('form-name', 'contact');
+        sanitizedFormData.append('name', name);
+        sanitizedFormData.append('email', email);
+        sanitizedFormData.append('mobile', mobile);
+        sanitizedFormData.append('district', district);
+        sanitizedFormData.append('tehsil', tehsil);
+        sanitizedFormData.append('project-type', projectType);
+        sanitizedFormData.append('budget', budget);
+        sanitizedFormData.append('message', message);
+
         await fetch('/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams(formData).toString()
+          body: new URLSearchParams(sanitizedFormData).toString()
         });
       } catch (netlifyError) {
         console.warn('Netlify backup submission failed:', netlifyError);
@@ -52,6 +78,7 @@ export default function Contact() {
 
       setFormStatus('success');
       form.reset();
+      setMessageText('');
       setTimeout(() => setFormStatus('idle'), 5000);
     } catch (error) {
       console.error('Firebase save error:', error);
@@ -129,28 +156,28 @@ export default function Contact() {
               
               <div className="form-group">
                 <label htmlFor="name">Name</label>
-                <input type="text" id="name" name="name" required placeholder="John Doe" />
+                <input type="text" id="name" name="name" required placeholder="John Doe" maxLength={100} />
               </div>
               
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="email">Email</label>
-                  <input type="email" id="email" name="email" required placeholder="john@example.com" />
+                  <input type="email" id="email" name="email" required placeholder="john@example.com" maxLength={150} />
                 </div>
                 <div className="form-group">
                   <label htmlFor="mobile">Mobile No</label>
-                  <input type="tel" id="mobile" name="mobile" required placeholder="+91 9XXXXXXXXX" pattern="[+0-9]{7,15}" />
+                  <input type="tel" id="mobile" name="mobile" required placeholder="+91 9XXXXXXXXX" pattern="[+0-9]{7,15}" maxLength={15} />
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="district">District</label>
-                  <input type="text" id="district" name="district" required placeholder="e.g. Anantnag" />
+                  <input type="text" id="district" name="district" required placeholder="e.g. Anantnag" maxLength={100} />
                 </div>
                 <div className="form-group">
                   <label htmlFor="tehsil">Tehsil</label>
-                  <input type="text" id="tehsil" name="tehsil" required placeholder="e.g. Shangus" />
+                  <input type="text" id="tehsil" name="tehsil" required placeholder="e.g. Shangus" maxLength={100} />
                 </div>
               </div>
               
@@ -180,9 +207,21 @@ export default function Contact() {
                 </div>
               </div>
               
-              <div className="form-group">
-                <label htmlFor="message">Message</label>
-                <textarea id="message" name="message" rows="4" required placeholder="Tell us about your project goals..."></textarea>
+              <div className="form-group textarea-group">
+                <div className="textarea-header">
+                  <label htmlFor="message">Message</label>
+                  <span className="char-counter">{2000 - messageText.length} characters remaining</span>
+                </div>
+                <textarea 
+                  id="message" 
+                  name="message" 
+                  rows="4" 
+                  required 
+                  placeholder="Tell us about your project goals..."
+                  maxLength={2000}
+                  value={messageText}
+                  onChange={(e) => setMessageText(e.target.value)}
+                ></textarea>
               </div>
               
               <button 

@@ -1,0 +1,43 @@
+.custom-cursor-dot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--accent-cyan);
+  border-radius: 50%;
+  position: fixed;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 99999;
+  transition: width 0.2s ease, height 0.2s ease, background-color 0.2s ease;
+}
+
+.custom-cursor-ring {
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(6, 238, 255, 0.4);
+  background-color: rgba(6, 238, 255, 0.03);
+  border-radius: 50%;
+  position: fixed;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 99998;
+  transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
+              height 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
+              border-color 0.3s ease, 
+              background-color 0.3s ease,
+              box-shadow 0.3s ease;
+}
+
+/* Hover States */
+.custom-cursor-dot.hovered {
+  width: 4px;
+  height: 4px;
+  background-color: var(--accent-pink);
+}
+
+.custom-cursor-ring.hovered {
+  width: 52px;
+  height: 52px;
+  border-color: rgba(247, 37, 133, 0.8);
+  background-color: rgba(247, 37, 133, 0.08);
+  box-shadow: 0 0 20px rgba(247, 37, 133, 0.4);
+}

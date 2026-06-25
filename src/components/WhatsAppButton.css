@@ -1,0 +1,74 @@
+.whatsapp-float {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 60px;
+  height: 60px;
+  background-color: #25d366;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4),
+              0 0 20px rgba(37, 211, 102, 0.2);
+  z-index: 999;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.whatsapp-icon-svg {
+  width: 32px;
+  height: 32px;
+  z-index: 2;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.1) translateY(-5px);
+  background-color: #20ba5a;
+  box-shadow: 0 8px 25px rgba(37, 211, 102, 0.6),
+              0 0 30px rgba(37, 211, 102, 0.3);
+}
+
+/* Pulsing aura glow effect */
+.whatsapp-pulse {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #25d366;
+  border-radius: 50%;
+  z-index: 1;
+  opacity: 0.7;
+  animation: waGlow 2.5s infinite;
+}
+
+@keyframes waGlow {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* Make it responsive on smaller screens */
+@media (max-width: 768px) {
+  .whatsapp-float {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 50px;
+    height: 50px;
+  }
+  
+  .whatsapp-icon-svg {
+    width: 26px;
+    height: 26px;
+  }
+}

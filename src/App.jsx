@@ -14,6 +14,8 @@ import Pricing from './components/Pricing';
 import Testimonials from './components/Testimonials';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+import WhatsAppButton from './components/WhatsAppButton';
+import CustomCursor from './components/CustomCursor';
 
 // Admin components (lazy loaded — only fetched when admin routes are visited)
 const Login = lazy(() => import('./components/Admin/Login'));
@@ -51,6 +53,7 @@ function LandingPage() {
 
   return (
     <>
+      <CustomCursor />
       <NotificationBanner
         activeBanner={activeBanner}
         dismissNotification={dismissNotification}
@@ -69,6 +72,7 @@ function LandingPage() {
       </main>
 
       <Footer />
+      <WhatsAppButton />
     </>
   );
 }

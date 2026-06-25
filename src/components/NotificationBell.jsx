@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bell, Check, Trash2 } from 'lucide-react';
+import { Bell, Check } from 'lucide-react';
 import './NotificationBell.css';
 
 export default function NotificationBell({ notificationsHook, mobile = false }) {

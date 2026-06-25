@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, X, CornerDownLeft, Sparkles, ArrowRight } from 'lucide-react';
 import './SearchModal.css';
 
@@ -184,6 +184,24 @@ export default function SearchModal({ isOpen, onClose }) {
     setSelectedIndex(0);
   }, [query, selectedCategory]);
 
+  const handleItemClick = useCallback((item) => {
+    onClose();
+    if (item.target.startsWith('#')) {
+      const element = document.querySelector(item.target);
+      if (element) {
+        const navHeight = 80;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - navHeight;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    } else {
+      window.location.href = item.target;
+    }
+  }, [onClose]);
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -207,7 +225,7 @@ export default function SearchModal({ isOpen, onClose }) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, filteredItems, selectedIndex]);
+  }, [isOpen, filteredItems, selectedIndex, handleItemClick, onClose]);
 
   // Keep selected item visible in scroll container
   useEffect(() => {
@@ -219,27 +237,9 @@ export default function SearchModal({ isOpen, onClose }) {
     }
   }, [selectedIndex]);
 
-  const handleItemClick = (item) => {
-    onClose();
-    if (item.target.startsWith('#')) {
-      const element = document.querySelector(item.target);
-      if (element) {
-        const navHeight = 80;
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - navHeight;
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        });
-      }
-    } else {
-      window.location.href = item.target;
-    }
-  };
-
   const highlightText = (text, highlight) => {
     if (!highlight.trim()) return <span>{text}</span>;
-    const regex = new RegExp(`(${highlight.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+    const regex = new RegExp(`(${highlight.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
     const parts = text.split(regex);
     return (
       <span>

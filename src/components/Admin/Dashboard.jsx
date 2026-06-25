@@ -6,7 +6,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../../firebase';
 import {
   ArrowLeft, Save, LogOut, Upload, Image, User, FileText,
-  Award, BookOpen, GraduationCap, Briefcase, CheckCircle, AlertCircle, Eye,
+  Award, CheckCircle, AlertCircle, Eye,
   Mail, MailOpen, Trash2, Calendar, DollarSign, Globe, Inbox
 } from 'lucide-react';
 import './Admin.css';
@@ -391,13 +391,6 @@ export default function Dashboard() {
       console.error('Logout error:', err);
     }
   }
-
-  const credentialIcons = {
-    award: <Award size={16} />,
-    book: <BookOpen size={16} />,
-    graduation: <GraduationCap size={16} />,
-    briefcase: <Briefcase size={16} />
-  };
 
   if (loadingData) {
     return (
