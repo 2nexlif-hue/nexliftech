@@ -21,7 +21,7 @@ const FALLBACK = {
   quote: '"Great software, like nature, requires a strong foundation, adaptability, and continuous growth."',
   storyParagraphs: [
     'Founded by Sheikh Gulfam, NexLifTech is built on a unique foundation of scientific rigor and engineering excellence.',
-    "Starting as a Lecturer in Botany with prestigious national credentials (NET-JRF CSIR, JKSET, GATE Life Sciences, ICAR NET), Sheikh's journey shifted during his PhD research at CSIR IIIM Jammu. A deep interest in automating workflows evolved into a passion for software development, leading to the creation of robust web applications, ERPs, and automation tools.",
+    "Starting as a Lecturer in Botany with national level exams like NET-JRF CSIR and others, Sheikh's journey shifted during his PhD research at CSIR IIIM Jammu. A deep interest in automating workflows evolved into a passion for software development, leading to the creation of robust web applications, ERPs, and automation tools.",
     "Today, NexLifTech brings that same analytical, research-driven approach to solving business problems through technology. We don't just write code; we architect solutions that are secure, high-performing, and built to scale."
   ],
   credentials: [

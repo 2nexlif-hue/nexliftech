@@ -3,8 +3,82 @@
   position: relative;
 }
 
-.pricing-grid {
+.pricing-tabs-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 3.5rem;
+}
+
+.pricing-tabs {
+  display: flex;
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--border-light);
+  padding: 0.35rem;
+  border-radius: 100px;
+  gap: 0.25rem;
+}
+
+.pricing-tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: 100px;
+  cursor: pointer;
+  display: flex;
   align-items: center;
+  gap: 0.5rem;
+  transition: all var(--transition-normal);
+  position: relative;
+}
+
+.pricing-tab-btn:hover {
+  color: var(--text-primary);
+}
+
+.pricing-tab-btn.active {
+  background: var(--gradient-accent);
+  color: white;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.25);
+}
+
+.popular-tab-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pricing-tab-btn.active .popular-tab-badge {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.pricing-content-area {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.pricing-desktop-view {
+  display: block;
+}
+
+.pricing-mobile-view {
+  display: none;
+}
+
+.pricing-card-wrapper {
+  width: 100%;
+  max-width: 480px;
 }
 
 .pricing-card {
@@ -22,15 +96,33 @@
 
 .pricing-card.popular {
   border-color: var(--border-glow);
-  box-shadow: 0 0 30px rgba(139, 92, 246, 0.15);
+  box-shadow: 0 0 35px rgba(139, 92, 246, 0.15);
   background: linear-gradient(180deg, rgba(139, 92, 246, 0.05) 0%, var(--bg-glass) 100%);
-  transform: scale(1.05);
   z-index: 2;
 }
 
-.pricing-card.popular:hover {
-  transform: scale(1.05) translateY(-5px);
-  box-shadow: 0 0 40px rgba(139, 92, 246, 0.25);
+@media (min-width: 993px) {
+  .pricing-card.popular {
+    transform: scale(1.05);
+  }
+  .pricing-card.popular:hover {
+    transform: scale(1.05) translateY(-5px);
+  }
+}
+
+@media (max-width: 992px) {
+  .pricing-desktop-view {
+    display: none;
+  }
+  .pricing-mobile-view {
+    display: block;
+  }
+  .pricing-card.popular {
+    transform: scale(1);
+  }
+  .pricing-card.popular:hover {
+    transform: translateY(-5px);
+  }
 }
 
 .popular-badge {
@@ -112,17 +204,27 @@
   width: 100%;
 }
 
-@media (max-width: 992px) {
-  .pricing-grid {
-    grid-template-columns: 1fr;
-    gap: 3rem;
+@media (max-width: 576px) {
+  .pricing-tabs {
+    flex-direction: row;
+    border-radius: 100px;
+    width: auto;
+    padding: 0.25rem;
+    gap: 0.15rem;
   }
   
-  .pricing-card.popular {
-    transform: scale(1);
+  .pricing-tab-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.82rem;
+    justify-content: center;
+    white-space: nowrap;
   }
-  
-  .pricing-card.popular:hover {
-    transform: translateY(-5px);
+
+  .popular-tab-badge {
+    display: none;
+  }
+
+  .pricing-card {
+    padding: 2rem 1.5rem;
   }
 }

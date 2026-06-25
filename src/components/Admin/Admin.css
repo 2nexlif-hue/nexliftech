@@ -866,3 +866,95 @@
     flex-direction: column;
   }
 }
+
+/* ============================
+   Pricing Editor Section
+   ============================ */
+
+.pricing-editor-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.pricing-editor-header {
+  margin-bottom: 1rem;
+}
+
+.pricing-editor-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.pricing-editor-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin-top: 0.25rem;
+}
+
+.pricing-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  align-items: start;
+}
+
+.pricing-editor-card {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.pricing-card-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.pricing-card-title-row h3 {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.popular-badge-pill {
+  background: var(--gradient-accent);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+
+.features-editor-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.feature-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.feature-input-row input {
+  flex-grow: 1;
+}
+
+.add-feature-btn {
+  margin-top: 0.5rem;
+  align-self: flex-start;
+}
+
+@media (max-width: 992px) {
+  .pricing-editor-grid {
+    grid-template-columns: 1fr;
+  }
+}

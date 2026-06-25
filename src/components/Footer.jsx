@@ -1,3 +1,4 @@
+import { Lock } from 'lucide-react';
 import './Footer.css';
 
 export default function Footer() {
@@ -116,7 +117,12 @@ export default function Footer() {
         
         <div className="footer-bottom">
           <p>&copy; {currentYear} NexLifTech. All rights reserved.</p>
-          <p className="built-with">Built with <span className="heart">❤️</span> by Sheikh Gulfam</p>
+          <div className="footer-bottom-right">
+            <p className="built-with">Built with <span className="heart">❤️</span> by Sheikh Gulfam</p>
+            <a href="/admin/dashboard" className="admin-lock-link" aria-label="Admin Login">
+              <Lock size={12} />
+            </a>
+          </div>
         </div>
       </div>
     </footer>

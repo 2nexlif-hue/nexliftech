@@ -320,3 +320,19 @@ section {
   background: rgba(168, 85, 247, 0.45);
   color: #fff;
 }
+
+/* Mobile-first responsiveness adjustments */
+@media (max-width: 640px) {
+  .glass-card {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 1rem;
+  }
+  .glass-card {
+    padding: 1.25rem;
+  }
+}

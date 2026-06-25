@@ -19,7 +19,7 @@ const DEFAULT_DATA = {
   quote: '"Great software, like nature, requires a strong foundation, adaptability, and continuous growth."',
   storyParagraphs: [
     'Founded by Sheikh Gulfam, NexLifTech is built on a unique foundation of scientific rigor and engineering excellence.',
-    'Starting as a Lecturer in Botany with prestigious national credentials (NET-JRF CSIR, JKSET, GATE Life Sciences, ICAR NET), Sheikh\'s journey shifted during his PhD research at CSIR IIIM Jammu. A deep interest in automating workflows evolved into a passion for software development, leading to the creation of robust web applications, ERPs, and automation tools.',
+    'Starting as a Lecturer in Botany with national level exams like NET-JRF CSIR and others, Sheikh\'s journey shifted during his PhD research at CSIR IIIM Jammu. A deep interest in automating workflows evolved into a passion for software development, leading to the creation of robust web applications, ERPs, and automation tools.',
     'Today, NexLifTech brings that same analytical, research-driven approach to solving business problems through technology. We don\'t just write code; we architect solutions that are secure, high-performing, and built to scale.'
   ],
   credentials: [
@@ -37,6 +37,54 @@ const DEFAULT_DATA = {
   photoURL: '',
   showPhoto: true
 };
+
+const DEFAULT_PRICING = [
+  {
+    name: "Starter",
+    tabName: "Starter",
+    description: "Perfect for personal brands and small local businesses.",
+    price: "₹14,999",
+    features: [
+      "Single-page responsive website",
+      "Modern design (Vite + React)",
+      "Basic SEO setup",
+      "Contact form integration",
+      "1 Revision cycle",
+      "1 month free support"
+    ],
+    isPopular: false
+  },
+  {
+    name: "Professional",
+    tabName: "Pro",
+    description: "Ideal for growing businesses needing a comprehensive online presence.",
+    price: "₹34,999",
+    features: [
+      "Multi-page website (up to 7 pages)",
+      "CMS integration for easy updates",
+      "Advanced SEO & Analytics",
+      "Security headers & hardening",
+      "3 Revision cycles",
+      "3 months free support"
+    ],
+    isPopular: true
+  },
+  {
+    name: "Enterprise ERP",
+    tabName: "Enterprise",
+    description: "Custom web applications and portals for schools or large organizations.",
+    price: "Custom",
+    features: [
+      "Full-stack Web Application",
+      "Database & User Authentication",
+      "Custom dashboards & reporting",
+      "Payment gateway integration",
+      "Unlimited revisions during dev",
+      "1 year priority support"
+    ],
+    isPopular: false
+  }
+];
 
 export default function Dashboard() {
   const { currentUser, logout } = useAuth();
@@ -97,6 +145,83 @@ export default function Dashboard() {
   }, []);
 
   const unreadCount = messages.filter(m => m.status === 'unread').length;
+
+  const [pricingPlans, setPricingPlans] = useState(DEFAULT_PRICING);
+  const [loadingPricing, setLoadingPricing] = useState(true);
+
+  // Fetch pricing data from Firestore
+  useEffect(() => {
+    async function fetchPricing() {
+      try {
+        const docRef = doc(db, 'siteContent', 'pricing_plans');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists() && docSnap.data().plans) {
+          setPricingPlans(docSnap.data().plans);
+        }
+      } catch (err) {
+        console.error('Error fetching pricing plans:', err);
+      } finally {
+        setLoadingPricing(false);
+      }
+    }
+    fetchPricing();
+  }, []);
+
+  function handlePlanFieldChange(planIndex, field, value) {
+    setPricingPlans(prev => {
+      const updated = [...prev];
+      updated[planIndex] = { ...updated[planIndex], [field]: value };
+      return updated;
+    });
+  }
+
+  function handlePlanFeatureChange(planIndex, featureIndex, value) {
+    setPricingPlans(prev => {
+      const updated = [...prev];
+      const updatedFeatures = [...updated[planIndex].features];
+      updatedFeatures[featureIndex] = value;
+      updated[planIndex] = { ...updated[planIndex], features: updatedFeatures };
+      return updated;
+    });
+  }
+
+  function addPlanFeature(planIndex) {
+    setPricingPlans(prev => {
+      const updated = [...prev];
+      updated[planIndex] = {
+        ...updated[planIndex],
+        features: [...updated[planIndex].features, '']
+      };
+      return updated;
+    });
+  }
+
+  function removePlanFeature(planIndex, featureIndex) {
+    setPricingPlans(prev => {
+      const updated = [...prev];
+      const updatedFeatures = updated[planIndex].features.filter((_, i) => i !== featureIndex);
+      updated[planIndex] = { ...updated[planIndex], features: updatedFeatures };
+      return updated;
+    });
+  }
+
+  async function handleSavePricing() {
+    setSaving(true);
+    try {
+      const docRef = doc(db, 'siteContent', 'pricing_plans');
+      await setDoc(docRef, {
+        plans: pricingPlans,
+        updatedAt: new Date().toISOString(),
+        updatedBy: currentUser.email
+      });
+      showToast('success', 'Pricing plans saved successfully!');
+    } catch (err) {
+      console.error('Error saving pricing:', err);
+      showToast('error', 'Failed to save pricing.');
+    } finally {
+      setSaving(false);
+    }
+  }
 
   function showToast(type, message) {
     setToast({ show: true, type, message });
@@ -329,6 +454,12 @@ export default function Dashboard() {
               <User size={16} /> Edit Content
             </button>
             <button 
+              className={`tab-btn ${activeTab === 'pricing' ? 'active' : ''}`}
+              onClick={() => setActiveTab('pricing')}
+            >
+              <DollarSign size={16} /> Edit Pricing
+            </button>
+            <button 
               className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
               onClick={() => setActiveTab('messages')}
             >
@@ -448,7 +579,7 @@ export default function Dashboard() {
                 {formData.credentials.map((cred, index) => (
                   <div key={index} className="admin-form-group">
                     <label className="credential-label">
-                      {credentialIcons[cred.icon]} Credential {index + 1}
+                      <Award size={14} /> Credential {index + 1}
                     </label>
                     <input
                       type="text"
@@ -461,10 +592,10 @@ export default function Dashboard() {
 
               {/* Stats card */}
               <div className="dashboard-card glass-panel">
-                <h2>📊 Statistics</h2>
+                <h2><CheckCircle size={20} /> Stats</h2>
                 {formData.stats.map((stat, index) => (
-                  <div key={index} className="stat-edit-row">
-                    <div className="admin-form-group stat-label-group">
+                  <div key={index} className="admin-form-group stat-editor-row">
+                    <div className="stat-input-col">
                       <label>Label</label>
                       <input
                         type="text"
@@ -472,7 +603,7 @@ export default function Dashboard() {
                         onChange={(e) => handleStatChange(index, 'label', e.target.value)}
                       />
                     </div>
-                    <div className="admin-form-group stat-value-group">
+                    <div className="stat-input-col size-sm">
                       <label>Value</label>
                       <input
                         type="number"
@@ -480,13 +611,12 @@ export default function Dashboard() {
                         onChange={(e) => handleStatChange(index, 'value', e.target.value)}
                       />
                     </div>
-                    <div className="admin-form-group stat-suffix-group">
+                    <div className="stat-input-col size-xs">
                       <label>Suffix</label>
                       <input
                         type="text"
                         value={stat.suffix}
                         onChange={(e) => handleStatChange(index, 'suffix', e.target.value)}
-                        placeholder="e.g. +"
                       />
                     </div>
                   </div>
@@ -494,8 +624,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Save button */}
-            <div className="dashboard-actions">
+            <div className="save-bar">
               <button
                 className="btn btn-primary btn-lg save-btn"
                 onClick={handleSave}
@@ -514,6 +643,114 @@ export default function Dashboard() {
               </button>
             </div>
           </>
+        ) : activeTab === 'pricing' ? (
+          <div className="pricing-editor-section">
+            <div className="pricing-editor-header">
+              <h2><DollarSign size={20} /> Manage Pricing Plans</h2>
+              <p className="pricing-editor-subtitle">Modify plan names, prices, descriptions, and features.</p>
+            </div>
+            
+            {loadingPricing ? (
+              <div className="inbox-loading">
+                <div className="admin-spinner"></div>
+                <p>Loading pricing data...</p>
+              </div>
+            ) : (
+              <>
+                <div className="pricing-editor-grid">
+                  {pricingPlans.map((plan, planIdx) => (
+                    <div key={planIdx} className="dashboard-card glass-panel pricing-editor-card">
+                      <div className="pricing-card-title-row">
+                        <h3>{plan.name}</h3>
+                        {plan.isPopular && <span className="popular-badge-pill">Popular</span>}
+                      </div>
+                      
+                      <div className="admin-form-group">
+                        <label>Plan Name</label>
+                        <input
+                          type="text"
+                          value={plan.name}
+                          onChange={(e) => handlePlanFieldChange(planIdx, 'name', e.target.value)}
+                        />
+                      </div>
+                      
+                      <div className="admin-form-group">
+                        <label>Tab Label (Mobile)</label>
+                        <input
+                          type="text"
+                          value={plan.tabName}
+                          onChange={(e) => handlePlanFieldChange(planIdx, 'tabName', e.target.value)}
+                        />
+                      </div>
+                      
+                      <div className="admin-form-group">
+                        <label>Price Text</label>
+                        <input
+                          type="text"
+                          value={plan.price}
+                          onChange={(e) => handlePlanFieldChange(planIdx, 'price', e.target.value)}
+                        />
+                      </div>
+                      
+                      <div className="admin-form-group">
+                        <label>Description</label>
+                        <textarea
+                          value={plan.description}
+                          onChange={(e) => handlePlanFieldChange(planIdx, 'description', e.target.value)}
+                          rows={2}
+                        />
+                      </div>
+                      
+                      <div className="admin-form-group features-editor-group">
+                        <label>Features Checklist</label>
+                        {plan.features.map((feature, featIdx) => (
+                          <div key={featIdx} className="feature-input-row">
+                            <input
+                              type="text"
+                              value={feature}
+                              onChange={(e) => handlePlanFeatureChange(planIdx, featIdx, e.target.value)}
+                            />
+                            <button
+                              className="btn-icon btn-danger"
+                              onClick={() => removePlanFeature(planIdx, featIdx)}
+                              aria-label="Remove feature"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                        <button 
+                          className="btn btn-secondary btn-sm add-feature-btn" 
+                          onClick={() => addPlanFeature(planIdx)}
+                        >
+                          + Add Feature Item
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="save-bar">
+                  <button
+                    className="btn btn-primary btn-lg save-btn"
+                    onClick={handleSavePricing}
+                    disabled={saving}
+                  >
+                    {saving ? (
+                      <>
+                        <span className="btn-spinner"></span>
+                        Saving Pricing Plans...
+                      </>
+                    ) : (
+                      <>
+                        <Save size={20} /> Save Pricing Plans
+                      </>
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         ) : (
           <div className="inbox-container">
             <div className="inbox-header">

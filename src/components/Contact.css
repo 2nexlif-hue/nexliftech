@@ -118,7 +118,11 @@
 
 .submit-btn {
   margin-top: 0.5rem;
-  width: 100%;
+  width: fit-content;
+  min-width: 220px;
+  align-self: center;
+  padding: 0.85rem 2.5rem;
+  border-radius: 100px;
 }
 
 .spinner {
@@ -138,7 +142,20 @@
 }
 
 @media (max-width: 640px) {
+  .contact-card {
+    padding: 1.5rem;
+  }
   .form-row {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .contact-form {
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact-card {
+    padding: 1.25rem;
   }
 }

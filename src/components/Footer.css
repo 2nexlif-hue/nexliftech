@@ -107,4 +107,37 @@
     gap: 1rem;
     text-align: center;
   }
+  
+  .footer-bottom-right {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+.footer-bottom-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-lock-link {
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-light);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.admin-lock-link:hover {
+  color: var(--accent-cyan);
+  background: var(--bg-glass-hover);
+  border-color: var(--border-glow);
+  box-shadow: 0 0 12px rgba(6, 238, 255, 0.25);
+  transform: translateY(-1px);
 }
