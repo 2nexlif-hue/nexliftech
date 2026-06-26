@@ -2,11 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { doc, getDoc, setDoc, collection, query, orderBy, onSnapshot, updateDoc, deleteDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../../firebase';
+import { db } from '../../firebase';
 import {
   ArrowLeft, Save, LogOut, Upload, Image, User, FileText,
-  Award, CheckCircle, AlertCircle, Eye,
+  Award, BookOpen, GraduationCap, Briefcase, CheckCircle, AlertCircle, Eye,
   Mail, MailOpen, Trash2, Calendar, DollarSign, Globe, Inbox
 } from 'lucide-react';
 import './Admin.css';
@@ -92,7 +91,6 @@ export default function Dashboard() {
   const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState(DEFAULT_DATA);
-  const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState('');
   const [saving, setSaving] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
@@ -263,6 +261,30 @@ export default function Dashboard() {
     });
   }
 
+  function handleCredentialIconChange(index, value) {
+    setFormData(prev => {
+      const updated = [...prev.credentials];
+      updated[index] = { ...updated[index], icon: value };
+      return { ...prev, credentials: updated };
+    });
+  }
+
+  function addCredential() {
+    setFormData(prev => ({
+      ...prev,
+      credentials: [...prev.credentials, { icon: 'award', label: '' }]
+    }));
+  }
+
+  // Allow deleting credentials while keeping at least one row
+  function removeCredential(index) {
+    if (formData.credentials.length <= 1) return;
+    setFormData(prev => ({
+      ...prev,
+      credentials: prev.credentials.filter((_, i) => i !== index)
+    }));
+  }
+
   function handleStatChange(index, field, value) {
     setFormData(prev => {
       const updated = [...prev.stats];
@@ -275,37 +297,30 @@ export default function Dashboard() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate file type and size
+    // Validate file type and size (limit to 600KB to fit well within Firestore's 1MB limit)
     if (!file.type.startsWith('image/')) {
       showToast('error', 'Please select a valid image file.');
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('error', 'Image must be under 5MB.');
+    if (file.size > 600 * 1024) {
+      showToast('error', 'Image must be under 600KB for direct document storage.');
       return;
     }
 
-    setPhotoFile(file);
     const reader = new FileReader();
-    reader.onload = (ev) => setPhotoPreview(ev.target.result);
+    reader.onload = (ev) => {
+      const base64Data = ev.target.result;
+      setPhotoPreview(base64Data);
+      setFormData(prev => ({ ...prev, photoURL: base64Data }));
+    };
     reader.readAsDataURL(file);
   }
 
   async function handleSave() {
     setSaving(true);
     try {
-      let photoURL = formData.photoURL;
-
-      // Upload photo if a new one was selected
-      if (photoFile) {
-        const storageRef = ref(storage, `developer/${Date.now()}_${photoFile.name}`);
-        const snapshot = await uploadBytes(storageRef, photoFile);
-        photoURL = await getDownloadURL(snapshot.ref);
-      }
-
       const dataToSave = {
         ...formData,
-        photoURL,
         updatedAt: new Date().toISOString(),
         updatedBy: currentUser.email
       };
@@ -313,8 +328,6 @@ export default function Dashboard() {
       const docRef = doc(db, 'siteContent', ABOUT_DOC_ID);
       await setDoc(docRef, dataToSave, { merge: true });
 
-      setFormData(prev => ({ ...prev, photoURL }));
-      setPhotoFile(null);
       showToast('success', 'Content saved successfully!');
     } catch (err) {
       console.error('Error saving:', err);
@@ -570,17 +583,57 @@ export default function Dashboard() {
               <div className="dashboard-card glass-panel">
                 <h2><Award size={20} /> Credentials</h2>
                 {formData.credentials.map((cred, index) => (
-                  <div key={index} className="admin-form-group">
-                    <label className="credential-label">
-                      <Award size={14} /> Credential {index + 1}
-                    </label>
-                    <input
-                      type="text"
-                      value={cred.label}
-                      onChange={(e) => handleCredentialChange(index, e.target.value)}
-                    />
+                  <div key={index} className="admin-form-group credential-editor-row">
+                    <div className="credential-inputs">
+                      <div className="credential-input-col size-sm">
+                        <label className="credential-label">
+                          {cred.icon === 'book' ? <BookOpen size={14} /> :
+                           cred.icon === 'graduation' ? <GraduationCap size={14} /> :
+                           cred.icon === 'briefcase' ? <Briefcase size={14} /> :
+                           <Award size={14} />} Icon
+                        </label>
+                        <select
+                          value={cred.icon || 'award'}
+                          onChange={(e) => handleCredentialIconChange(index, e.target.value)}
+                        >
+                          <option value="award">Award</option>
+                          <option value="book">Book/Research</option>
+                          <option value="graduation">Graduation</option>
+                          <option value="briefcase">Work/Experience</option>
+                        </select>
+                      </div>
+                      <div className="credential-input-col">
+                        <label>Label</label>
+                        <input
+                          type="text"
+                          value={cred.label}
+                          onChange={(e) => handleCredentialChange(index, e.target.value)}
+                          placeholder="e.g. CSIR NET-JRF Qualified"
+                          required
+                        />
+                      </div>
+                    </div>
+                    {formData.credentials.length > 1 && (
+                      <button
+                        type="button"
+                        className="btn-icon btn-danger remove-credential-btn"
+                        onClick={() => removeCredential(index)}
+                        aria-label="Remove credential"
+                        title="Remove credential"
+                      >
+                        ×
+                      </button>
+                    )}
                   </div>
                 ))}
+                <button 
+                  type="button" 
+                  className="btn btn-secondary btn-sm" 
+                  onClick={addCredential}
+                  style={{ marginTop: '1rem' }}
+                >
+                  + Add Credential
+                </button>
               </div>
 
               {/* Stats card */}

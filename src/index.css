@@ -55,6 +55,7 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: var(--nav-height);
+  overflow-x: hidden;
 }
 
 body {
@@ -110,6 +111,7 @@ h1, h2, h3, h4, h5, h6 {
 section {
   padding: var(--section-padding) 0;
   position: relative;
+  overflow: hidden;
 }
 
 /* Glassmorphism Utilities */
