@@ -67,7 +67,7 @@ const SEARCHABLE_ITEMS = [
     category: 'Projects',
     description: 'Tailored holiday planner and booking portal featuring dynamic itineraries and high-speed responsiveness.',
     target: '#portfolio',
-    tags: ['holidays', 'itinerary', 'travel', 'packages']
+    tags: ['holidays', 'itinerary', 'travel', 'packages', 'wordpress']
   },
   {
     title: 'Automated Reporting Suite',

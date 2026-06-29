@@ -1,4 +1,6 @@
-import { useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase';
 import { motion, useInView } from 'framer-motion';
 import LottieReact from 'lottie-react';
 import './Services.css';
@@ -7,7 +9,6 @@ import './Services.css';
 const Lottie = LottieReact.default || LottieReact;
 
 // Inline lightweight Lottie animation data for each service
-// These are simple, elegant "line art" style animations
 const lottieData = {
   code: {
     v: "5.7.4", fr: 30, ip: 0, op: 60, w: 100, h: 100,
@@ -40,8 +41,7 @@ const lottieData = {
   }
 };
 
-// Service card definitions with icons and colors
-const services = [
+const DEFAULT_SERVICES = [
   {
     title: "Custom Web Development",
     description: "Fast, modern single-page applications and websites built using React, Next.js, and modern tech stacks.",
@@ -96,6 +96,19 @@ const cardVariants = {
 export default function Services() {
   const headerRef = useRef(null);
   const headerInView = useInView(headerRef, { once: true, margin: '-50px' });
+  const [services, setServices] = useState(DEFAULT_SERVICES);
+
+  useEffect(() => {
+    const docRef = doc(db, 'siteContent', 'services_list');
+    const unsubscribe = onSnapshot(docRef, (snap) => {
+      if (snap.exists() && snap.data().services) {
+        setServices(snap.data().services);
+      }
+    }, (err) => {
+      console.error('Firestore services load error:', err);
+    });
+    return unsubscribe;
+  }, []);
 
   return (
     <section id="services" className="services">

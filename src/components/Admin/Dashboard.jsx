@@ -12,6 +12,113 @@ import './Admin.css';
 
 const ABOUT_DOC_ID = 'about_developer';
 
+const DEFAULT_HERO = {
+  badge: 'Next Life Technologies',
+  title: 'We Build Digital Experiences That [Drive Growth]',
+  subtitle: 'State-of-the-art websites and web applications built with modern engineering, unparalleled performance, and robust security for schools, businesses, and personal brands.',
+  ctaText1: 'Start Your Project',
+  ctaLink1: '#contact',
+  ctaText2: 'View Our Work',
+  ctaLink2: '#portfolio',
+  trustText: 'Trusted technology stack:',
+  techBadges: ['React', 'Vite', 'Firebase', 'Next.js']
+};
+
+const DEFAULT_SERVICES = [
+  {
+    title: "Custom Web Development",
+    description: "Fast, modern single-page applications and websites built using React, Next.js, and modern tech stacks.",
+    icon: "💻",
+    color: "rgba(139, 92, 246, 0.15)"
+  },
+  {
+    title: "E-Commerce Solutions",
+    description: "Secure, high-converting online stores tailored to your business needs with seamless payment integration.",
+    icon: "🛒",
+    color: "rgba(99, 102, 241, 0.15)"
+  },
+  {
+    title: "Web Applications",
+    description: "Complex SaaS platforms, admin dashboards, and internal tools engineered for scale and usability.",
+    icon: "🖥️",
+    color: "rgba(6, 182, 212, 0.15)"
+  },
+  {
+    title: "Performance Optimization",
+    description: "We tune your existing sites to hit 100/100 Lighthouse scores, ensuring blazing fast load times and better SEO.",
+    icon: "🚀",
+    color: "rgba(16, 185, 129, 0.15)"
+  },
+  {
+    title: "Security Hardening",
+    description: "Protect your users and data with OWASP-compliant architecture, security headers, and modern auth flows.",
+    icon: "🛡️",
+    color: "rgba(168, 85, 247, 0.15)"
+  },
+  {
+    title: "Maintenance & Support",
+    description: "Ongoing technical support, automated backups, and dependency updates so you can focus on your business.",
+    icon: "🔧",
+    color: "rgba(244, 114, 182, 0.15)"
+  }
+];
+
+const DEFAULT_PROJECTS = [
+  {
+    title: 'Govt HSS Shangus ERP',
+    category: 'Education & Portals',
+    description: 'A comprehensive Admission and Examination Portal for Government Higher Secondary School Shangus. Features include bulk roll number assignment, reporting utilities, and a centralized admin dashboard.',
+    tech: ['React', 'Firebase', 'Tailwind', 'Node.js'],
+    liveLink: 'https://hssshangus.netlify.app/',
+    image: '/erp-preview.png'
+  },
+  {
+    title: 'Visit Alpines',
+    category: 'Travel & Tourism',
+    description: 'A premium booking and travel itinerary web application for Alpine tours, showcasing gorgeous destinations, guided tours, and bookings.',
+    tech: ['React', 'Vite', 'CSS', 'Framer Motion'],
+    liveLink: 'https://visitalpines.com/',
+    image: '/alpine-preview.png'
+  },
+  {
+    title: 'Green Valley Holidays',
+    category: 'Travel & Tourism',
+    description: 'A custom holiday booking portal with structured travel packages, detailed dynamic itineraries, and high-performance load times.',
+    tech: ['WordPress', 'Elementor', 'PHP', 'SEO'],
+    liveLink: 'https://greenvalleyholidays.fun/',
+    image: '/greenvalley-preview.png'
+  },
+  {
+    title: 'Automated Reporting Suite',
+    category: 'Workflow Automation',
+    description: 'Custom Python and Google Apps Script solutions that automate MS Office workflows and generate daily PDF reports, saving clients 15+ hours a week.',
+    tech: ['Python', 'Google Apps Script', 'VBA'],
+    githubLink: '#',
+    image: 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22600%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22800%22%20height%3D%22600%22%20fill%3D%22%2312121a%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-size%3D%2232%22%20fill%3D%22%238888a0%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EWorkflow%20Automation%3C%2Ftext%3E%3C%2Fsvg%3E'
+  }
+];
+
+const DEFAULT_TESTIMONIALS = [
+  {
+    name: "Principal",
+    role: "Govt HSS Shangus",
+    content: "The ERP portal developed by NexLifTech revolutionized our admission and examination process. The bulk roll number assignment alone saves us weeks of manual work. Incredible attention to detail.",
+    rating: 5
+  },
+  {
+    name: "Local Retail Owner",
+    role: "E-Commerce Client",
+    content: "Sheikh and his team delivered a blazing fast online store for us. Our mobile conversion rates doubled within the first month. The dark mode design is absolutely stunning.",
+    rating: 5
+  },
+  {
+    name: "Operations Manager",
+    role: "Corporate Client",
+    content: "The automated reporting scripts built in Python and VBA have freed up our team from tedious daily tasks. NexLifTech really understands how to solve business bottlenecks with code.",
+    rating: 5
+  }
+];
+
 const DEFAULT_DATA = {
   name: 'Sheikh Gulfam',
   title: 'Founder & Lead Developer',
@@ -96,9 +203,93 @@ export default function Dashboard() {
   const [loadingData, setLoadingData] = useState(true);
   const [toast, setToast] = useState({ show: false, type: '', message: '' });
 
-  const [activeTab, setActiveTab] = useState('content'); // 'content' | 'messages'
+  const [activeTab, setActiveTab] = useState('hero'); // default to 'hero' tab
   const [messages, setMessages] = useState([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
+
+  const [heroData, setHeroData] = useState(DEFAULT_HERO);
+  const [loadingHero, setLoadingHero] = useState(true);
+
+  const [servicesList, setServicesList] = useState(DEFAULT_SERVICES);
+  const [loadingServices, setLoadingServices] = useState(true);
+
+  const [projectsList, setProjectsList] = useState(DEFAULT_PROJECTS);
+  const [loadingProjects, setLoadingProjects] = useState(true);
+
+  const [testimonialsList, setTestimonialsList] = useState(DEFAULT_TESTIMONIALS);
+  const [loadingTestimonials, setLoadingTestimonials] = useState(true);
+
+  // Fetch Hero from Firestore
+  useEffect(() => {
+    async function fetchHero() {
+      try {
+        const docRef = doc(db, 'siteContent', 'hero');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setHeroData({ ...DEFAULT_HERO, ...docSnap.data() });
+        }
+      } catch (err) {
+        console.error('Error fetching hero:', err);
+      } finally {
+        setLoadingHero(false);
+      }
+    }
+    fetchHero();
+  }, []);
+
+  // Fetch Services from Firestore
+  useEffect(() => {
+    async function fetchServices() {
+      try {
+        const docRef = doc(db, 'siteContent', 'services_list');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists() && docSnap.data().services) {
+          setServicesList(docSnap.data().services);
+        }
+      } catch (err) {
+        console.error('Error fetching services:', err);
+      } finally {
+        setLoadingServices(false);
+      }
+    }
+    fetchServices();
+  }, []);
+
+  // Fetch Projects from Firestore
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const docRef = doc(db, 'siteContent', 'portfolio_projects');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists() && docSnap.data().projects) {
+          setProjectsList(docSnap.data().projects);
+        }
+      } catch (err) {
+        console.error('Error fetching projects:', err);
+      } finally {
+        setLoadingProjects(false);
+      }
+    }
+    fetchProjects();
+  }, []);
+
+  // Fetch Testimonials from Firestore
+  useEffect(() => {
+    async function fetchTestimonials() {
+      try {
+        const docRef = doc(db, 'siteContent', 'testimonials_list');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists() && docSnap.data().testimonials) {
+          setTestimonialsList(docSnap.data().testimonials);
+        }
+      } catch (err) {
+        console.error('Error fetching testimonials:', err);
+      } finally {
+        setLoadingTestimonials(false);
+      }
+    }
+    fetchTestimonials();
+  }, []);
 
   // Fetch existing data from Firestore
   useEffect(() => {
@@ -220,6 +411,226 @@ export default function Dashboard() {
       setSaving(false);
     }
   }
+
+  // Hero Section Editor Handlers
+  function handleHeroFieldChange(field, value) {
+    setHeroData(prev => ({ ...prev, [field]: value }));
+  }
+
+  function handleHeroTechBadgeChange(index, value) {
+    setHeroData(prev => {
+      const updated = [...prev.techBadges];
+      updated[index] = value;
+      return { ...prev, techBadges: updated };
+    });
+  }
+
+  function addHeroTechBadge() {
+    setHeroData(prev => ({
+      ...prev,
+      techBadges: [...prev.techBadges, '']
+    }));
+  }
+
+  function removeHeroTechBadge(index) {
+    setHeroData(prev => ({
+      ...prev,
+      techBadges: prev.techBadges.filter((_, i) => i !== index)
+    }));
+  }
+
+  async function handleSaveHero() {
+    setSaving(true);
+    try {
+      const docRef = doc(db, 'siteContent', 'hero');
+      await setDoc(docRef, {
+        ...heroData,
+        updatedAt: new Date().toISOString(),
+        updatedBy: currentUser.email
+      });
+      showToast('success', 'Hero content saved successfully!');
+    } catch (err) {
+      console.error('Error saving hero:', err);
+      showToast('error', 'Failed to save hero content.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  // Services Editor Handlers
+  function handleServiceFieldChange(index, field, value) {
+    setServicesList(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  }
+
+  function addService() {
+    setServicesList(prev => [
+      ...prev,
+      {
+        title: '',
+        description: '',
+        icon: '💻',
+        color: 'rgba(139, 92, 246, 0.15)'
+      }
+    ]);
+  }
+
+  function removeService(index) {
+    if (servicesList.length <= 1) {
+      showToast('error', 'You must have at least one service.');
+      return;
+    }
+    setServicesList(prev => prev.filter((_, i) => i !== index));
+  }
+
+  async function handleSaveServices() {
+    setSaving(true);
+    try {
+      const docRef = doc(db, 'siteContent', 'services_list');
+      await setDoc(docRef, {
+        services: servicesList,
+        updatedAt: new Date().toISOString(),
+        updatedBy: currentUser.email
+      });
+      showToast('success', 'Services saved successfully!');
+    } catch (err) {
+      console.error('Error saving services:', err);
+      showToast('error', 'Failed to save services.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  // Projects Editor Handlers
+  function handleProjectFieldChange(index, field, value) {
+    setProjectsList(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  }
+
+  function handleProjectTechChange(projectIndex, techIndex, value) {
+    setProjectsList(prev => {
+      const updated = [...prev];
+      const updatedTech = [...updated[projectIndex].tech];
+      updatedTech[techIndex] = value;
+      updated[projectIndex] = { ...updated[projectIndex], tech: updatedTech };
+      return updated;
+    });
+  }
+
+  function addProjectTech(projectIndex) {
+    setProjectsList(prev => {
+      const updated = [...prev];
+      updated[projectIndex] = {
+        ...updated[projectIndex],
+        tech: [...updated[projectIndex].tech, '']
+      };
+      return updated;
+    });
+  }
+
+  function removeProjectTech(projectIndex, techIndex) {
+    setProjectsList(prev => {
+      const updated = [...prev];
+      const updatedTech = updated[projectIndex].tech.filter((_, i) => i !== techIndex);
+      updated[projectIndex] = { ...updated[projectIndex], tech: updatedTech };
+      return updated;
+    });
+  }
+
+  function addProject() {
+    setProjectsList(prev => [
+      ...prev,
+      {
+        title: '',
+        category: '',
+        description: '',
+        tech: ['React'],
+        liveLink: '',
+        githubLink: '',
+        image: '/erp-preview.png'
+      }
+    ]);
+  }
+
+  function removeProject(index) {
+    if (projectsList.length <= 1) {
+      showToast('error', 'You must have at least one project.');
+      return;
+    }
+    setProjectsList(prev => prev.filter((_, i) => i !== index));
+  }
+
+  async function handleSaveProjects() {
+    setSaving(true);
+    try {
+      const docRef = doc(db, 'siteContent', 'portfolio_projects');
+      await setDoc(docRef, {
+        projects: projectsList,
+        updatedAt: new Date().toISOString(),
+        updatedBy: currentUser.email
+      });
+      showToast('success', 'Featured projects saved successfully!');
+    } catch (err) {
+      console.error('Error saving projects:', err);
+      showToast('error', 'Failed to save featured projects.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  // Testimonials Editor Handlers
+  function handleTestimonialFieldChange(index, field, value) {
+    setTestimonialsList(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: field === 'rating' ? Number(value) : value };
+      return updated;
+    });
+  }
+
+  function addTestimonial() {
+    setTestimonialsList(prev => [
+      ...prev,
+      {
+        name: '',
+        role: '',
+        content: '',
+        rating: 5
+      }
+    ]);
+  }
+
+  function removeTestimonial(index) {
+    if (testimonialsList.length <= 1) {
+      showToast('error', 'You must have at least one testimonial.');
+      return;
+    }
+    setTestimonialsList(prev => prev.filter((_, i) => i !== index));
+  }
+
+  async function handleSaveTestimonials() {
+    setSaving(true);
+    try {
+      const docRef = doc(db, 'siteContent', 'testimonials_list');
+      await setDoc(docRef, {
+        testimonials: testimonialsList,
+        updatedAt: new Date().toISOString(),
+        updatedBy: currentUser.email
+      });
+      showToast('success', 'Testimonials saved successfully!');
+    } catch (err) {
+      console.error('Error saving testimonials:', err);
+      showToast('error', 'Failed to save testimonials.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
 
   function showToast(type, message) {
     setToast({ show: true, type, message });
@@ -454,16 +865,40 @@ export default function Dashboard() {
           
           <div className="dashboard-tabs">
             <button 
+              className={`tab-btn ${activeTab === 'hero' ? 'active' : ''}`}
+              onClick={() => setActiveTab('hero')}
+            >
+              <Globe size={16} /> Hero
+            </button>
+            <button 
               className={`tab-btn ${activeTab === 'content' ? 'active' : ''}`}
               onClick={() => setActiveTab('content')}
             >
-              <User size={16} /> Edit Content
+              <User size={16} /> About
+            </button>
+            <button 
+              className={`tab-btn ${activeTab === 'services' ? 'active' : ''}`}
+              onClick={() => setActiveTab('services')}
+            >
+              <BookOpen size={16} /> Services
+            </button>
+            <button 
+              className={`tab-btn ${activeTab === 'projects' ? 'active' : ''}`}
+              onClick={() => setActiveTab('projects')}
+            >
+              <Briefcase size={16} /> Projects
             </button>
             <button 
               className={`tab-btn ${activeTab === 'pricing' ? 'active' : ''}`}
               onClick={() => setActiveTab('pricing')}
             >
-              <DollarSign size={16} /> Edit Pricing
+              <DollarSign size={16} /> Pricing
+            </button>
+            <button 
+              className={`tab-btn ${activeTab === 'testimonials' ? 'active' : ''}`}
+              onClick={() => setActiveTab('testimonials')}
+            >
+              <Award size={16} /> Testimonials
             </button>
             <button 
               className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
@@ -477,7 +912,505 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {activeTab === 'content' ? (
+        {activeTab === 'hero' ? (
+          <div className="pricing-editor-section">
+            <div className="pricing-editor-header">
+              <h2><Globe size={20} /> Manage Hero Section</h2>
+              <p className="pricing-editor-subtitle">Modify the landing page header title, subtitle, badges, and tech stack logos.</p>
+            </div>
+            
+            {loadingHero ? (
+              <div className="inbox-loading">
+                <div className="admin-spinner"></div>
+                <p>Loading hero content...</p>
+              </div>
+            ) : (
+              <>
+                <div className="dashboard-grid">
+                  <div className="dashboard-card glass-panel">
+                    <h2>Basic Info</h2>
+                    <div className="admin-form-group">
+                      <label>Badge Text</label>
+                      <input
+                        type="text"
+                        value={heroData.badge}
+                        onChange={(e) => handleHeroFieldChange('badge', e.target.value)}
+                      />
+                    </div>
+                    <div className="admin-form-group">
+                      <label>Main Title (use [text] for gradient highlights)</label>
+                      <input
+                        type="text"
+                        value={heroData.title}
+                        onChange={(e) => handleHeroFieldChange('title', e.target.value)}
+                      />
+                    </div>
+                    <div className="admin-form-group">
+                      <label>Subtitle / Description</label>
+                      <textarea
+                        value={heroData.subtitle}
+                        onChange={(e) => handleHeroFieldChange('subtitle', e.target.value)}
+                        rows={4}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="dashboard-card glass-panel">
+                    <h2>Call to Actions & Stack Settings</h2>
+                    <div className="admin-form-group">
+                      <label>Primary CTA Text</label>
+                      <input
+                        type="text"
+                        value={heroData.ctaText1}
+                        onChange={(e) => handleHeroFieldChange('ctaText1', e.target.value)}
+                      />
+                    </div>
+                    <div className="admin-form-group">
+                      <label>Primary CTA Link</label>
+                      <input
+                        type="text"
+                        value={heroData.ctaLink1}
+                        onChange={(e) => handleHeroFieldChange('ctaLink1', e.target.value)}
+                      />
+                    </div>
+                    <div className="admin-form-group">
+                      <label>Secondary CTA Text</label>
+                      <input
+                        type="text"
+                        value={heroData.ctaText2}
+                        onChange={(e) => handleHeroFieldChange('ctaText2', e.target.value)}
+                      />
+                    </div>
+                    <div className="admin-form-group">
+                      <label>Secondary CTA Link</label>
+                      <input
+                        type="text"
+                        value={heroData.ctaLink2}
+                        onChange={(e) => handleHeroFieldChange('ctaLink2', e.target.value)}
+                      />
+                    </div>
+                    <div className="admin-form-group">
+                      <label>Trust Signals Label</label>
+                      <input
+                        type="text"
+                        value={heroData.trustText || ''}
+                        onChange={(e) => handleHeroFieldChange('trustText', e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="dashboard-card glass-panel full-width">
+                    <h2>Technology Stack Badges</h2>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
+                      {heroData.techBadges.map((badge, idx) => (
+                        <div key={idx} className="feature-input-row">
+                          <input
+                            type="text"
+                            value={badge}
+                            onChange={(e) => handleHeroTechBadgeChange(idx, e.target.value)}
+                            placeholder="e.g. Next.js"
+                          />
+                          <button
+                            type="button"
+                            className="btn-icon btn-danger"
+                            onClick={() => removeHeroTechBadge(idx)}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={addHeroTechBadge}
+                    >
+                      + Add Tech Badge
+                    </button>
+                  </div>
+                </div>
+
+                <div className="save-bar">
+                  <button
+                    className="btn btn-primary btn-lg save-btn"
+                    onClick={handleSaveHero}
+                    disabled={saving}
+                  >
+                    {saving ? (
+                      <>
+                        <span className="btn-spinner"></span>
+                        Saving Hero Section...
+                      </>
+                    ) : (
+                      <>
+                        <Save size={20} /> Save Hero Section
+                      </>
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        ) : activeTab === 'services' ? (
+          <div className="pricing-editor-section">
+            <div className="pricing-editor-header">
+              <h2><BookOpen size={20} /> Manage Services</h2>
+              <p className="pricing-editor-subtitle">Modify the services and expertise listed on your landing page.</p>
+            </div>
+            
+            {loadingServices ? (
+              <div className="inbox-loading">
+                <div className="admin-spinner"></div>
+                <p>Loading services...</p>
+              </div>
+            ) : (
+              <>
+                <div className="pricing-editor-grid">
+                  {servicesList.map((service, servIdx) => (
+                    <div key={servIdx} className="dashboard-card glass-panel pricing-editor-card" style={{ position: 'relative' }}>
+                      <button
+                        type="button"
+                        className="btn-icon btn-danger"
+                        style={{ position: 'absolute', top: '1rem', right: '1rem', fontSize: '1.5rem' }}
+                        onClick={() => removeService(servIdx)}
+                        aria-label="Remove service"
+                        title="Remove service"
+                      >
+                        ×
+                      </button>
+                      
+                      <h3>Service #{servIdx + 1}: {service.title || 'Untitled'}</h3>
+                      
+                      <div className="admin-form-group" style={{ marginTop: '1rem' }}>
+                        <label>Title</label>
+                        <input
+                          type="text"
+                          value={service.title}
+                          onChange={(e) => handleServiceFieldChange(servIdx, 'title', e.target.value)}
+                          required
+                        />
+                      </div>
+                      
+                      <div className="admin-form-group">
+                        <label>Icon Emoji</label>
+                        <input
+                          type="text"
+                          value={service.icon}
+                          onChange={(e) => handleServiceFieldChange(servIdx, 'icon', e.target.value)}
+                          required
+                        />
+                      </div>
+                      
+                      <div className="admin-form-group">
+                        <label>Background Color (RGBA)</label>
+                        <input
+                          type="text"
+                          value={service.color}
+                          onChange={(e) => handleServiceFieldChange(servIdx, 'color', e.target.value)}
+                          placeholder="e.g. rgba(139, 92, 246, 0.15)"
+                          required
+                        />
+                      </div>
+                      
+                      <div className="admin-form-group">
+                        <label>Description</label>
+                        <textarea
+                          value={service.description}
+                          onChange={(e) => handleServiceFieldChange(servIdx, 'description', e.target.value)}
+                          rows={3}
+                          required
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem' }}>
+                  <button 
+                    type="button"
+                    className="btn btn-secondary" 
+                    onClick={addService}
+                  >
+                    + Add New Service Card
+                  </button>
+                </div>
+                
+                <div className="save-bar">
+                  <button
+                    className="btn btn-primary btn-lg save-btn"
+                    onClick={handleSaveServices}
+                    disabled={saving}
+                  >
+                    {saving ? (
+                      <>
+                        <span className="btn-spinner"></span>
+                        Saving Services...
+                      </>
+                    ) : (
+                      <>
+                        <Save size={20} /> Save Services List
+                      </>
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        ) : activeTab === 'projects' ? (
+          <div className="pricing-editor-section">
+            <div className="pricing-editor-header">
+              <h2><Briefcase size={20} /> Manage Featured Projects</h2>
+              <p className="pricing-editor-subtitle">Add, remove, or edit your showcase projects shown on the homepage.</p>
+            </div>
+            
+            {loadingProjects ? (
+              <div className="inbox-loading">
+                <div className="admin-spinner"></div>
+                <p>Loading projects...</p>
+              </div>
+            ) : (
+              <>
+                <div className="projects-editor-grid" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  {projectsList.map((project, projIdx) => (
+                    <div key={projIdx} className="dashboard-card glass-panel" style={{ position: 'relative' }}>
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm btn-danger"
+                        style={{ position: 'absolute', top: '1.25rem', right: '1.5rem' }}
+                        onClick={() => removeProject(projIdx)}
+                      >
+                        <Trash2 size={14} /> Remove Project
+                      </button>
+                      
+                      <h3>Project #{projIdx + 1}: {project.title || 'Untitled'}</h3>
+                      
+                      <div className="dashboard-grid" style={{ marginTop: '1rem' }}>
+                        <div className="admin-form-group">
+                          <label>Project Title</label>
+                          <input
+                            type="text"
+                            value={project.title}
+                            onChange={(e) => handleProjectFieldChange(projIdx, 'title', e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div className="admin-form-group">
+                          <label>Category</label>
+                          <input
+                            type="text"
+                            value={project.category}
+                            onChange={(e) => handleProjectFieldChange(projIdx, 'category', e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div className="admin-form-group">
+                          <label>Live Demo URL (optional)</label>
+                          <input
+                            type="text"
+                            value={project.liveLink || ''}
+                            onChange={(e) => handleProjectFieldChange(projIdx, 'liveLink', e.target.value)}
+                          />
+                        </div>
+                        <div className="admin-form-group">
+                          <label>GitHub Repository URL (optional)</label>
+                          <input
+                            type="text"
+                            value={project.githubLink || ''}
+                            onChange={(e) => handleProjectFieldChange(projIdx, 'githubLink', e.target.value)}
+                          />
+                        </div>
+                        <div className="admin-form-group full-width">
+                          <label>Image Preview Path / URL (e.g. /erp-preview.png, /alpine-preview.png, /greenvalley-preview.png)</label>
+                          <input
+                            type="text"
+                            value={project.image}
+                            onChange={(e) => handleProjectFieldChange(projIdx, 'image', e.target.value)}
+                            placeholder="e.g. /erp-preview.png"
+                          />
+                        </div>
+                        <div className="admin-form-group full-width">
+                          <label>Description</label>
+                          <textarea
+                            value={project.description}
+                            onChange={(e) => handleProjectFieldChange(projIdx, 'description', e.target.value)}
+                            rows={3}
+                            required
+                          />
+                        </div>
+                        <div className="admin-form-group full-width">
+                          <label>Tech Stack Tags</label>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                            {project.tech.map((tag, tagIdx) => (
+                              <div key={tagIdx} className="feature-input-row">
+                                <input
+                                  type="text"
+                                  value={tag}
+                                  onChange={(e) => handleProjectTechChange(projIdx, tagIdx, e.target.value)}
+                                  placeholder="e.g. React"
+                                />
+                                <button
+                                  type="button"
+                                  className="btn-icon btn-danger"
+                                  onClick={() => removeProjectTech(projIdx, tagIdx)}
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                          <button
+                            type="button"
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => addProjectTech(projIdx)}
+                          >
+                            + Add Tech Tag
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', justifyContent: 'center' }}>
+                  <button 
+                    type="button"
+                    className="btn btn-secondary" 
+                    onClick={addProject}
+                  >
+                    + Add New Project Card
+                  </button>
+                </div>
+                
+                <div className="save-bar">
+                  <button
+                    className="btn btn-primary btn-lg save-btn"
+                    onClick={handleSaveProjects}
+                    disabled={saving}
+                  >
+                    {saving ? (
+                      <>
+                        <span className="btn-spinner"></span>
+                        Saving Projects...
+                      </>
+                    ) : (
+                      <>
+                        <Save size={20} /> Save Featured Projects
+                      </>
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        ) : activeTab === 'testimonials' ? (
+          <div className="pricing-editor-section">
+            <div className="pricing-editor-header">
+              <h2><Award size={20} /> Manage Testimonials</h2>
+              <p className="pricing-editor-subtitle">Modify or add client reviews and success stories.</p>
+            </div>
+            
+            {loadingTestimonials ? (
+              <div className="inbox-loading">
+                <div className="admin-spinner"></div>
+                <p>Loading testimonials...</p>
+              </div>
+            ) : (
+              <>
+                <div className="pricing-editor-grid">
+                  {testimonialsList.map((test, testIdx) => (
+                    <div key={testIdx} className="dashboard-card glass-panel pricing-editor-card" style={{ position: 'relative' }}>
+                      <button
+                        type="button"
+                        className="btn-icon btn-danger"
+                        style={{ position: 'absolute', top: '1rem', right: '1rem', fontSize: '1.5rem' }}
+                        onClick={() => removeTestimonial(testIdx)}
+                        aria-label="Remove testimonial"
+                        title="Remove testimonial"
+                      >
+                        ×
+                      </button>
+                      
+                      <h3>Testimonial #{testIdx + 1}</h3>
+                      
+                      <div className="admin-form-group" style={{ marginTop: '1rem' }}>
+                        <label>Client Name</label>
+                        <input
+                          type="text"
+                          value={test.name}
+                          onChange={(e) => handleTestimonialFieldChange(testIdx, 'name', e.target.value)}
+                          required
+                        />
+                      </div>
+                      
+                      <div className="admin-form-group">
+                        <label>Role / Company</label>
+                        <input
+                          type="text"
+                          value={test.role}
+                          onChange={(e) => handleTestimonialFieldChange(testIdx, 'role', e.target.value)}
+                          required
+                        />
+                      </div>
+                      
+                      <div className="admin-form-group">
+                        <label>Rating (1-5)</label>
+                        <select
+                          value={test.rating}
+                          onChange={(e) => handleTestimonialFieldChange(testIdx, 'rating', e.target.value)}
+                        >
+                          <option value={1}>1 Star</option>
+                          <option value={2}>2 Stars</option>
+                          <option value={3}>3 Stars</option>
+                          <option value={4}>4 Stars</option>
+                          <option value={5}>5 Stars</option>
+                        </select>
+                      </div>
+                      
+                      <div className="admin-form-group">
+                        <label>Review Quote Content</label>
+                        <textarea
+                          value={test.content}
+                          onChange={(e) => handleTestimonialFieldChange(testIdx, 'content', e.target.value)}
+                          rows={4}
+                          required
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem' }}>
+                  <button 
+                    type="button"
+                    className="btn btn-secondary" 
+                    onClick={addTestimonial}
+                  >
+                    + Add New Testimonial
+                  </button>
+                </div>
+                
+                <div className="save-bar">
+                  <button
+                    className="btn btn-primary btn-lg save-btn"
+                    onClick={handleSaveTestimonials}
+                    disabled={saving}
+                  >
+                    {saving ? (
+                      <>
+                        <span className="btn-spinner"></span>
+                        Saving Testimonials...
+                      </>
+                    ) : (
+                      <>
+                        <Save size={20} /> Save Testimonials
+                      </>
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        ) : activeTab === 'content' ? (
           <>
             <div className="dashboard-grid">
               {/* Photo upload card */}

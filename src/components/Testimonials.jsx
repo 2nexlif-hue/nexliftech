@@ -1,30 +1,46 @@
+import { useState, useEffect } from 'react';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase';
 import { Star, Quote } from 'lucide-react';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import './Testimonials.css';
 
+const DEFAULT_TESTIMONIALS = [
+  {
+    name: "Principal",
+    role: "Govt HSS Shangus",
+    content: "The ERP portal developed by NexLifTech revolutionized our admission and examination process. The bulk roll number assignment alone saves us weeks of manual work. Incredible attention to detail.",
+    rating: 5
+  },
+  {
+    name: "Local Retail Owner",
+    role: "E-Commerce Client",
+    content: "Sheikh and his team delivered a blazing fast online store for us. Our mobile conversion rates doubled within the first month. The dark mode design is absolutely stunning.",
+    rating: 5
+  },
+  {
+    name: "Operations Manager",
+    role: "Corporate Client",
+    content: "The automated reporting scripts built in Python and VBA have freed up our team from tedious daily tasks. NexLifTech really understands how to solve business bottlenecks with code.",
+    rating: 5
+  }
+];
+
 export default function Testimonials() {
   const animateRef = useScrollAnimation();
+  const [testimonials, setTestimonials] = useState(DEFAULT_TESTIMONIALS);
 
-  const testimonials = [
-    {
-      name: "Principal",
-      role: "Govt HSS Shangus",
-      content: "The ERP portal developed by NexLifTech revolutionized our admission and examination process. The bulk roll number assignment alone saves us weeks of manual work. Incredible attention to detail.",
-      rating: 5
-    },
-    {
-      name: "Local Retail Owner",
-      role: "E-Commerce Client",
-      content: "Sheikh and his team delivered a blazing fast online store for us. Our mobile conversion rates doubled within the first month. The dark mode design is absolutely stunning.",
-      rating: 5
-    },
-    {
-      name: "Operations Manager",
-      role: "Corporate Client",
-      content: "The automated reporting scripts built in Python and VBA have freed up our team from tedious daily tasks. NexLifTech really understands how to solve business bottlenecks with code.",
-      rating: 5
-    }
-  ];
+  useEffect(() => {
+    const docRef = doc(db, 'siteContent', 'testimonials_list');
+    const unsubscribe = onSnapshot(docRef, (snap) => {
+      if (snap.exists() && snap.data().testimonials) {
+        setTestimonials(snap.data().testimonials);
+      }
+    }, (err) => {
+      console.error('Firestore testimonials load error:', err);
+    });
+    return unsubscribe;
+  }, []);
 
   return (
     <section id="testimonials" className="testimonials">
