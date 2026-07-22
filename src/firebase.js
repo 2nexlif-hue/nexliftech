@@ -4,6 +4,10 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getAnalytics, isSupported } from 'firebase/analytics';
 
+// SECURITY NOTE: These keys are intentionally public (client-side Firebase config).
+// The actual security boundary is Firestore Security Rules configured in the
+// Firebase Console. Ensure rules restrict writes to authenticated admin users only
+// and validate data shapes for collections like 'contactMessages' and 'siteContent'.
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,

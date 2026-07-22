@@ -63,18 +63,18 @@ const SEARCHABLE_ITEMS = [
     tags: ['travel', 'booking', 'tourism', 'alpine', 'himalayas']
   },
   {
-    title: 'Green Valley Holidays',
+    title: 'WalletVibe',
     category: 'Projects',
-    description: 'Tailored holiday planner and booking portal featuring dynamic itineraries and high-speed responsiveness.',
+    description: 'Online personal finance tool to simplify expenditure tracking, lend/borrow records, bank statements, and reports.',
     target: '#portfolio',
-    tags: ['holidays', 'itinerary', 'travel', 'packages', 'wordpress']
+    tags: ['walletvibe', 'finance', 'money', 'expenditure', 'borrow', 'lend', 'reports', 'bank', 'budget']
   },
   {
-    title: 'Automated Reporting Suite',
+    title: 'Automated Educational & Reporting Suite',
     category: 'Projects',
-    description: 'Workflow automation solutions using Python and Google Apps Script, saving hours of manual labor weekly.',
+    description: 'Python, Selenium & Apps Script tools for auto UDISE+ student profile sync, bulk JKBOSE 10th–12th result downloads, RR & exam submissions, QR generation, system cleanup, and reports.',
     target: '#portfolio',
-    tags: ['python', 'automation', 'reporting', 'sheets', 'vba']
+    tags: ['python', 'automation', 'udise+', 'jkbose', 'bulk results', 'qr code', 'reporting', 'rr forms', 'exam forms', 'sheets', 'vba']
   },
 
   // About / Founder

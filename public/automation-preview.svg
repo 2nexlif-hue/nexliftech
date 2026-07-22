@@ -1,0 +1,112 @@
+<svg width="800" height="450" viewBox="0 0 800 450" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="autoBg" x1="0" y1="0" x2="800" y2="450" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0b0f19"/>
+      <stop offset="0.5" stop-color="#070a12"/>
+      <stop offset="1" stop-color="#030509"/>
+    </linearGradient>
+    <linearGradient id="cyanBlue" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#06b6d4"/>
+      <stop offset="1" stop-color="#3b82f6"/>
+    </linearGradient>
+    <linearGradient id="purplePink" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#a855f7"/>
+      <stop offset="1" stop-color="#ec4899"/>
+    </linearGradient>
+    <linearGradient id="amberOrange" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#ea580c"/>
+    </linearGradient>
+    <linearGradient id="emeraldTeal" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#10b981"/>
+      <stop offset="1" stop-color="#14b8a6"/>
+    </linearGradient>
+    <linearGradient id="panelBg" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#1e293b" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#0f172a" stop-opacity="0.85"/>
+    </linearGradient>
+    <filter id="autoGlow" x="-50" y="-50" width="900" height="550" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="45"/>
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="800" height="450" fill="url(#autoBg)"/>
+
+  <!-- Ambient Glow Orbs -->
+  <circle cx="200" cy="120" r="160" fill="#06b6d4" fill-opacity="0.12" filter="url(#autoGlow)"/>
+  <circle cx="600" cy="320" r="190" fill="#a855f7" fill-opacity="0.15" filter="url(#autoGlow)"/>
+
+  <!-- App Window Frame -->
+  <rect x="25" y="25" width="750" height="400" rx="16" fill="#0f172a" fill-opacity="0.85" stroke="#1e293b" stroke-width="1.5"/>
+
+  <!-- Window Header -->
+  <rect x="25" y="25" width="750" height="50" rx="16" fill="#1e293b" fill-opacity="0.5"/>
+  <line x1="25" y1="75" x2="775" y2="75" stroke="#334155" stroke-width="1"/>
+
+  <!-- Window Controls -->
+  <circle cx="50" cy="50" r="5" fill="#ef4444"/>
+  <circle cx="66" cy="50" r="5" fill="#f59e0b"/>
+  <circle cx="82" cy="50" r="5" fill="#10b981"/>
+
+  <!-- Title & Icon -->
+  <rect x="105" y="37" width="26" height="26" rx="6" fill="url(#cyanBlue)"/>
+  <path d="M112 43h12v14h-12zM115 48h6" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+  <text x="140" y="54" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="15" fill="#ffffff">Automated Educational Workflow Suite</text>
+  
+  <rect x="630" y="38" width="120" height="24" rx="12" fill="#10b981" fill-opacity="0.2" stroke="#10b981" stroke-opacity="0.4"/>
+  <circle cx="645" cy="50" r="3" fill="#34d399"/>
+  <text x="655" y="54" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="600" fill="#34d399">Bot Active</text>
+
+  <!-- Module 1: UDISE+ Auto Sync -->
+  <rect x="45" y="95" width="340" height="135" rx="12" fill="url(#panelBg)" stroke="#334155" stroke-width="1"/>
+  <rect x="65" y="112" width="28" height="28" rx="8" fill="url(#cyanBlue)"/>
+  <text x="73" y="131" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="14" fill="#ffffff">↻</text>
+  <text x="105" y="125" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#ffffff">UDISE+ Profile Automation</text>
+  <text x="105" y="140" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#94a3b8">Auto fetch, import &amp; update student profiles</text>
+
+  <rect x="65" y="155" width="300" height="24" rx="6" fill="#090d16" stroke="#1e293b"/>
+  <text x="75" y="171" font-family="monospace" font-size="10" fill="#38bdf8">[UDISE+] Syncing 450 Student Records... DONE</text>
+
+  <rect x="65" y="188" width="85" height="18" rx="9" fill="#0284c7" fill-opacity="0.25"/>
+  <text x="75" y="201" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="600" fill="#38bdf8">✔ 100% Verified</text>
+
+  <!-- Module 2: JKBOSE Bulk Results -->
+  <rect x="415" y="95" width="340" height="135" rx="12" fill="url(#panelBg)" stroke="#334155" stroke-width="1"/>
+  <rect x="435" y="112" width="28" height="28" rx="8" fill="url(#purplePink)"/>
+  <text x="443" y="131" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="14" fill="#ffffff">⬇</text>
+  <text x="475" y="125" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#ffffff">JKBOSE Bulk Result Downloader</text>
+  <text x="475" y="140" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#94a3b8">Bulk extraction for Class 10th, 11th &amp; 12th</text>
+
+  <rect x="435" y="155" width="300" height="24" rx="6" fill="#090d16" stroke="#1e293b"/>
+  <text x="445" y="171" font-family="monospace" font-size="10" fill="#f472b6">[JKBOSE] Class 10th-12th Results Downloaded</text>
+
+  <rect x="435" y="188" width="95" height="18" rx="9" fill="#ec4899" fill-opacity="0.25"/>
+  <text x="445" y="201" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="600" fill="#f472b6">✔ Bulk PDFs Saved</text>
+
+  <!-- Module 3: RR & Exam Submissions -->
+  <rect x="45" y="250" width="340" height="150" rx="12" fill="url(#panelBg)" stroke="#334155" stroke-width="1"/>
+  <rect x="65" y="267" width="28" height="28" rx="8" fill="url(#amberOrange)"/>
+  <text x="73" y="286" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="14" fill="#ffffff">📝</text>
+  <text x="105" y="280" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#ffffff">RR &amp; Exam Form Submissions</text>
+  <text x="105" y="295" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#94a3b8">Automated registration returns &amp; exam filings</text>
+
+  <rect x="65" y="310" width="300" height="30" rx="6" fill="#090d16" stroke="#1e293b"/>
+  <text x="75" y="329" font-family="monospace" font-size="10" fill="#fbbf24">[FORM-BOT] RR Filings Submitted (Class 11 &amp; 12)</text>
+
+  <rect x="65" y="350" width="105" height="18" rx="9" fill="#f59e0b" fill-opacity="0.25"/>
+  <text x="75" y="363" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="600" fill="#fbbf24">✔ Auto Batch Filed</text>
+
+  <!-- Module 4: QR Code & System Cleanup & Reports -->
+  <rect x="415" y="250" width="340" height="150" rx="12" fill="url(#panelBg)" stroke="#334155" stroke-width="1"/>
+  <rect x="435" y="267" width="28" height="28" rx="8" fill="url(#emeraldTeal)"/>
+  <text x="443" y="286" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="14" fill="#ffffff">⚙</text>
+  <text x="475" y="280" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#ffffff">QR Gen, Cleanup &amp; Reporting</text>
+  <text x="475" y="295" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#94a3b8">QR code batch generator, cleanup &amp; lists</text>
+
+  <rect x="435" y="310" width="300" height="30" rx="6" fill="#090d16" stroke="#1e293b"/>
+  <text x="445" y="329" font-family="monospace" font-size="10" fill="#34d399">[REPORTS] Generated ID QRs, Excel &amp; PDFs</text>
+
+  <rect x="435" y="350" width="115" height="18" rx="9" fill="#10b981" fill-opacity="0.25"/>
+  <text x="445" y="363" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="600" fill="#34d399">✔ Cleanup Complete</text>
+</svg>

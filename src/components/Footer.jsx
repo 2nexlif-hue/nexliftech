@@ -134,7 +134,7 @@ export default function Footer() {
           <p>&copy; {currentYear} NexLifTech. All rights reserved.</p>
           <div className="footer-bottom-right">
             <p className="built-with">Developed by Sheikh Gulfam</p>
-            <a href="/admin/dashboard" className="admin-lock-link" aria-label="Admin Login">
+            <a href="/admin/login" className="admin-lock-link" aria-label="Admin Login" style={{ opacity: 0.3 }}>
               <Lock size={12} />
             </a>
           </div>

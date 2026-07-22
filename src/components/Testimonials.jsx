@@ -63,7 +63,7 @@ export default function Testimonials() {
               <Quote className="quote-icon" size={40} />
               
               <div className="rating">
-                {[...Array(testimonial.rating)].map((_, i) => (
+                {[...Array(Math.min(Math.max(Math.floor(Number(testimonial.rating) || 0), 0), 5))].map((_, i) => (
                   <Star key={i} size={16} className="star-icon fill-current" />
                 ))}
               </div>

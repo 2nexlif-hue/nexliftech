@@ -19,6 +19,17 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormStatus('submitting');
+
+    // Rate limit: 60 seconds between submissions
+    const RATE_LIMIT_KEY = 'nexliftech_last_submit';
+    const RATE_LIMIT_MS = 60 * 1000;
+    const lastSubmit = Number(localStorage.getItem(RATE_LIMIT_KEY) || 0);
+    if (Date.now() - lastSubmit < RATE_LIMIT_MS) {
+      setFormStatus('error');
+      setMessageText('Please wait a minute before submitting again.');
+      setTimeout(() => { setFormStatus('idle'); setMessageText(''); }, 5000);
+      return;
+    }
     
     const form = e.target;
     const formData = new FormData(form);
@@ -34,6 +45,14 @@ export default function Contact() {
 
     // Basic validation check
     if (!name || !email || !mobile || !district || !tehsil || !projectType || !budget || !message) {
+      setFormStatus('error');
+      setTimeout(() => setFormStatus('idle'), 5000);
+      return;
+    }
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
       setFormStatus('error');
       setTimeout(() => setFormStatus('idle'), 5000);
       return;
@@ -76,6 +95,7 @@ export default function Contact() {
         console.warn('Netlify backup submission failed:', netlifyError);
       }
 
+      localStorage.setItem('nexliftech_last_submit', String(Date.now()));
       setFormStatus('success');
       form.reset();
       setMessageText('');
@@ -133,7 +153,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h4>Location</h4>
-                    <p>Tehsil: Shangus, District: Anantnag<br />Jammu & Kashmir, India</p>
+                    <p>Tehsil: Hardu-Shichen, District: Anantnag<br />Jammu & Kashmir, India</p>
                   </div>
                 </div>
               </div>
@@ -177,7 +197,7 @@ export default function Contact() {
                 </div>
                 <div className="form-group">
                   <label htmlFor="tehsil">Tehsil</label>
-                  <input type="text" id="tehsil" name="tehsil" required placeholder="e.g. Shangus" maxLength={100} />
+                  <input type="text" id="tehsil" name="tehsil" required placeholder="e.g. Anantnag" maxLength={100} />
                 </div>
               </div>
               

@@ -81,20 +81,20 @@ const DEFAULT_PROJECTS = [
     image: '/alpine-preview.png'
   },
   {
-    title: 'Green Valley Holidays',
-    category: 'Travel & Tourism',
-    description: 'A custom holiday booking portal with structured travel packages, detailed dynamic itineraries, and high-performance load times.',
-    tech: ['WordPress', 'Elementor', 'PHP', 'SEO'],
-    liveLink: 'https://greenvalleyholidays.fun/',
-    image: '/greenvalley-preview.png'
+    title: 'WalletVibe',
+    category: 'Finance & Tools',
+    description: 'An online personal finance tool designed to simplify money management—featuring expenditure tracking, lend/borrow record management, bank statements, and financial reporting.',
+    tech: ['React', 'Firebase', 'Tailwind', 'Node.js'],
+    liveLink: 'https://walletvibe.netlify.app/',
+    image: '/walletvibe-preview.svg'
   },
   {
-    title: 'Automated Reporting Suite',
+    title: 'Automated Educational & Reporting Suite',
     category: 'Workflow Automation',
-    description: 'Custom Python and Google Apps Script solutions that automate MS Office workflows and generate daily PDF reports, saving clients 15+ hours a week.',
-    tech: ['Python', 'Google Apps Script', 'VBA'],
+    description: 'Custom Python, Selenium & Apps Script tools to auto-fetch, import & update UDISE+ student profiles, download JKBOSE 10th–12th bulk results, handle RR & exam form submissions, generate QR codes, perform system cleanup, and compile custom lists & reports.',
+    tech: ['Python', 'Selenium', 'Apps Script', 'VBA', 'Automation'],
     githubLink: '#',
-    image: 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22600%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22800%22%20height%3D%22600%22%20fill%3D%22%2312121a%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-size%3D%2232%22%20fill%3D%22%238888a0%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EWorkflow%20Automation%3C%2Ftext%3E%3C%2Fsvg%3E'
+    image: '/automation-preview.svg'
   }
 ];
 
@@ -262,7 +262,30 @@ export default function Dashboard() {
         const docRef = doc(db, 'siteContent', 'portfolio_projects');
         const docSnap = await getDoc(docRef);
         if (docSnap.exists() && docSnap.data().projects) {
-          setProjectsList(docSnap.data().projects);
+          const loadedProjects = docSnap.data().projects.map(p => {
+            if (p.title === 'Green Valley Holidays' || p.liveLink?.includes('greenvalleyholidays')) {
+              return {
+                title: 'WalletVibe',
+                category: 'Finance & Tools',
+                description: 'An online personal finance tool designed to simplify money management—featuring expenditure tracking, lend/borrow record management, bank statements, and financial reporting.',
+                tech: ['React', 'Firebase', 'Tailwind', 'Node.js'],
+                liveLink: 'https://walletvibe.netlify.app/',
+                image: '/walletvibe-preview.svg'
+              };
+            }
+            if (p.title?.includes('Automated Reporting')) {
+              return {
+                title: 'Automated Educational & Reporting Suite',
+                category: 'Workflow Automation',
+                description: 'Custom Python, Selenium & Apps Script tools to auto-fetch, import & update UDISE+ student profiles, download JKBOSE 10th–12th bulk results, handle RR & exam form submissions, generate QR codes, perform system cleanup, and compile custom lists & reports.',
+                tech: ['Python', 'Selenium', 'Apps Script', 'VBA', 'Automation'],
+                githubLink: '#',
+                image: '/automation-preview.svg'
+              };
+            }
+            return p;
+          });
+          setProjectsList(loadedProjects);
         }
       } catch (err) {
         console.error('Error fetching projects:', err);
@@ -1220,7 +1243,7 @@ export default function Dashboard() {
                           />
                         </div>
                         <div className="admin-form-group full-width">
-                          <label>Image Preview Path / URL (e.g. /erp-preview.png, /alpine-preview.png, /greenvalley-preview.png)</label>
+                          <label>Image Preview Path / URL (e.g. /erp-preview.png, /alpine-preview.png, /walletvibe-preview.svg)</label>
                           <input
                             type="text"
                             value={project.image}

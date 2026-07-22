@@ -54,6 +54,8 @@ export default function CustomCursor() {
       setTrailPosition((prev) => {
         const dx = position.x - prev.x;
         const dy = position.y - prev.y;
+        // Skip update if cursor barely moved (< 0.5px)
+        if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return prev;
         // snappy but fluid response factor
         const ease = 0.16;
         return {

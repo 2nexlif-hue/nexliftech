@@ -52,9 +52,8 @@ export default function Hero() {
           muted
           loop
           playsInline
-          preload="auto"
+          preload="none"
           className="hero-video"
-          poster=""
         >
           {/* Abstract tech/coding loop - royalty free */}
           <source
