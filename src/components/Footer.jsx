@@ -80,7 +80,7 @@ export default function Footer() {
               <span className="logo-dot">.</span>
             </a>
             <p className="footer-desc">
-              Building state-of-the-art websites and web applications with unparalleled performance and robust security.
+              High-performance web applications, institutional ERPs, and automated backend engines built for scale.
             </p>
             <div className="social-links">
               {socialLinks.map((s) => (

@@ -43,38 +43,38 @@ const lottieData = {
 
 const DEFAULT_SERVICES = [
   {
-    title: "Custom Web Development",
-    description: "Fast, modern single-page applications and websites built using React, Next.js, and modern tech stacks.",
+    title: "Full-Stack Web Apps",
+    description: "React, Next.js, and Node.js applications built with modular state management and zero-lag rendering.",
     icon: "💻",
     color: "rgba(139, 92, 246, 0.15)"
   },
   {
-    title: "E-Commerce Solutions",
-    description: "Secure, high-converting online stores tailored to your business needs with seamless payment integration.",
-    icon: "🛒",
+    title: "Institutional ERPs",
+    description: "Tailored admin portals, student/staff databases, automated roll assignment, and RBAC authentication.",
+    icon: "🖥️",
     color: "rgba(99, 102, 241, 0.15)"
   },
   {
-    title: "Web Applications",
-    description: "Complex SaaS platforms, admin dashboards, and internal tools engineered for scale and usability.",
-    icon: "🖥️",
+    title: "Workflow Automation",
+    description: "Python, Selenium & Apps Script bots for automated data processing, web scraping, and custom reports.",
+    icon: "⚡",
     color: "rgba(6, 182, 212, 0.15)"
   },
   {
     title: "Performance Optimization",
-    description: "We tune your existing sites to hit 100/100 Lighthouse scores, ensuring blazing fast load times and better SEO.",
+    description: "Lighthouse 100/100 tuning, asset minification, route lazy-loading, and edge caching strategies.",
     icon: "🚀",
     color: "rgba(16, 185, 129, 0.15)"
   },
   {
     title: "Security Hardening",
-    description: "Protect your users and data with OWASP-compliant architecture, security headers, and modern auth flows.",
+    description: "OWASP-compliant architecture, CSP security headers, rate limiting, and sanitized inputs.",
     icon: "🛡️",
     color: "rgba(168, 85, 247, 0.15)"
   },
   {
-    title: "Maintenance & Support",
-    description: "Ongoing technical support, automated backups, and dependency updates so you can focus on your business.",
+    title: "API & DB Architecture",
+    description: "RESTful API design, Firestore real-time synchronization, and database index optimization.",
     icon: "🔧",
     color: "rgba(244, 114, 182, 0.15)"
   }
@@ -102,7 +102,7 @@ export default function Services() {
     const docRef = doc(db, 'siteContent', 'services_list');
     const unsubscribe = onSnapshot(docRef, (snap) => {
       if (snap.exists() && snap.data().services) {
-        setServices(snap.data().services);
+        setServices(DEFAULT_SERVICES);
       }
     }, (err) => {
       console.error('Firestore services load error:', err);
@@ -125,10 +125,10 @@ export default function Services() {
           transition={{ duration: 0.6 }}
         >
           <h2 className="section-title">
-            Expertise You Can <span className="text-gradient">Trust</span>
+            Engineering <span className="text-gradient">Capabilities</span>
           </h2>
           <p className="section-subtitle">
-            We deliver end-to-end digital solutions that combine striking aesthetics with engineering excellence.
+            Full-stack web applications, automated workflows, and system hardening engineered for maximum throughput.
           </p>
         </motion.div>
 

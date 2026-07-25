@@ -6,15 +6,15 @@ import { motion } from 'framer-motion';
 import './Hero.css';
 
 const DEFAULT_HERO = {
-  badge: 'Next Life Technologies',
-  title: 'We Build Digital Experiences That [Drive Growth]',
-  subtitle: 'State-of-the-art websites and web applications built with modern engineering, unparalleled performance, and robust security for schools, businesses, and personal brands.',
-  ctaText1: 'Start Your Project',
+  badge: '// NEXLIFTECH_ENGINEERING',
+  title: 'Architecting [High-Performance] Web Apps & Code',
+  subtitle: 'Clean architecture, zero fluff. We build web applications, institutional ERPs, and automated workflows engineered to scale.',
+  ctaText1: 'Start Project',
   ctaLink1: '#contact',
-  ctaText2: 'View Our Work',
+  ctaText2: 'View Builds',
   ctaLink2: '#portfolio',
-  trustText: 'Trusted technology stack:',
-  techBadges: ['React', 'Vite', 'Firebase', 'Next.js']
+  trustText: '$ core_tech_stack:',
+  techBadges: ['React 19', 'Next.js', 'Vite', 'Firebase', 'Python', 'Node.js']
 };
 
 export default function Hero() {
@@ -24,7 +24,16 @@ export default function Hero() {
     const docRef = doc(db, 'siteContent', 'hero');
     const unsubscribe = onSnapshot(docRef, (snap) => {
       if (snap.exists()) {
-        setData({ ...DEFAULT_HERO, ...snap.data() });
+        const remoteData = snap.data();
+        setData({ 
+          ...DEFAULT_HERO, 
+          ...remoteData,
+          badge: DEFAULT_HERO.badge,
+          title: DEFAULT_HERO.title,
+          subtitle: DEFAULT_HERO.subtitle,
+          trustText: DEFAULT_HERO.trustText,
+          techBadges: DEFAULT_HERO.techBadges
+        });
       }
     }, (err) => {
       console.error('Firestore hero load error:', err);

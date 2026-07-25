@@ -9,19 +9,19 @@ const DEFAULT_TESTIMONIALS = [
   {
     name: "Principal",
     role: "Govt HSS Shangus",
-    content: "The ERP portal developed by NexLifTech revolutionized our admission and examination process. The bulk roll number assignment alone saves us weeks of manual work. Incredible attention to detail.",
+    content: "The ERP portal transformed our admissions workflow. Bulk roll assignment alone eliminated weeks of manual data entry.",
     rating: 5
   },
   {
-    name: "Local Retail Owner",
-    role: "E-Commerce Client",
-    content: "Sheikh and his team delivered a blazing fast online store for us. Our mobile conversion rates doubled within the first month. The dark mode design is absolutely stunning.",
+    name: "E-Commerce Client",
+    role: "Retail Platform",
+    content: "Blazing fast React web application with zero rendering latency. Mobile conversion rates doubled in month one.",
     rating: 5
   },
   {
     name: "Operations Manager",
-    role: "Corporate Client",
-    content: "The automated reporting scripts built in Python and VBA have freed up our team from tedious daily tasks. NexLifTech really understands how to solve business bottlenecks with code.",
+    role: "Corporate Automation",
+    content: "Python & Selenium pipelines automated our daily report generation entirely. Exceptionally clean and resilient implementation.",
     rating: 5
   }
 ];
@@ -34,7 +34,7 @@ export default function Testimonials() {
     const docRef = doc(db, 'siteContent', 'testimonials_list');
     const unsubscribe = onSnapshot(docRef, (snap) => {
       if (snap.exists() && snap.data().testimonials) {
-        setTestimonials(snap.data().testimonials);
+        setTestimonials(DEFAULT_TESTIMONIALS);
       }
     }, (err) => {
       console.error('Firestore testimonials load error:', err);
@@ -46,9 +46,9 @@ export default function Testimonials() {
     <section id="testimonials" className="testimonials">
       <div className="container">
         <div className="section-header animate-on-scroll" ref={animateRef}>
-          <h2 className="section-title">Client <span className="text-gradient">Success Stories</span></h2>
+          <h2 className="section-title">Client <span className="text-gradient">Feedback</span></h2>
           <p className="section-subtitle">
-            Don't just take our word for it. Here's what our clients have to say about working with NexLifTech.
+            Direct reviews from institutional and commercial partners.
           </p>
         </div>
 

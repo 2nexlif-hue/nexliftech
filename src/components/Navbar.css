@@ -45,11 +45,12 @@
 
 .logo-text {
   color: var(--text-primary);
+  font-family: var(--font-heading);
   letter-spacing: -0.5px;
 }
 
 .logo-dot {
-  color: var(--accent-primary);
+  color: var(--accent-cyan);
 }
 
 .nav-desktop {
@@ -67,14 +68,15 @@
 .nav-links a {
   text-decoration: none;
   color: var(--text-secondary);
+  font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   transition: color var(--transition-fast);
 }
 
 .nav-links a:hover {
-  color: var(--accent-primary);
-  text-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+  color: var(--accent-cyan);
+  text-shadow: 0 0 20px rgba(6, 238, 255, 0.6);
 }
 
 .nav-actions {

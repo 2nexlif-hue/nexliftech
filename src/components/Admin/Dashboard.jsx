@@ -13,7 +13,7 @@ import './Admin.css';
 const ABOUT_DOC_ID = 'about_developer';
 
 const DEFAULT_HERO = {
-  badge: 'Next Life Technologies',
+  badge: 'Next LIfe Technologies',
   title: 'We Build Digital Experiences That [Drive Growth]',
   subtitle: 'State-of-the-art websites and web applications built with modern engineering, unparalleled performance, and robust security for schools, businesses, and personal brands.',
   ctaText1: 'Start Your Project',
@@ -121,24 +121,22 @@ const DEFAULT_TESTIMONIALS = [
 
 const DEFAULT_DATA = {
   name: 'Sheikh Gulfam',
-  title: 'Founder & Lead Developer',
-  quote: '"Great software, like nature, requires a strong foundation, adaptability, and continuous growth."',
+  title: 'Lecturer Botany | PhD CSIR IIIM Alumni | MSc Data Science Scholar',
+  quote: '"Integrating scientific research, data science, and software engineering to solve real-world challenges."',
   storyParagraphs: [
-    'Founded by Sheikh Gulfam, NexLifTech is built on a unique foundation of scientific rigor and engineering excellence.',
-    'Starting as a Lecturer in Botany with national level exams like NET-JRF CSIR and others, Sheikh\'s journey shifted during his PhD research at CSIR IIIM Jammu. A deep interest in automating workflows evolved into a passion for software development, leading to the creation of robust web applications, ERPs, and automation tools.',
-    'Today, NexLifTech brings that same analytical, research-driven approach to solving business problems through technology. We don\'t just write code; we architect solutions that are secure, high-performing, and built to scale.'
+    'Founded by Sheikh Gulfam — CSIR IIIM PhD Research Alumni, CSIR NET-JRF holder, and Lecturer in Botany in the School Education Department since 2017.',
+    'Combining a scientific research background with a strong passion for computational skills and workflow automation, he is currently pursuing an MSc in Data Science & Analytics to engineer high-impact, real-world software applications.'
   ],
   credentials: [
-    { icon: 'award', label: 'CSIR NET-JRF Qualified' },
     { icon: 'book', label: 'CSIR IIIM Research Alumni' },
-    { icon: 'graduation', label: 'GATE Life Sciences' },
-    { icon: 'briefcase', label: 'Lecturer since 2017' }
+    { icon: 'briefcase', label: 'Lecturer since 2017' },
+    { icon: 'code', label: 'Tech enthusiast' }
   ],
   stats: [
-    { label: 'Projects Completed', value: 45, suffix: '+' },
-    { label: 'Happy Clients', value: 30, suffix: '+' },
-    { label: 'Years Experience', value: 7, suffix: '+' },
-    { label: 'Tech Stack Mastery', value: 12, suffix: '' }
+    { label: 'Production Builds', value: 45, suffix: '+' },
+    { label: 'Lighthouse Target', value: 100, suffix: '/100' },
+    { label: 'System Uptime', value: 99, suffix: '%' },
+    { label: 'Years Teaching & Dev', value: 7, suffix: '+' }
   ],
   photoURL: '',
   showPhoto: true

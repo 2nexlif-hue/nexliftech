@@ -9,7 +9,7 @@ const DEFAULT_PROJECTS = [
   {
     title: 'Govt HSS Shangus ERP',
     category: 'Education & Portals',
-    description: 'A comprehensive Admission and Examination Portal for Government Higher Secondary School Shangus. Features include bulk roll number assignment, reporting utilities, and a centralized admin dashboard.',
+    description: 'Full-stack institutional ERP with automated roll assignment, student database management, and administrative reporting.',
     tech: ['React', 'Firebase', 'Tailwind', 'Node.js'],
     liveLink: 'https://hssshangus.netlify.app/',
     image: '/erp-preview.png'
@@ -17,7 +17,7 @@ const DEFAULT_PROJECTS = [
   {
     title: 'Visit Alpines',
     category: 'Travel & Tourism',
-    description: 'A premium booking and travel itinerary web application for Alpine tours, showcasing gorgeous destinations, guided tours, and bookings.',
+    description: 'High-speed travel booking engine with custom interactive itineraries and responsive layout.',
     tech: ['React', 'Vite', 'CSS', 'Framer Motion'],
     liveLink: 'https://visitalpines.com/',
     image: '/alpine-preview.png'
@@ -25,7 +25,7 @@ const DEFAULT_PROJECTS = [
   {
     title: 'WalletVibe',
     category: 'Finance & Tools',
-    description: 'An online personal finance tool designed to simplify money management—featuring expenditure tracking, lend/borrow record management, bank statements, and financial reporting.',
+    description: 'Personal finance Web App with expense tracking, lend/borrow ledger, bank statement processing, and analytics.',
     tech: ['React', 'Firebase', 'Tailwind', 'Node.js'],
     liveLink: 'https://walletvibe.netlify.app/',
     image: '/walletvibe-preview.svg'
@@ -33,7 +33,7 @@ const DEFAULT_PROJECTS = [
   {
     title: 'Automated Educational & Reporting Suite',
     category: 'Workflow Automation',
-    description: 'Custom Python, Selenium & Apps Script tools to auto-fetch, import & update UDISE+ student profiles, download JKBOSE 10th–12th bulk results, handle RR & exam form submissions, generate QR codes, perform system cleanup, and compile custom lists & reports.',
+    description: 'Python & Selenium suite automating UDISE+ profile sync, JKBOSE result fetching, and bulk report compilation.',
     tech: ['Python', 'Selenium', 'Apps Script', 'VBA', 'Automation'],
     githubLink: '#',
     image: '/automation-preview.svg'
@@ -53,7 +53,7 @@ export default function Portfolio() {
             return {
               title: 'WalletVibe',
               category: 'Finance & Tools',
-              description: 'An online personal finance tool designed to simplify money management—featuring expenditure tracking, lend/borrow record management, bank statements, and financial reporting.',
+              description: 'Personal finance Web App with expense tracking, lend/borrow ledger, bank statement processing, and analytics.',
               tech: ['React', 'Firebase', 'Tailwind', 'Node.js'],
               liveLink: 'https://walletvibe.netlify.app/',
               image: '/walletvibe-preview.svg'
@@ -63,7 +63,7 @@ export default function Portfolio() {
             return {
               title: 'Automated Educational & Reporting Suite',
               category: 'Workflow Automation',
-              description: 'Custom Python, Selenium & Apps Script tools to auto-fetch, import & update UDISE+ student profiles, download JKBOSE 10th–12th bulk results, handle RR & exam form submissions, generate QR codes, perform system cleanup, and compile custom lists & reports.',
+              description: 'Python & Selenium suite automating UDISE+ profile sync, JKBOSE result fetching, and bulk report compilation.',
               tech: ['Python', 'Selenium', 'Apps Script', 'VBA', 'Automation'],
               githubLink: '#',
               image: '/automation-preview.svg'
@@ -83,9 +83,9 @@ export default function Portfolio() {
     <section id="portfolio" className="portfolio">
       <div className="container">
         <div className="section-header animate-on-scroll" ref={animateRef}>
-          <h2 className="section-title">Featured <span className="text-gradient">Projects</span></h2>
+          <h2 className="section-title">Production <span className="text-gradient">Builds</span></h2>
           <p className="section-subtitle">
-            A selection of our recent work across education, finance, travel, and workflow automation.
+            Shipped web platforms, institutional ERPs, and automated backend engines.
           </p>
         </div>
 

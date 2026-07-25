@@ -16,6 +16,7 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import WhatsAppButton from './components/WhatsAppButton';
 import CustomCursor from './components/CustomCursor';
+import SecurityGuard from './components/SecurityGuard';
 
 // Admin components (lazy loaded — only fetched when admin routes are visited)
 const Login = lazy(() => import('./components/Admin/Login'));
@@ -76,10 +77,11 @@ function LandingPage() {
     </>
   );
 }
-
+ 
 function App() {
   return (
     <AuthProvider>
+      <SecurityGuard />
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />

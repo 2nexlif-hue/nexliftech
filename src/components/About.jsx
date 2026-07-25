@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Award, BookOpen, GraduationCap, Briefcase } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Award, BookOpen, GraduationCap, Briefcase, Code } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
@@ -11,74 +10,86 @@ const CREDENTIAL_ICONS = {
   award: Award,
   book: BookOpen,
   graduation: GraduationCap,
-  briefcase: Briefcase
+  briefcase: Briefcase,
+  code: Code
 };
 
 // Fallback data used when Firestore is unreachable or doc doesn't exist yet
 const FALLBACK = {
   name: 'Sheikh Gulfam',
-  title: 'Founder & Lead Developer',
-  quote: '"Great software, like nature, requires a strong foundation, adaptability, and continuous growth."',
+  title: 'Lecturer Botany | PhD CSIR IIIM Alumni | MSc Data Science Scholar',
+  quote: '"Integrating scientific research, data science, and software engineering to solve real-world challenges."',
   storyParagraphs: [
-    'Founded by Sheikh Gulfam, NexLifTech is built on a unique foundation of scientific rigor and engineering excellence.',
-    "Starting as a Lecturer in Botany with national level exams like NET-JRF CSIR and others, Sheikh's journey shifted during his PhD research at CSIR IIIM Jammu. A deep interest in automating workflows evolved into a passion for software development, leading to the creation of robust web applications, ERPs, and automation tools.",
-    "Today, NexLifTech brings that same analytical, research-driven approach to solving business problems through technology. We don't just write code; we architect solutions that are secure, high-performing, and built to scale."
+    'Founded by Sheikh Gulfam — CSIR IIIM PhD Research Alumni, CSIR NET-JRF holder, and Lecturer in Botany in the School Education Department since 2017.',
+    'Combining a scientific research background with a strong passion for computational skills and workflow automation, he is currently pursuing an MSc in Data Science & Analytics to engineer high-impact, real-world software applications.'
   ],
   credentials: [
-    { icon: 'award', label: 'CSIR NET-JRF Qualified' },
     { icon: 'book', label: 'CSIR IIIM Research Alumni' },
-    { icon: 'graduation', label: 'GATE Life Sciences' },
-    { icon: 'briefcase', label: 'Lecturer since 2017' }
+    { icon: 'briefcase', label: 'Lecturer since 2017' },
+    { icon: 'code', label: 'Tech enthusiast' }
   ],
   stats: [
-    { label: 'Projects Completed', value: 45, suffix: '+' },
-    { label: 'Happy Clients', value: 30, suffix: '+' },
-    { label: 'Years Experience', value: 7, suffix: '+' },
-    { label: 'Tech Stack Mastery', value: 12, suffix: '' }
+    { label: 'Production Builds', value: 45, suffix: '+' },
+    { label: 'Lighthouse Target', value: 100, suffix: '/100' },
+    { label: 'System Uptime', value: 99, suffix: '%' },
+    { label: 'Years Teaching & Dev', value: 7, suffix: '+' }
   ],
   photoURL: '/Gulfam.jpg',
   showPhoto: true
 };
 
-// Simple counter hook for the stats
-function useCounter(end, duration = 2000, startAnimating = false) {
+// Simple counter hook for the stats - re-triggers every time in view
+function useCounter(end, duration = 1800, startAnimating = false) {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    if (!startAnimating) return;
+    if (!startAnimating) {
+      setCount(0);
+      return;
+    }
 
     let startTime = null;
+    let animId = null;
+
     const step = (timestamp) => {
       if (!startTime) startTime = timestamp;
       const progress = Math.min((timestamp - startTime) / duration, 1);
       const easeProgress = 1 - Math.pow(1 - progress, 4);
       setCount(Math.floor(easeProgress * end));
       if (progress < 1) {
-        window.requestAnimationFrame(step);
+        animId = window.requestAnimationFrame(step);
       }
     };
-    window.requestAnimationFrame(step);
+    animId = window.requestAnimationFrame(step);
+
+    return () => {
+      if (animId) window.cancelAnimationFrame(animId);
+    };
   }, [end, duration, startAnimating]);
 
   return count;
 }
 
 function StatItem({ stat, isVisible }) {
-  const count = useCounter(stat.value, 2000, isVisible);
+  const count = useCounter(stat.value, 1800, isVisible);
   return (
-    <div className="stat-item">
+    <motion.div 
+      className="stat-item"
+      animate={isVisible ? { scale: [0.9, 1.05, 1], opacity: [0.5, 1] } : { scale: 0.9, opacity: 0.5 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
       <div className="stat-number text-gradient">
         {count}{stat.suffix}
       </div>
       <div className="stat-label">{stat.label}</div>
-    </div>
+    </motion.div>
   );
 }
 
 export default function About() {
   const animateRef = useScrollAnimation();
   const statsRef = useRef(null);
-  const statsInView = useInView(statsRef, { once: true, margin: '-100px' });
+  const statsInView = useInView(statsRef, { once: false, margin: '-50px' });
   const combinedStatsRef = (el) => {
     statsRef.current = el;
     animateRef(el);
@@ -92,8 +103,24 @@ export default function About() {
     const unsubscribe = onSnapshot(
       docRef,
       (snap) => {
+        const targetCredentials = [
+          { icon: 'book', label: 'CSIR IIIM Research Alumni' },
+          { icon: 'briefcase', label: 'Lecturer since 2017' },
+          { icon: 'code', label: 'Tech enthusiast' }
+        ];
+
         if (snap.exists()) {
-          setData({ ...FALLBACK, ...snap.data() });
+          const remoteData = snap.data();
+          setData({ 
+            ...FALLBACK, 
+            ...remoteData,
+            credentials: targetCredentials
+          });
+        } else {
+          setData({
+            ...FALLBACK,
+            credentials: targetCredentials
+          });
         }
         setLoading(false);
       },
@@ -114,9 +141,9 @@ export default function About() {
       <div className="container">
         <div className="about-grid">
           <div className="about-content animate-on-scroll" ref={animateRef}>
-            <div className="badge about-badge">Our Story</div>
+            <div className="badge about-badge">// SYSTEM_SPEC</div>
             <h2 className="section-title">
-              Where <span className="text-gradient">Science</span> Meets Code
+              Scientific Rigor x <span className="text-gradient">Clean Architecture</span>
             </h2>
 
             <div className="story-text">

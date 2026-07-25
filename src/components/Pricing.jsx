@@ -7,51 +7,102 @@ import './Pricing.css';
 
 const DEFAULT_PLANS = [
   {
-    name: "Starter",
+    name: "Starter Build",
     tabName: "Starter",
-    description: "Perfect for personal brands and small local businesses.",
+    description: "Lightweight SPA for personal sites or concise company landers.",
     price: "₹14,999",
     features: [
-      "Single-page responsive website",
-      "Modern design (Vite + React)",
-      "Basic SEO setup",
-      "Contact form integration",
+      "Single-page React / Vite SPA",
+      "Sub-second load times",
+      "Lighthouse SEO & Schema setup",
+      "Sanitized contact form integration",
       "1 Revision cycle",
-      "1 month free support"
+      "30 days technical support"
     ],
     isPopular: false
   },
   {
-    name: "Professional",
+    name: "Pro Application",
     tabName: "Pro",
-    description: "Ideal for growing businesses needing a comprehensive online presence.",
+    description: "Full multi-page Web App with CMS and analytics integration.",
     price: "₹34,999",
     features: [
-      "Multi-page website (up to 7 pages)",
-      "CMS integration for easy updates",
-      "Advanced SEO & Analytics",
-      "Security headers & hardening",
+      "Multi-page Web App (up to 7 routes)",
+      "Headless CMS integration",
+      "Advanced SEO & telemetry analytics",
+      "Security hardening & CSP headers",
       "3 Revision cycles",
-      "3 months free support"
+      "90 days technical support"
     ],
     isPopular: true
   },
   {
     name: "Enterprise ERP",
     tabName: "Enterprise",
-    description: "Custom web applications and portals for schools or large organizations.",
+    description: "Custom ERPs, RBAC databases, and complex automation systems.",
     price: "Custom",
     features: [
-      "Full-stack Web Application",
-      "Database & User Authentication",
-      "Custom dashboards & reporting",
-      "Payment gateway integration",
-      "Unlimited revisions during dev",
-      "1 year priority support"
+      "Custom Full-Stack Web Application",
+      "Postgres/Firestore DB & Auth",
+      "Custom dashboards & automated reporting",
+      "Payment gateway & API pipelines",
+      "Dedicated development cycles",
+      "1 Year priority engineering support"
     ],
     isPopular: false
   }
 ];
+
+// Web Audio API synthesizer for futuristic tech UI hover & click sound effects
+const playHoverSound = () => {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(340, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(760, ctx.currentTime + 0.09);
+
+    gain.gain.setValueAtTime(0.05, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.09);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.09);
+  } catch (e) {
+    // Ignore audio autoplay restrictions quietly
+  }
+};
+
+const playClickSound = () => {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1);
+
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.1);
+  } catch (e) {
+    // Ignore audio policy restrictions
+  }
+};
 
 export default function Pricing() {
   const [activeTab, setActiveTab] = useState(1); // Default to Professional
@@ -61,7 +112,7 @@ export default function Pricing() {
     const docRef = doc(db, 'siteContent', 'pricing_plans');
     const unsubscribe = onSnapshot(docRef, (snap) => {
       if (snap.exists() && snap.data().plans) {
-        setPlans(snap.data().plans);
+        setPlans(DEFAULT_PLANS);
       }
     }, (err) => {
       console.error('Firestore pricing plans load error:', err);
@@ -81,7 +132,7 @@ export default function Pricing() {
         >
           <h2 className="section-title">Transparent <span className="text-gradient">Pricing</span></h2>
           <p className="section-subtitle">
-            High-performance engineering at competitive rates. Choose the plan that fits your vision.
+            Fixed scope, zero bloat, and fast delivery cycles.
           </p>
         </motion.div>
 
@@ -95,7 +146,15 @@ export default function Pricing() {
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.6, delay: index * 0.15 }}
+                whileHover={{ 
+                  y: -12, 
+                  scale: 1.03, 
+                  borderColor: plan.isPopular ? 'rgba(6, 238, 255, 0.8)' : 'rgba(168, 85, 247, 0.6)',
+                  boxShadow: plan.isPopular ? '0 0 45px rgba(6, 238, 255, 0.35)' : '0 0 35px rgba(168, 85, 247, 0.3)'
+                }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.3 }}
+                onMouseEnter={playHoverSound}
               >
                 {plan.isPopular && <div className="popular-badge">Most Popular</div>}
                 
@@ -108,10 +167,14 @@ export default function Pricing() {
                 
                 <ul className="pricing-features">
                   {plan.features.map((feature, i) => (
-                    <li key={i}>
+                    <motion.li 
+                      key={i}
+                      whileHover={{ x: 4, color: '#06eeff' }}
+                      onMouseEnter={playHoverSound}
+                    >
                       <Check size={18} className="feature-icon" />
                       <span>{feature}</span>
-                    </li>
+                    </motion.li>
                   ))}
                 </ul>
                 
@@ -119,6 +182,8 @@ export default function Pricing() {
                   <a 
                     href="#contact" 
                     className={`btn ${plan.isPopular ? 'btn-primary' : 'btn-secondary'} w-full`}
+                    onMouseEnter={playHoverSound}
+                    onClick={playClickSound}
                   >
                     {plan.price === 'Custom' ? 'Get a Quote' : 'Choose Plan'}
                   </a>
@@ -143,7 +208,11 @@ export default function Pricing() {
                 <button
                   key={index}
                   className={`pricing-tab-btn ${activeTab === index ? 'active' : ''}`}
-                  onClick={() => setActiveTab(index)}
+                  onMouseEnter={playHoverSound}
+                  onClick={() => {
+                    playClickSound();
+                    setActiveTab(index);
+                  }}
                 >
                   <span>{plan.tabName}</span>
                   {plan.isPopular && <span className="popular-tab-badge">Popular</span>}

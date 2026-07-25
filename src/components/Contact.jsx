@@ -111,18 +111,18 @@ export default function Contact() {
     <section id="contact" className="contact">
       <div className="container">
         <div className="section-header animate-on-scroll" ref={animateRef}>
-          <h2 className="section-title">Let's Build Something <span className="text-gradient">Amazing</span></h2>
+          <h2 className="section-title">Initiate <span className="text-gradient">Project</span></h2>
           <p className="section-subtitle">
-            Ready to start your next project? Reach out and we'll get back to you within 24 hours.
+            Send your project scope or technical specs below for a prompt response.
           </p>
         </div>
 
         <div className="contact-grid">
           <div className="contact-info animate-on-scroll" ref={animateRef}>
             <div className="contact-card glass-panel">
-              <h3>Get in Touch</h3>
+              <h3>Technical Inquiry</h3>
               <p className="contact-desc">
-                Whether you have a question, a project idea, or just want to say hello, we're always open to discussing new opportunities.
+                Send your project requirements or API/automation specs directly to our engineering lead.
               </p>
               
               <div className="info-list">
@@ -153,7 +153,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h4>Location</h4>
-                    <p>Tehsil: Hardu-Shichen, District: Anantnag<br />Jammu & Kashmir, India</p>
+                    <p>Tehsil & District: Anantnag<br />Jammu & Kashmir, India</p>
                   </div>
                 </div>
               </div>

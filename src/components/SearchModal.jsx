@@ -81,16 +81,16 @@ const SEARCHABLE_ITEMS = [
   {
     title: 'Sheikh Gulfam (Founder)',
     category: 'Founder & Bio',
-    description: 'Lecturer in Botany and Research Scholar at CSIR IIIM Jammu, transitioned into a software architect.',
+    description: 'Lecturer in Botany (School Edu Dept, since 2017) & MSc Data Science & Analytics Scholar building practical systems.',
     target: '#about',
-    tags: ['gulfam', 'founder', 'botany', 'csir', 'research', 'lecturer', 'developer']
+    tags: ['gulfam', 'founder', 'botany', 'lecturer', 'data science', 'analytics', 'csir', 'developer']
   },
   {
-    title: 'Academic Credentials',
+    title: 'Academic & Professional Credentials',
     category: 'Founder & Bio',
-    description: 'CSIR NET-JRF Qualified, GATE Life Sciences holder, CSIR IIIM Jammu alumnus.',
+    description: 'Lecturer Botany since 2017, MSc Data Science student, CSIR NET-JRF & GATE Life Sciences qualified.',
     target: '#about',
-    tags: ['net', 'jrf', 'gate', 'phd', 'research', 'iiim']
+    tags: ['net', 'jrf', 'gate', 'msc', 'data science', 'research', 'lecturer', 'education']
   },
 
   // Pricing

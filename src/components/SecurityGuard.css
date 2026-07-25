@@ -1,0 +1,134 @@
+/* Security Toast Warning Container */
+.security-toast-container {
+  position: fixed;
+  top: 90px;
+  right: 24px;
+  z-index: 10000;
+  animation: securityToastSlide 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.security-toast {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  background: rgba(18, 10, 30, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(247, 37, 133, 0.5);
+  box-shadow: 0 8px 32px rgba(247, 37, 133, 0.25), 0 0 15px rgba(247, 37, 133, 0.15);
+  color: #fff;
+  padding: 0.85rem 1.25rem;
+  border-radius: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  max-width: 420px;
+}
+
+.security-toast-icon {
+  color: var(--accent-pink);
+  flex-shrink: 0;
+  animation: pulse 1.5s infinite;
+}
+
+.security-toast-text {
+  line-height: 1.4;
+  color: #f5f5ff;
+}
+
+.security-toast-close {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+  margin-left: auto;
+}
+
+.security-toast-close:hover {
+  color: #fff;
+}
+
+@keyframes securityToastSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Fullscreen Overlay for DevTools Detection */
+.security-fullscreen-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(7, 7, 15, 0.94);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.security-modal {
+  max-width: 520px;
+  width: 100%;
+  text-align: center;
+  padding: 3rem 2.5rem;
+  border: 1px solid rgba(247, 37, 133, 0.5);
+  box-shadow: 0 0 50px rgba(247, 37, 133, 0.25);
+  position: relative;
+  background: rgba(15, 10, 25, 0.95);
+  border-radius: 16px;
+}
+
+.security-modal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(247, 37, 133, 0.15);
+  color: var(--accent-pink);
+  border: 1px solid rgba(247, 37, 133, 0.4);
+  padding: 0.35rem 1rem;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 1.5rem;
+}
+
+.security-modal-icon {
+  color: var(--accent-pink);
+  margin-bottom: 1.25rem;
+  display: flex;
+  justify-content: center;
+}
+
+.security-modal h2 {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+.security-modal p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+
+.security-modal-sub {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent-cyan);
+  margin-bottom: 2rem !important;
+}
