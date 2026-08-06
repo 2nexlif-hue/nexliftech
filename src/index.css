@@ -1,30 +1,35 @@
-:root {
-  /* Color Palette - Neon Aurora (vibrant revision) */
-  --bg-primary: #07070f;
-  --bg-secondary: #0f0f1c;
-  --bg-elevated: #16162a;
-  --bg-glass: rgba(255, 255, 255, 0.05);
-  --bg-glass-hover: rgba(255, 255, 255, 0.10);
+/* ====================================================
+   NexLifTech Theme Engine (Default: Light Mode)
+   ==================================================== */
 
-  --text-primary: #f5f5ff;
-  --text-secondary: #9494b8;
-  --text-inverse: #07070f;
+:root,
+html[data-theme="light"] {
+  /* Color Palette - Light Executive (Default Theme) */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-elevated: #f1f5f9;
+  --bg-glass: rgba(255, 255, 255, 0.85);
+  --bg-glass-hover: rgba(255, 255, 255, 0.95);
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-inverse: #ffffff;
 
   /* Vivid accent palette */
-  --accent-primary: #a855f7;       /* electric violet */
-  --accent-secondary: #7c3aed;     /* deep indigo */
-  --accent-cyan: #06eeff;          /* neon cyan */
-  --accent-pink: #f72585;          /* hot pink */
-  --accent-green: #00ff99;         /* mint neon */
+  --accent-primary: #7c3aed;       /* rich violet */
+  --accent-secondary: #6366f1;     /* deep indigo */
+  --accent-cyan: #0284c7;          /* sky blue */
+  --accent-pink: #db2777;          /* deep pink */
+  --accent-green: #059669;         /* emerald */
   --success: #10b981;
 
-  --border-light: rgba(168, 85, 247, 0.12);
-  --border-glow: rgba(168, 85, 247, 0.5);
+  --border-light: rgba(124, 58, 237, 0.15);
+  --border-glow: rgba(124, 58, 237, 0.3);
 
   /* Vivid gradients */
-  --gradient-accent: linear-gradient(135deg, #7c3aed 0%, #a855f7 40%, #ec4899 80%, #f72585 100%);
-  --gradient-glow: linear-gradient(135deg, #06eeff 0%, #7c3aed 40%, #a855f7 70%, #f72585 100%);
-  --gradient-subtle: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(168,85,247,0.08));
+  --gradient-accent: linear-gradient(135deg, #6366f1 0%, #7c3aed 40%, #db2777 100%);
+  --gradient-glow: linear-gradient(135deg, #0284c7 0%, #7c3aed 40%, #db2777 100%);
+  --gradient-subtle: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(124,58,237,0.04));
 
   /* Typography */
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -42,8 +47,68 @@
   --transition-slow: 0.5s ease;
 
   /* Shadows */
+  --shadow-glass: 0 10px 30px rgba(15, 23, 42, 0.08);
+  --shadow-glow: 0 0 25px rgba(124, 58, 237, 0.15);
+}
+
+/* Dark Mode Theme */
+html[data-theme="dark"] {
+  --bg-primary: #07070f;
+  --bg-secondary: #0f0f1c;
+  --bg-elevated: #16162a;
+  --bg-glass: rgba(255, 255, 255, 0.05);
+  --bg-glass-hover: rgba(255, 255, 255, 0.10);
+
+  --text-primary: #f5f5ff;
+  --text-secondary: #9494b8;
+  --text-inverse: #07070f;
+
+  --accent-primary: #a855f7;
+  --accent-secondary: #7c3aed;
+  --accent-cyan: #06eeff;
+  --accent-pink: #f72585;
+  --accent-green: #00ff99;
+  --success: #10b981;
+
+  --border-light: rgba(168, 85, 247, 0.12);
+  --border-glow: rgba(168, 85, 247, 0.5);
+
+  --gradient-accent: linear-gradient(135deg, #7c3aed 0%, #a855f7 40%, #ec4899 80%, #f72585 100%);
+  --gradient-glow: linear-gradient(135deg, #06eeff 0%, #7c3aed 40%, #a855f7 70%, #f72585 100%);
+  --gradient-subtle: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(168,85,247,0.08));
+
   --shadow-glass: 0 8px 40px 0 rgba(0, 0, 0, 0.5);
   --shadow-glow: 0 0 30px var(--border-glow);
+}
+
+/* Cyber Neon Theme */
+html[data-theme="cyber"] {
+  --bg-primary: #030712;
+  --bg-secondary: #0b0f19;
+  --bg-elevated: #111827;
+  --bg-glass: rgba(6, 182, 212, 0.06);
+  --bg-glass-hover: rgba(6, 182, 212, 0.12);
+
+  --text-primary: #f0fdf4;
+  --text-secondary: #94a3b8;
+  --text-inverse: #030712;
+
+  --accent-primary: #06b6d4;
+  --accent-secondary: #3b82f6;
+  --accent-cyan: #22d3ee;
+  --accent-pink: #ec4899;
+  --accent-green: #10b981;
+  --success: #10b981;
+
+  --border-light: rgba(6, 182, 212, 0.2);
+  --border-glow: rgba(6, 182, 212, 0.6);
+
+  --gradient-accent: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #10b981 100%);
+  --gradient-glow: linear-gradient(135deg, #22d3ee 0%, #3b82f6 50%, #ec4899 100%);
+  --gradient-subtle: linear-gradient(135deg, rgba(6,182,212,0.15), rgba(59,130,246,0.08));
+
+  --shadow-glass: 0 8px 40px 0 rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 35px rgba(6, 182, 212, 0.4);
 }
 
 /* Reset & Base Styles */

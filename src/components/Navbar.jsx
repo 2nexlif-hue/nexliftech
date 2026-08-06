@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, Search } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Menu, X, Search, LogIn } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 import SearchModal from './SearchModal';
 import './Navbar.css';
@@ -106,6 +107,17 @@ export default function Navbar({ notificationsHook }) {
                 <span className="search-hotkey">/</span>
               </button>
               <NotificationBell notificationsHook={notificationsHook} />
+              
+              {/* Desktop Admin Login Button */}
+              <Link 
+                to="/admin/login" 
+                className="nav-login-btn"
+                title="Admin Portal Login"
+              >
+                <LogIn size={15} />
+                <span>Admin Login</span>
+              </Link>
+
               <a href="#contact" className="btn btn-primary btn-sm" onClick={(e) => handleNavClick(e, '#contact')}>Start Project</a>
             </div>
           </div>
@@ -144,9 +156,19 @@ export default function Navbar({ notificationsHook }) {
                 </li>
               ))}
               <li>
+                <Link 
+                  to="/admin/login" 
+                  className="nav-login-btn mobile-login-btn"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <LogIn size={16} />
+                  <span>Admin Login</span>
+                </Link>
+              </li>
+              <li>
                 <a 
                   href="#contact" 
-                  className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }}
+                  className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem' }}
                   onClick={(e) => handleNavClick(e, '#contact')}
                 >
                   Start Project

@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { doc, getDoc, setDoc, collection, query, orderBy, onSnapshot, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import {
   ArrowLeft, Save, LogOut, Upload, Image, User, FileText,
   Award, BookOpen, GraduationCap, Briefcase, CheckCircle, AlertCircle, Eye,
-  Mail, MailOpen, Trash2, Calendar, DollarSign, Globe, Inbox
+  Mail, MailOpen, Trash2, Calendar, DollarSign, Globe, Inbox, Building2
 } from 'lucide-react';
+import AdminAwcMonitoring from './AdminAwcMonitoring';
 import './Admin.css';
 
 const ABOUT_DOC_ID = 'about_developer';
@@ -193,15 +194,20 @@ const DEFAULT_PRICING = [
 export default function Dashboard() {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const fileInputRef = useRef(null);
+
+  const initialWorkspace = searchParams.get('workspace') === 'personal' ? 'personal' : 'cms';
+  const [workspace, setWorkspace] = useState(initialWorkspace);
 
   const [formData, setFormData] = useState(DEFAULT_DATA);
   const [photoPreview, setPhotoPreview] = useState('');
   const [saving, setSaving] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [toast, setToast] = useState({ show: false, type: '', message: '' });
+  const [confirmModal, setConfirmModal] = useState(null);
 
-  const [activeTab, setActiveTab] = useState('hero'); // default to 'hero' tab
+  const [activeTab, setActiveTab] = useState(initialWorkspace === 'personal' ? 'awcMonitoring' : 'hero');
   const [messages, setMessages] = useState([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
 
@@ -782,15 +788,23 @@ export default function Dashboard() {
     }
   }
 
-  async function deleteMessage(msgId) {
-    if (!window.confirm('Are you sure you want to delete this message?')) return;
-    try {
-      await deleteDoc(doc(db, 'contactMessages', msgId));
-      showToast('success', 'Message deleted successfully.');
-    } catch (err) {
-      console.error('Error deleting message:', err);
-      showToast('error', 'Failed to delete message.');
-    }
+  function deleteMessage(msgId) {
+    setConfirmModal({
+      title: 'Delete Contact Message?',
+      message: 'Are you sure you want to delete this customer inquiry message? This action cannot be undone.',
+      actionText: 'Delete Message',
+      onConfirm: async () => {
+        try {
+          await deleteDoc(doc(db, 'contactMessages', msgId));
+          showToast('success', 'Message deleted successfully.');
+        } catch (err) {
+          console.error('Error deleting message:', err);
+          showToast('error', 'Failed to delete message.');
+        } finally {
+          setConfirmModal(null);
+        }
+      }
+    });
   }
 
   function formatProjectType(type) {
@@ -863,73 +877,203 @@ export default function Dashboard() {
 
       {/* Top bar */}
       <div className="dashboard-topbar">
-        <a href="/" className="admin-back-link">
-          <ArrowLeft size={18} /> Back to Site
-        </a>
-        <div className="topbar-right">
-          <a href="/" target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm">
-            <Eye size={16} /> Preview Site
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+          <a href="/" className="admin-back-link">
+            <ArrowLeft size={16} /> <span>Back to Site</span>
           </a>
-          <span className="admin-email">{currentUser?.email}</span>
-          <button onClick={handleLogout} className="btn btn-secondary btn-sm">
-            <LogOut size={16} /> Logout
+          
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.25rem 0.65rem',
+            borderRadius: '999px',
+            background: 'rgba(16, 185, 129, 0.1)',
+            border: '1px solid rgba(16, 185, 129, 0.25)',
+            color: '#10b981',
+            fontSize: '0.75rem',
+            fontWeight: 700
+          }}>
+            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }}></span>
+            <span>Firestore Operational</span>
+          </div>
+        </div>
+
+        <div className="topbar-right">
+          <a href="/" target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm" style={{ gap: '0.4rem', fontSize: '0.78rem' }}>
+            <Eye size={14} /> Preview Site
+          </a>
+
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.25rem 0.75rem',
+            borderRadius: '12px',
+            background: 'rgba(255, 255, 255, 0.04)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            fontSize: '0.8rem',
+            color: '#fff',
+            fontWeight: 600
+          }}>
+            <div style={{
+              width: '24px',
+              height: '24px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #a855f7, #6366f1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '0.72rem',
+              fontWeight: 800
+            }}>
+              {(currentUser?.email || 'A')[0].toUpperCase()}
+            </div>
+            <span className="admin-email" style={{ color: '#e2e8f0', fontWeight: 700 }}>{currentUser?.email}</span>
+          </div>
+
+          <button onClick={handleLogout} className="btn btn-secondary btn-sm" style={{ color: '#f43f5e', borderColor: 'rgba(244, 63, 94, 0.25)', background: 'rgba(244, 63, 94, 0.08)' }}>
+            <LogOut size={14} /> Logout
           </button>
         </div>
       </div>
 
       <div className="dashboard-container">
+        {/* Workspace Mode Category Selector */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '0.4rem',
+          background: 'rgba(18, 18, 26, 0.85)',
+          backdropFilter: 'blur(16px)',
+          padding: '0.3rem',
+          borderRadius: '14px',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          marginBottom: '1rem',
+          boxShadow: '0 6px 20px rgba(0,0,0,0.3)'
+        }}>
+          <button
+            type="button"
+            onClick={() => {
+              setWorkspace('cms');
+              setActiveTab('hero');
+            }}
+            style={{
+              padding: '0.5rem 0.85rem',
+              borderRadius: '10px',
+              border: 'none',
+              background: workspace === 'cms' ? 'linear-gradient(135deg, #8b5cf6, #6366f1)' : 'transparent',
+              color: workspace === 'cms' ? '#ffffff' : '#8888a0',
+              fontSize: '0.83rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.45rem',
+              boxShadow: workspace === 'cms' ? '0 4px 16px rgba(139, 92, 246, 0.35)' : 'none'
+            }}
+          >
+            <Globe size={15} />
+            <span>🌐 Website CMS Account</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setWorkspace('personal');
+              setActiveTab('awcMonitoring');
+            }}
+            style={{
+              padding: '0.5rem 0.85rem',
+              borderRadius: '10px',
+              border: 'none',
+              background: workspace === 'personal' ? 'linear-gradient(135deg, #a855f7, #06b6d4)' : 'transparent',
+              color: workspace === 'personal' ? '#ffffff' : '#8888a0',
+              fontSize: '0.83rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.45rem',
+              boxShadow: workspace === 'personal' ? '0 4px 16px rgba(168, 85, 247, 0.35)' : 'none'
+            }}
+          >
+            <Building2 size={15} />
+            <span>🏢 Personal & Govt Projects Account</span>
+          </button>
+        </div>
+
         <div className="dashboard-header-wrapper">
           <div className="dashboard-header">
-            <h1>Admin Dashboard</h1>
-            <p className="dashboard-subtitle">Manage site content and view incoming customer messages.</p>
+            <h1>{workspace === 'cms' ? 'Website Content Portal' : 'Personal & Official Projects Suite'}</h1>
+            <p className="dashboard-subtitle">
+              {workspace === 'cms' 
+                ? 'Manage site content, portfolio, pricing plans, and view incoming customer messages.'
+                : 'Access & manage official government inspection checklists, personal apps, and Firestore records.'}
+            </p>
           </div>
           
           <div className="dashboard-tabs">
-            <button 
-              className={`tab-btn ${activeTab === 'hero' ? 'active' : ''}`}
-              onClick={() => setActiveTab('hero')}
-            >
-              <Globe size={16} /> Hero
-            </button>
-            <button 
-              className={`tab-btn ${activeTab === 'content' ? 'active' : ''}`}
-              onClick={() => setActiveTab('content')}
-            >
-              <User size={16} /> About
-            </button>
-            <button 
-              className={`tab-btn ${activeTab === 'services' ? 'active' : ''}`}
-              onClick={() => setActiveTab('services')}
-            >
-              <BookOpen size={16} /> Services
-            </button>
-            <button 
-              className={`tab-btn ${activeTab === 'projects' ? 'active' : ''}`}
-              onClick={() => setActiveTab('projects')}
-            >
-              <Briefcase size={16} /> Projects
-            </button>
-            <button 
-              className={`tab-btn ${activeTab === 'pricing' ? 'active' : ''}`}
-              onClick={() => setActiveTab('pricing')}
-            >
-              <DollarSign size={16} /> Pricing
-            </button>
-            <button 
-              className={`tab-btn ${activeTab === 'testimonials' ? 'active' : ''}`}
-              onClick={() => setActiveTab('testimonials')}
-            >
-              <Award size={16} /> Testimonials
-            </button>
-            <button 
-              className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
-              onClick={() => setActiveTab('messages')}
-            >
-              <Mail size={16} /> Messages Inbox
-              {unreadCount > 0 && (
-                <span className="unread-badge">{unreadCount}</span>
-              )}
-            </button>
+            {workspace === 'cms' ? (
+              <>
+                <button 
+                  className={`tab-btn ${activeTab === 'hero' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('hero')}
+                >
+                  <Globe size={16} /> Hero
+                </button>
+                <button 
+                  className={`tab-btn ${activeTab === 'content' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('content')}
+                >
+                  <User size={16} /> About
+                </button>
+                <button 
+                  className={`tab-btn ${activeTab === 'services' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('services')}
+                >
+                  <BookOpen size={16} /> Services
+                </button>
+                <button 
+                  className={`tab-btn ${activeTab === 'projects' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('projects')}
+                >
+                  <Briefcase size={16} /> Projects
+                </button>
+                <button 
+                  className={`tab-btn ${activeTab === 'pricing' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('pricing')}
+                >
+                  <DollarSign size={16} /> Pricing
+                </button>
+                <button 
+                  className={`tab-btn ${activeTab === 'testimonials' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('testimonials')}
+                >
+                  <Award size={16} /> Testimonials
+                </button>
+                <button 
+                  className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('messages')}
+                >
+                  <Mail size={16} /> Messages Inbox
+                  {unreadCount > 0 && (
+                    <span className="unread-badge">{unreadCount}</span>
+                  )}
+                </button>
+              </>
+            ) : (
+              <button 
+                className={`tab-btn ${activeTab === 'awcMonitoring' ? 'active' : ''}`}
+                onClick={() => setActiveTab('awcMonitoring')}
+              >
+                <Building2 size={16} /> Anganwadi Monitoring (Poshan)
+              </button>
+            )}
           </div>
         </div>
 
@@ -1751,7 +1895,7 @@ export default function Dashboard() {
               </>
             )}
           </div>
-        ) : (
+        ) : activeTab === 'messages' ? (
           <div className="inbox-container">
             <div className="inbox-header">
               <h2><Inbox size={20} /> Contact Messages Inbox</h2>
@@ -1825,8 +1969,80 @@ export default function Dashboard() {
               </div>
             )}
           </div>
-        )}
+        ) : activeTab === 'awcMonitoring' ? (
+          <AdminAwcMonitoring />
+        ) : null}
       </div>
+
+      {/* CUSTOM CONFIRMATION DIALOG MODAL */}
+      {confirmModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0, 0, 0, 0.65)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: 'var(--bg-secondary, #ffffff)',
+            border: '1px solid var(--border-light, #e2e8f0)',
+            borderRadius: '20px',
+            padding: '2rem 2.25rem',
+            maxWidth: '440px',
+            width: '100%',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#e11d48' }}>
+              <div style={{ background: 'rgba(225, 29, 72, 0.1)', padding: '0.6rem', borderRadius: '12px' }}>
+                <Trash2 size={24} />
+              </div>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
+                {confirmModal.title}
+              </h3>
+            </div>
+
+            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.5 }}>
+              {confirmModal.message}
+            </p>
+
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setConfirmModal(null)}
+                style={{ padding: '0.55rem 1.1rem', fontSize: '0.85rem' }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                style={{
+                  background: 'linear-gradient(135deg, #e11d48, #be123c)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '10px',
+                  padding: '0.55rem 1.25rem',
+                  fontWeight: 700,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(225, 29, 72, 0.3)'
+                }}
+                onClick={confirmModal.onConfirm}
+              >
+                {confirmModal.actionText || 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

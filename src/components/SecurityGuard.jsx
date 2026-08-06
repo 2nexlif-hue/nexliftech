@@ -93,18 +93,24 @@ export default function SecurityGuard() {
     // 3. Right-Click (Context Menu) Blocker
     const handleContextMenu = (e) => {
       e.preventDefault();
-      triggerWarning('Right-click context menu is disabled to protect Next LIfe Technologies content.');
+      e.stopPropagation();
+      triggerWarning('Right-click context menu is disabled to protect Next Life Technologies source code & structure.');
       return false;
     };
 
-    // 4. Text Copy Blocker outside inputs
+    // 4. Text Copy & Drag Blocker outside inputs
     const handleCopy = (e) => {
       const targetTag = e.target.tagName;
       if (targetTag !== 'INPUT' && targetTag !== 'TEXTAREA' && !e.target.isContentEditable) {
         e.preventDefault();
-        triggerWarning('Copying Next LIfe Technologies site content is disabled.');
+        triggerWarning('Copying Next Life Technologies site content is disabled.');
         return false;
       }
+    };
+
+    const handleDragStart = (e) => {
+      e.preventDefault();
+      return false;
     };
 
     // 5. DevTools Detection via Window Threshold
@@ -121,7 +127,9 @@ export default function SecurityGuard() {
 
     window.addEventListener('keydown', handleKeyDown, true);
     window.addEventListener('contextmenu', handleContextMenu, true);
+    document.addEventListener('contextmenu', handleContextMenu, true);
     document.addEventListener('copy', handleCopy, true);
+    document.addEventListener('dragstart', handleDragStart, true);
     window.addEventListener('resize', checkDevTools);
 
     const devToolsInterval = setInterval(checkDevTools, 1000);
@@ -129,7 +137,9 @@ export default function SecurityGuard() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown, true);
       window.removeEventListener('contextmenu', handleContextMenu, true);
+      document.removeEventListener('contextmenu', handleContextMenu, true);
       document.removeEventListener('copy', handleCopy, true);
+      document.removeEventListener('dragstart', handleDragStart, true);
       window.removeEventListener('resize', checkDevTools);
       clearInterval(devToolsInterval);
     };

@@ -8,6 +8,7 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [portalMode, setPortalMode] = useState('cms'); // 'cms' | 'personal'
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -20,7 +21,7 @@ export default function Login() {
 
     try {
       await login(email, password);
-      navigate('/admin/dashboard');
+      navigate(`/admin/dashboard?workspace=${portalMode}`);
     } catch (err) {
       console.error('Login error:', err);
       switch (err.code) {
@@ -58,7 +59,63 @@ export default function Login() {
               <Lock size={28} />
             </div>
             <h1>Admin Access</h1>
-            <p>Sign in to manage your NexLifTech content</p>
+            <p>Select workspace & sign in to manage your data</p>
+          </div>
+
+          {/* Workspace Target Selector */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '0.5rem',
+            background: 'rgba(255, 255, 255, 0.04)',
+            padding: '0.35rem',
+            borderRadius: '12px',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            marginBottom: '1.25rem'
+          }}>
+            <button
+              type="button"
+              onClick={() => setPortalMode('cms')}
+              style={{
+                padding: '0.55rem 0.75rem',
+                borderRadius: '8px',
+                border: 'none',
+                background: portalMode === 'cms' ? 'linear-gradient(135deg, #8b5cf6, #6366f1)' : 'transparent',
+                color: portalMode === 'cms' ? '#fff' : '#8888a0',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.4rem'
+              }}
+            >
+              <span>🌐 Website CMS</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setPortalMode('personal')}
+              style={{
+                padding: '0.55rem 0.75rem',
+                borderRadius: '8px',
+                border: 'none',
+                background: portalMode === 'personal' ? 'linear-gradient(135deg, #a855f7, #06b6d4)' : 'transparent',
+                color: portalMode === 'personal' ? '#fff' : '#8888a0',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.4rem'
+              }}
+            >
+              <span>🏢 Personal & Govt</span>
+            </button>
           </div>
 
           {error && (

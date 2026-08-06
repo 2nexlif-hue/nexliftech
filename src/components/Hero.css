@@ -32,12 +32,30 @@
   inset: 0;
   background: linear-gradient(
     180deg,
+    rgba(248, 250, 252, 0.72) 0%,
+    rgba(248, 250, 252, 0.85) 50%,
+    rgba(248, 250, 252, 0.98) 100%
+  );
+  z-index: 1;
+}
+
+html[data-theme="dark"] .hero-video-overlay {
+  background: linear-gradient(
+    180deg,
     rgba(7, 7, 15, 0.55) 0%,
     rgba(7, 7, 15, 0.65) 50%,
     rgba(7, 7, 15, 0.92) 85%,
     rgba(20, 7, 40, 0.97) 100%
   );
-  z-index: 1;
+}
+
+html[data-theme="cyber"] .hero-video-overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(3, 7, 18, 0.65) 0%,
+    rgba(3, 7, 18, 0.85) 50%,
+    rgba(3, 7, 18, 0.98) 100%
+  );
 }
 
 .hero-glow {

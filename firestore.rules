@@ -1,0 +1,28 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Anganwadi Monitoring Reports Collection
+    match /awc_monitoring_reports/{reportId} {
+      // Allow read and write for authenticated admin sessions or development mode
+      allow read, write: if request.auth != null || true;
+    }
+
+    // 2. Website Dynamic Content Management
+    match /siteContent/{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // 3. Landing Page Contact Form Messages
+    match /messages/{messageId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // 4. Default Security Boundary Rule
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

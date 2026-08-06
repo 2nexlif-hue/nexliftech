@@ -1,0 +1,101 @@
+.theme-switcher-wrapper {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  right: auto;
+  z-index: 9999;
+}
+
+.theme-trigger-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--bg-glass-hover, rgba(255, 255, 255, 0.9));
+  border: 1px solid var(--border-light, rgba(168, 85, 247, 0.3));
+  color: var(--accent-primary, #7c3aed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 0 15px var(--border-glow, rgba(168, 85, 247, 0.2));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.theme-trigger-btn:hover {
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25), 0 0 25px var(--border-glow, rgba(168, 85, 247, 0.4));
+  border-color: var(--accent-primary);
+}
+
+.theme-menu-popup {
+  position: absolute;
+  bottom: 4rem;
+  left: 0;
+  right: auto;
+  background: var(--bg-secondary, #ffffff);
+  border: 1px solid var(--border-light, rgba(168, 85, 247, 0.2));
+  border-radius: 16px;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 175px;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  animation: themePopupSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes themePopupSlide {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.theme-option-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary, #475569);
+  font-size: 0.83rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: left;
+}
+
+.theme-option-btn:hover {
+  background: var(--bg-elevated, #f1f5f9);
+  color: var(--text-primary, #0f172a);
+}
+
+.theme-option-btn.active {
+  background: var(--gradient-accent);
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+@media (max-width: 768px) {
+  .theme-switcher-wrapper {
+    bottom: 1.5rem;
+    left: 1.5rem;
+  }
+  .theme-trigger-btn {
+    width: 48px;
+    height: 48px;
+  }
+}
