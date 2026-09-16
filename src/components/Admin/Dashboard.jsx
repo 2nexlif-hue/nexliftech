@@ -6,7 +6,8 @@ import { db } from '../../firebase';
 import {
   ArrowLeft, Save, LogOut, Upload, Image, User, FileText,
   Award, BookOpen, GraduationCap, Briefcase, CheckCircle, AlertCircle, Eye,
-  Mail, MailOpen, Trash2, Calendar, DollarSign, Globe, Inbox, Building2
+  Mail, MailOpen, Trash2, Calendar, DollarSign, Globe, Inbox, Building2,
+  ArrowUp, ArrowDown, Copy, Plus, Search, Star, ExternalLink, Sparkles
 } from 'lucide-react';
 import AdminAwcMonitoring from './AdminAwcMonitoring';
 import './Admin.css';
@@ -210,6 +211,8 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState(initialWorkspace === 'personal' ? 'awcMonitoring' : 'hero');
   const [messages, setMessages] = useState([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
+  const [inboxFilter, setInboxFilter] = useState('all'); // 'all' | 'unread' | 'read'
+  const [inboxSearch, setInboxSearch] = useState('');
 
   const [heroData, setHeroData] = useState(DEFAULT_HERO);
   const [loadingHero, setLoadingHero] = useState(true);
@@ -658,6 +661,146 @@ export default function Dashboard() {
     }
   }
 
+  // --- REORDERING & ITEM ACTIONS ---
+  function moveService(index, direction) {
+    const target = index + direction;
+    if (target < 0 || target >= servicesList.length) return;
+    setServicesList(prev => {
+      const updated = [...prev];
+      const temp = updated[index];
+      updated[index] = updated[target];
+      updated[target] = temp;
+      return updated;
+    });
+  }
+
+  function duplicateService(index) {
+    const item = servicesList[index];
+    setServicesList(prev => {
+      const updated = [...prev];
+      updated.splice(index + 1, 0, {
+        ...item,
+        title: `${item.title || 'Untitled'} (Copy)`
+      });
+      return updated;
+    });
+    showToast('success', 'Service duplicated successfully.');
+  }
+
+  function moveProject(index, direction) {
+    const target = index + direction;
+    if (target < 0 || target >= projectsList.length) return;
+    setProjectsList(prev => {
+      const updated = [...prev];
+      const temp = updated[index];
+      updated[index] = updated[target];
+      updated[target] = temp;
+      return updated;
+    });
+  }
+
+  function duplicateProject(index) {
+    const item = projectsList[index];
+    setProjectsList(prev => {
+      const updated = [...prev];
+      updated.splice(index + 1, 0, {
+        ...item,
+        title: `${item.title || 'Untitled'} (Copy)`,
+        tech: [...(item.tech || [])]
+      });
+      return updated;
+    });
+    showToast('success', 'Project showcase duplicated.');
+  }
+
+  function movePricingPlan(index, direction) {
+    const target = index + direction;
+    if (target < 0 || target >= pricingPlans.length) return;
+    setPricingPlans(prev => {
+      const updated = [...prev];
+      const temp = updated[index];
+      updated[index] = updated[target];
+      updated[target] = temp;
+      return updated;
+    });
+  }
+
+  function duplicatePricingPlan(index) {
+    const item = pricingPlans[index];
+    setPricingPlans(prev => {
+      const updated = [...prev];
+      updated.splice(index + 1, 0, {
+        ...item,
+        name: `${item.name || 'Plan'} (Copy)`,
+        features: [...(item.features || [])]
+      });
+      return updated;
+    });
+    showToast('success', 'Pricing plan duplicated.');
+  }
+
+  function togglePlanPopular(index) {
+    setPricingPlans(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], isPopular: !updated[index].isPopular };
+      return updated;
+    });
+  }
+
+  function moveTestimonial(index, direction) {
+    const target = index + direction;
+    if (target < 0 || target >= testimonialsList.length) return;
+    setTestimonialsList(prev => {
+      const updated = [...prev];
+      const temp = updated[index];
+      updated[index] = updated[target];
+      updated[target] = temp;
+      return updated;
+    });
+  }
+
+  function duplicateTestimonial(index) {
+    const item = testimonialsList[index];
+    setTestimonialsList(prev => {
+      const updated = [...prev];
+      updated.splice(index + 1, 0, {
+        ...item,
+        name: `${item.name || 'Client'} (Copy)`
+      });
+      return updated;
+    });
+    showToast('success', 'Testimonial duplicated.');
+  }
+
+  function renderHeroTitlePreview(rawTitle) {
+    if (!rawTitle) return null;
+    const parts = rawTitle.split(/(\[[^\]]+\])/g);
+    return parts.map((part, idx) => {
+      if (part.startsWith('[') && part.endsWith(']')) {
+        return (
+          <span key={idx} className="gradient-text font-bold">
+            {part.slice(1, -1)}
+          </span>
+        );
+      }
+      return <span key={idx}>{part}</span>;
+    });
+  }
+
+  async function handleMarkAllAsRead() {
+    if (!db) return;
+    const unreadMsgs = messages.filter(m => m.status === 'unread');
+    if (unreadMsgs.length === 0) return;
+    try {
+      for (const m of unreadMsgs) {
+        await updateDoc(doc(db, 'contactMessages', m.id), { status: 'read' });
+      }
+      showToast('success', `Marked ${unreadMsgs.length} messages as read`);
+    } catch (err) {
+      console.error('Error marking all read:', err);
+      showToast('error', 'Failed to mark all as read');
+    }
+  }
 
   function showToast(type, message) {
     setToast({ show: true, type, message });
@@ -904,32 +1047,11 @@ export default function Dashboard() {
             <Eye size={14} /> Preview Site
           </a>
 
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.25rem 0.75rem',
-            borderRadius: '12px',
-            background: 'rgba(255, 255, 255, 0.04)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            fontSize: '0.8rem',
-            color: '#fff',
-            fontWeight: 600
-          }}>
-            <div style={{
-              width: '24px',
-              height: '24px',
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #a855f7, #6366f1)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '0.72rem',
-              fontWeight: 800
-            }}>
+          <div className="topbar-user-badge">
+            <div className="user-avatar-mini">
               {(currentUser?.email || 'A')[0].toUpperCase()}
             </div>
-            <span className="admin-email" style={{ color: '#e2e8f0', fontWeight: 700 }}>{currentUser?.email}</span>
+            <span className="admin-email-text">{currentUser?.email}</span>
           </div>
 
           <button onClick={handleLogout} className="btn btn-secondary btn-sm" style={{ color: '#f43f5e', borderColor: 'rgba(244, 63, 94, 0.25)', background: 'rgba(244, 63, 94, 0.08)' }}>
@@ -940,43 +1062,17 @@ export default function Dashboard() {
 
       <div className="dashboard-container">
         {/* Workspace Mode Category Selector */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '0.4rem',
-          background: 'rgba(18, 18, 26, 0.85)',
-          backdropFilter: 'blur(16px)',
-          padding: '0.3rem',
-          borderRadius: '14px',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          marginBottom: '1rem',
-          boxShadow: '0 6px 20px rgba(0,0,0,0.3)'
-        }}>
+        <div className="dashboard-workspace-bar">
           <button
             type="button"
             onClick={() => {
               setWorkspace('cms');
               setActiveTab('hero');
             }}
-            style={{
-              padding: '0.5rem 0.85rem',
-              borderRadius: '10px',
-              border: 'none',
-              background: workspace === 'cms' ? 'linear-gradient(135deg, #8b5cf6, #6366f1)' : 'transparent',
-              color: workspace === 'cms' ? '#ffffff' : '#8888a0',
-              fontSize: '0.83rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.45rem',
-              boxShadow: workspace === 'cms' ? '0 4px 16px rgba(139, 92, 246, 0.35)' : 'none'
-            }}
+            className={`workspace-bar-btn ${workspace === 'cms' ? 'active-cms' : ''}`}
           >
-            <Globe size={15} />
-            <span>🌐 Website CMS Account</span>
+            <Globe size={16} />
+            <span>Website CMS Account</span>
           </button>
 
           <button
@@ -985,25 +1081,10 @@ export default function Dashboard() {
               setWorkspace('personal');
               setActiveTab('awcMonitoring');
             }}
-            style={{
-              padding: '0.5rem 0.85rem',
-              borderRadius: '10px',
-              border: 'none',
-              background: workspace === 'personal' ? 'linear-gradient(135deg, #a855f7, #06b6d4)' : 'transparent',
-              color: workspace === 'personal' ? '#ffffff' : '#8888a0',
-              fontSize: '0.83rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.45rem',
-              boxShadow: workspace === 'personal' ? '0 4px 16px rgba(168, 85, 247, 0.35)' : 'none'
-            }}
+            className={`workspace-bar-btn ${workspace === 'personal' ? 'active-personal' : ''}`}
           >
-            <Building2 size={15} />
-            <span>🏢 Personal & Govt Projects Account</span>
+            <Building2 size={16} />
+            <span>Personal & Govt Projects Account</span>
           </button>
         </div>
 
@@ -1024,46 +1105,60 @@ export default function Dashboard() {
                   className={`tab-btn ${activeTab === 'hero' ? 'active' : ''}`}
                   onClick={() => setActiveTab('hero')}
                 >
-                  <Globe size={16} /> Hero
+                  <Globe size={16} /> <span>Hero</span>
                 </button>
                 <button 
                   className={`tab-btn ${activeTab === 'content' ? 'active' : ''}`}
                   onClick={() => setActiveTab('content')}
                 >
-                  <User size={16} /> About
+                  <User size={16} /> <span>About</span>
                 </button>
                 <button 
                   className={`tab-btn ${activeTab === 'services' ? 'active' : ''}`}
                   onClick={() => setActiveTab('services')}
                 >
-                  <BookOpen size={16} /> Services
+                  <BookOpen size={16} /> <span>Services</span>
+                  {servicesList.length > 0 && (
+                    <span className="tab-count-badge">{servicesList.length}</span>
+                  )}
                 </button>
                 <button 
                   className={`tab-btn ${activeTab === 'projects' ? 'active' : ''}`}
                   onClick={() => setActiveTab('projects')}
                 >
-                  <Briefcase size={16} /> Projects
+                  <Briefcase size={16} /> <span>Projects</span>
+                  {projectsList.length > 0 && (
+                    <span className="tab-count-badge">{projectsList.length}</span>
+                  )}
                 </button>
                 <button 
                   className={`tab-btn ${activeTab === 'pricing' ? 'active' : ''}`}
                   onClick={() => setActiveTab('pricing')}
                 >
-                  <DollarSign size={16} /> Pricing
+                  <DollarSign size={16} /> <span>Pricing</span>
+                  {pricingPlans.length > 0 && (
+                    <span className="tab-count-badge">{pricingPlans.length}</span>
+                  )}
                 </button>
                 <button 
                   className={`tab-btn ${activeTab === 'testimonials' ? 'active' : ''}`}
                   onClick={() => setActiveTab('testimonials')}
                 >
-                  <Award size={16} /> Testimonials
+                  <Award size={16} /> <span>Testimonials</span>
+                  {testimonialsList.length > 0 && (
+                    <span className="tab-count-badge">{testimonialsList.length}</span>
+                  )}
                 </button>
                 <button 
                   className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
                   onClick={() => setActiveTab('messages')}
                 >
-                  <Mail size={16} /> Messages Inbox
-                  {unreadCount > 0 && (
+                  <Mail size={16} /> <span>Messages Inbox</span>
+                  {unreadCount > 0 ? (
                     <span className="unread-badge">{unreadCount}</span>
-                  )}
+                  ) : messages.length > 0 ? (
+                    <span className="tab-count-badge">{messages.length}</span>
+                  ) : null}
                 </button>
               </>
             ) : (
@@ -1071,7 +1166,7 @@ export default function Dashboard() {
                 className={`tab-btn ${activeTab === 'awcMonitoring' ? 'active' : ''}`}
                 onClick={() => setActiveTab('awcMonitoring')}
               >
-                <Building2 size={16} /> Anganwadi Monitoring (Poshan)
+                <Building2 size={16} /> <span>Anganwadi Monitoring (Poshan)</span>
               </button>
             )}
           </div>
@@ -1079,9 +1174,27 @@ export default function Dashboard() {
 
         {activeTab === 'hero' ? (
           <div className="pricing-editor-section">
-            <div className="pricing-editor-header">
-              <h2><Globe size={20} /> Manage Hero Section</h2>
-              <p className="pricing-editor-subtitle">Modify the landing page header title, subtitle, badges, and tech stack logos.</p>
+            <div className="section-editor-header">
+              <div className="section-editor-title-group">
+                <div className="section-icon-badge">
+                  <Globe size={22} />
+                </div>
+                <div>
+                  <h2>Manage Hero Section</h2>
+                  <p className="section-editor-subtitle">Modify the landing page header title, subtitle, badges, and tech stack logos.</p>
+                </div>
+              </div>
+              <div className="section-editor-actions">
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm save-top-btn"
+                  onClick={handleSaveHero}
+                  disabled={saving}
+                >
+                  {saving ? <span className="btn-spinner"></span> : <Save size={15} />}
+                  <span>{saving ? 'Saving...' : 'Save Hero Section'}</span>
+                </button>
+              </div>
             </div>
             
             {loadingHero ? (
@@ -1109,6 +1222,16 @@ export default function Dashboard() {
                         value={heroData.title}
                         onChange={(e) => handleHeroFieldChange('title', e.target.value)}
                       />
+                      {heroData.title && (
+                        <div className="live-preview-box">
+                          <div className="live-preview-label">
+                            <Sparkles size={12} /> Live Title Preview
+                          </div>
+                          <div className="live-preview-title">
+                            {renderHeroTitlePreview(heroData.title)}
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <div className="admin-form-group">
                       <label>Subtitle / Description</label>
@@ -1218,9 +1341,34 @@ export default function Dashboard() {
           </div>
         ) : activeTab === 'services' ? (
           <div className="pricing-editor-section">
-            <div className="pricing-editor-header">
-              <h2><BookOpen size={20} /> Manage Services</h2>
-              <p className="pricing-editor-subtitle">Modify the services and expertise listed on your landing page.</p>
+            <div className="section-editor-header">
+              <div className="section-editor-title-group">
+                <div className="section-icon-badge">
+                  <BookOpen size={22} />
+                </div>
+                <div>
+                  <h2>Manage Services ({servicesList.length})</h2>
+                  <p className="section-editor-subtitle">Modify the services, tech expertise, icons, and themes on your landing page.</p>
+                </div>
+              </div>
+              <div className="section-editor-actions">
+                <button 
+                  type="button"
+                  className="btn btn-secondary btn-sm" 
+                  onClick={addService}
+                >
+                  <Plus size={14} /> Add Service
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm save-top-btn"
+                  onClick={handleSaveServices}
+                  disabled={saving}
+                >
+                  {saving ? <span className="btn-spinner"></span> : <Save size={15} />}
+                  <span>{saving ? 'Saving...' : 'Save Services'}</span>
+                </button>
+              </div>
             </div>
             
             {loadingServices ? (
@@ -1232,21 +1380,51 @@ export default function Dashboard() {
               <>
                 <div className="pricing-editor-grid">
                   {servicesList.map((service, servIdx) => (
-                    <div key={servIdx} className="dashboard-card glass-panel pricing-editor-card" style={{ position: 'relative' }}>
-                      <button
-                        type="button"
-                        className="btn-icon btn-danger"
-                        style={{ position: 'absolute', top: '1rem', right: '1rem', fontSize: '1.5rem' }}
-                        onClick={() => removeService(servIdx)}
-                        aria-label="Remove service"
-                        title="Remove service"
-                      >
-                        ×
-                      </button>
+                    <div key={servIdx} className="dashboard-card glass-panel pricing-editor-card">
+                      <div className="card-header-bar">
+                        <h3 className="card-header-title">
+                          <span>{service.icon || '💻'}</span>
+                          <span>{service.title || `Service #${servIdx + 1}`}</span>
+                        </h3>
+                        <div className="card-action-toolbar">
+                          <button
+                            type="button"
+                            className="toolbar-btn"
+                            onClick={() => moveService(servIdx, -1)}
+                            disabled={servIdx === 0}
+                            title="Move Up"
+                          >
+                            <ArrowUp size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className="toolbar-btn"
+                            onClick={() => moveService(servIdx, 1)}
+                            disabled={servIdx === servicesList.length - 1}
+                            title="Move Down"
+                          >
+                            <ArrowDown size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className="toolbar-btn"
+                            onClick={() => duplicateService(servIdx)}
+                            title="Duplicate Service"
+                          >
+                            <Copy size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className="toolbar-btn btn-danger-hover"
+                            onClick={() => removeService(servIdx)}
+                            title="Remove Service"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
                       
-                      <h3>Service #{servIdx + 1}: {service.title || 'Untitled'}</h3>
-                      
-                      <div className="admin-form-group" style={{ marginTop: '1rem' }}>
+                      <div className="admin-form-group">
                         <label>Title</label>
                         <input
                           type="text"
@@ -1268,13 +1446,20 @@ export default function Dashboard() {
                       
                       <div className="admin-form-group">
                         <label>Background Color (RGBA)</label>
-                        <input
-                          type="text"
-                          value={service.color}
-                          onChange={(e) => handleServiceFieldChange(servIdx, 'color', e.target.value)}
-                          placeholder="e.g. rgba(139, 92, 246, 0.15)"
-                          required
-                        />
+                        <div className="color-preview-row">
+                          <div 
+                            className="color-swatch-box" 
+                            style={{ background: service.color || 'rgba(139, 92, 246, 0.15)' }} 
+                            title="Color Preview Swatch"
+                          />
+                          <input
+                            type="text"
+                            value={service.color}
+                            onChange={(e) => handleServiceFieldChange(servIdx, 'color', e.target.value)}
+                            placeholder="e.g. rgba(139, 92, 246, 0.15)"
+                            required
+                          />
+                        </div>
                       </div>
                       
                       <div className="admin-form-group">
@@ -1323,9 +1508,34 @@ export default function Dashboard() {
           </div>
         ) : activeTab === 'projects' ? (
           <div className="pricing-editor-section">
-            <div className="pricing-editor-header">
-              <h2><Briefcase size={20} /> Manage Featured Projects</h2>
-              <p className="pricing-editor-subtitle">Add, remove, or edit your showcase projects shown on the homepage.</p>
+            <div className="section-editor-header">
+              <div className="section-editor-title-group">
+                <div className="section-icon-badge">
+                  <Briefcase size={22} />
+                </div>
+                <div>
+                  <h2>Manage Featured Projects ({projectsList.length})</h2>
+                  <p className="section-editor-subtitle">Add, remove, reorder, or edit showcase projects displayed on the homepage.</p>
+                </div>
+              </div>
+              <div className="section-editor-actions">
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={addProject}
+                >
+                  <Plus size={14} /> Add Project
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm save-top-btn"
+                  onClick={handleSaveProjects}
+                  disabled={saving}
+                >
+                  {saving ? <span className="btn-spinner"></span> : <Save size={15} />}
+                  <span>{saving ? 'Saving...' : 'Save Projects'}</span>
+                </button>
+              </div>
             </div>
             
             {loadingProjects ? (
@@ -1337,19 +1547,66 @@ export default function Dashboard() {
               <>
                 <div className="projects-editor-grid" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                   {projectsList.map((project, projIdx) => (
-                    <div key={projIdx} className="dashboard-card glass-panel" style={{ position: 'relative' }}>
-                      <button
-                        type="button"
-                        className="btn btn-secondary btn-sm btn-danger"
-                        style={{ position: 'absolute', top: '1.25rem', right: '1.5rem' }}
-                        onClick={() => removeProject(projIdx)}
-                      >
-                        <Trash2 size={14} /> Remove Project
-                      </button>
+                    <div key={projIdx} className="dashboard-card glass-panel">
+                      <div className="card-header-bar">
+                        <h3 className="card-header-title">
+                          <span>Project #{projIdx + 1}: {project.title || 'Untitled'}</span>
+                          {project.category && (
+                            <span className="tab-count-badge" style={{ marginLeft: '0.4rem' }}>
+                              {project.category}
+                            </span>
+                          )}
+                        </h3>
+                        <div className="card-action-toolbar">
+                          {project.liveLink && (
+                            <a
+                              href={project.liveLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="toolbar-btn"
+                              title="Open Live Preview in New Tab"
+                            >
+                              <ExternalLink size={14} />
+                            </a>
+                          )}
+                          <button
+                            type="button"
+                            className="toolbar-btn"
+                            onClick={() => moveProject(projIdx, -1)}
+                            disabled={projIdx === 0}
+                            title="Move Up"
+                          >
+                            <ArrowUp size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className="toolbar-btn"
+                            onClick={() => moveProject(projIdx, 1)}
+                            disabled={projIdx === projectsList.length - 1}
+                            title="Move Down"
+                          >
+                            <ArrowDown size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className="toolbar-btn"
+                            onClick={() => duplicateProject(projIdx)}
+                            title="Duplicate Project"
+                          >
+                            <Copy size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className="toolbar-btn btn-danger-hover"
+                            onClick={() => removeProject(projIdx)}
+                            title="Remove Project"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
                       
-                      <h3>Project #{projIdx + 1}: {project.title || 'Untitled'}</h3>
-                      
-                      <div className="dashboard-grid" style={{ marginTop: '1rem' }}>
+                      <div className="dashboard-grid">
                         <div className="admin-form-group">
                           <label>Project Title</label>
                           <input
@@ -1385,13 +1642,22 @@ export default function Dashboard() {
                           />
                         </div>
                         <div className="admin-form-group full-width">
-                          <label>Image Preview Path / URL (e.g. /erp-preview.png, /alpine-preview.png, /walletvibe-preview.svg)</label>
+                          <label>Image Preview Path / URL</label>
                           <input
                             type="text"
                             value={project.image}
                             onChange={(e) => handleProjectFieldChange(projIdx, 'image', e.target.value)}
-                            placeholder="e.g. /erp-preview.png"
+                            placeholder="e.g. /erp-preview.png or /walletvibe-preview.svg"
                           />
+                          {project.image && (
+                            <div className="project-preview-thumb">
+                              <img
+                                src={project.image}
+                                alt={project.title || 'Preview'}
+                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                              />
+                            </div>
+                          )}
                         </div>
                         <div className="admin-form-group full-width">
                           <label>Description</label>
@@ -1469,9 +1735,34 @@ export default function Dashboard() {
           </div>
         ) : activeTab === 'testimonials' ? (
           <div className="pricing-editor-section">
-            <div className="pricing-editor-header">
-              <h2><Award size={20} /> Manage Testimonials</h2>
-              <p className="pricing-editor-subtitle">Modify or add client reviews and success stories.</p>
+            <div className="section-editor-header">
+              <div className="section-editor-title-group">
+                <div className="section-icon-badge">
+                  <Award size={22} />
+                </div>
+                <div>
+                  <h2>Manage Testimonials ({testimonialsList.length})</h2>
+                  <p className="section-editor-subtitle">Modify or add client reviews, star ratings, and success stories.</p>
+                </div>
+              </div>
+              <div className="section-editor-actions">
+                <button 
+                  type="button"
+                  className="btn btn-secondary btn-sm" 
+                  onClick={addTestimonial}
+                >
+                  <Plus size={14} /> Add Testimonial
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm save-top-btn"
+                  onClick={handleSaveTestimonials}
+                  disabled={saving}
+                >
+                  {saving ? <span className="btn-spinner"></span> : <Save size={15} />}
+                  <span>{saving ? 'Saving...' : 'Save Testimonials'}</span>
+                </button>
+              </div>
             </div>
             
             {loadingTestimonials ? (
@@ -1483,21 +1774,50 @@ export default function Dashboard() {
               <>
                 <div className="pricing-editor-grid">
                   {testimonialsList.map((test, testIdx) => (
-                    <div key={testIdx} className="dashboard-card glass-panel pricing-editor-card" style={{ position: 'relative' }}>
-                      <button
-                        type="button"
-                        className="btn-icon btn-danger"
-                        style={{ position: 'absolute', top: '1rem', right: '1rem', fontSize: '1.5rem' }}
-                        onClick={() => removeTestimonial(testIdx)}
-                        aria-label="Remove testimonial"
-                        title="Remove testimonial"
-                      >
-                        ×
-                      </button>
+                    <div key={testIdx} className="dashboard-card glass-panel pricing-editor-card">
+                      <div className="card-header-bar">
+                        <h3 className="card-header-title">
+                          <span>Testimonial #{testIdx + 1}: {test.name || 'Client'}</span>
+                        </h3>
+                        <div className="card-action-toolbar">
+                          <button
+                            type="button"
+                            className="toolbar-btn"
+                            onClick={() => moveTestimonial(testIdx, -1)}
+                            disabled={testIdx === 0}
+                            title="Move Up"
+                          >
+                            <ArrowUp size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className="toolbar-btn"
+                            onClick={() => moveTestimonial(testIdx, 1)}
+                            disabled={testIdx === testimonialsList.length - 1}
+                            title="Move Down"
+                          >
+                            <ArrowDown size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className="toolbar-btn"
+                            onClick={() => duplicateTestimonial(testIdx)}
+                            title="Duplicate Testimonial"
+                          >
+                            <Copy size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className="toolbar-btn btn-danger-hover"
+                            onClick={() => removeTestimonial(testIdx)}
+                            title="Remove Testimonial"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
                       
-                      <h3>Testimonial #{testIdx + 1}</h3>
-                      
-                      <div className="admin-form-group" style={{ marginTop: '1rem' }}>
+                      <div className="admin-form-group">
                         <label>Client Name</label>
                         <input
                           type="text"
@@ -1518,17 +1838,30 @@ export default function Dashboard() {
                       </div>
                       
                       <div className="admin-form-group">
-                        <label>Rating (1-5)</label>
-                        <select
-                          value={test.rating}
-                          onChange={(e) => handleTestimonialFieldChange(testIdx, 'rating', e.target.value)}
-                        >
-                          <option value={1}>1 Star</option>
-                          <option value={2}>2 Stars</option>
-                          <option value={3}>3 Stars</option>
-                          <option value={4}>4 Stars</option>
-                          <option value={5}>5 Stars</option>
-                        </select>
+                        <label>Rating (1-5 Stars)</label>
+                        <div className="star-rating-picker">
+                          {[1, 2, 3, 4, 5].map((starVal) => {
+                            const isFilled = starVal <= (Number(test.rating) || 5);
+                            return (
+                              <button
+                                key={starVal}
+                                type="button"
+                                className="star-pick-btn"
+                                onClick={() => handleTestimonialFieldChange(testIdx, 'rating', starVal)}
+                                title={`Set rating to ${starVal} Star${starVal > 1 ? 's' : ''}`}
+                              >
+                                <Star
+                                  size={18}
+                                  fill={isFilled ? '#eab308' : 'none'}
+                                  color={isFilled ? '#eab308' : 'var(--text-secondary)'}
+                                />
+                              </button>
+                            );
+                          })}
+                          <span className="star-rating-label">
+                            {test.rating || 5} / 5 Stars
+                          </span>
+                        </div>
                       </div>
                       
                       <div className="admin-form-group">
@@ -1576,7 +1909,30 @@ export default function Dashboard() {
             )}
           </div>
         ) : activeTab === 'content' ? (
-          <>
+          <div className="pricing-editor-section">
+            <div className="section-editor-header">
+              <div className="section-editor-title-group">
+                <div className="section-icon-badge">
+                  <User size={22} />
+                </div>
+                <div>
+                  <h2>Manage About & Founder Profile</h2>
+                  <p className="section-editor-subtitle">Update developer photo, biography, credentials, and achievements stats.</p>
+                </div>
+              </div>
+              <div className="section-editor-actions">
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm save-top-btn"
+                  onClick={handleSave}
+                  disabled={saving}
+                >
+                  {saving ? <span className="btn-spinner"></span> : <Save size={15} />}
+                  <span>{saving ? 'Saving...' : 'Save All Changes'}</span>
+                </button>
+              </div>
+            </div>
+
             <div className="dashboard-grid">
               {/* Photo upload card */}
               <div className="dashboard-card glass-panel">
@@ -1786,12 +2142,30 @@ export default function Dashboard() {
                 )}
               </button>
             </div>
-          </>
+          </div>
         ) : activeTab === 'pricing' ? (
           <div className="pricing-editor-section">
-            <div className="pricing-editor-header">
-              <h2><DollarSign size={20} /> Manage Pricing Plans</h2>
-              <p className="pricing-editor-subtitle">Modify plan names, prices, descriptions, and features.</p>
+            <div className="section-editor-header">
+              <div className="section-editor-title-group">
+                <div className="section-icon-badge">
+                  <DollarSign size={22} />
+                </div>
+                <div>
+                  <h2>Manage Pricing Plans ({pricingPlans.length})</h2>
+                  <p className="section-editor-subtitle">Modify plan names, tiers, features, prices, and highlight popular badges.</p>
+                </div>
+              </div>
+              <div className="section-editor-actions">
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm save-top-btn"
+                  onClick={handleSavePricing}
+                  disabled={saving}
+                >
+                  {saving ? <span className="btn-spinner"></span> : <Save size={15} />}
+                  <span>{saving ? 'Saving...' : 'Save Pricing Plans'}</span>
+                </button>
+              </div>
             </div>
             
             {loadingPricing ? (
@@ -1804,9 +2178,48 @@ export default function Dashboard() {
                 <div className="pricing-editor-grid">
                   {pricingPlans.map((plan, planIdx) => (
                     <div key={planIdx} className="dashboard-card glass-panel pricing-editor-card">
-                      <div className="pricing-card-title-row">
-                        <h3>{plan.name}</h3>
-                        {plan.isPopular && <span className="popular-badge-pill">Popular</span>}
+                      <div className="card-header-bar">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                          <h3 className="card-header-title">{plan.name || `Plan #${planIdx + 1}`}</h3>
+                          {plan.isPopular && <span className="popular-badge-pill">Popular</span>}
+                        </div>
+                        <div className="card-action-toolbar">
+                          <button
+                            type="button"
+                            className={`toolbar-btn ${plan.isPopular ? 'active' : ''}`}
+                            onClick={() => togglePlanPopular(planIdx)}
+                            title={plan.isPopular ? 'Remove Popular Badge' : 'Mark as Popular'}
+                            style={plan.isPopular ? { background: 'var(--gradient-accent)', color: '#fff', borderColor: 'transparent' } : {}}
+                          >
+                            <Sparkles size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className="toolbar-btn"
+                            onClick={() => movePricingPlan(planIdx, -1)}
+                            disabled={planIdx === 0}
+                            title="Move Up"
+                          >
+                            <ArrowUp size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className="toolbar-btn"
+                            onClick={() => movePricingPlan(planIdx, 1)}
+                            disabled={planIdx === pricingPlans.length - 1}
+                            title="Move Down"
+                          >
+                            <ArrowDown size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className="toolbar-btn"
+                            onClick={() => duplicatePricingPlan(planIdx)}
+                            title="Duplicate Plan"
+                          >
+                            <Copy size={14} />
+                          </button>
+                        </div>
                       </div>
                       
                       <div className="admin-form-group">
@@ -1897,13 +2310,68 @@ export default function Dashboard() {
           </div>
         ) : activeTab === 'messages' ? (
           <div className="inbox-container">
-            <div className="inbox-header">
-              <h2><Inbox size={20} /> Contact Messages Inbox</h2>
-              {messages.length > 0 && (
-                <span className="inbox-meta">
-                  {messages.length} message{messages.length !== 1 ? 's' : ''} total ({unreadCount} unread)
-                </span>
+            <div className="section-editor-header">
+              <div className="section-editor-title-group">
+                <div className="section-icon-badge">
+                  <Inbox size={22} />
+                </div>
+                <div>
+                  <h2>Contact Messages Inbox</h2>
+                  <p className="section-editor-subtitle">
+                    {messages.length} total customer inquiry message{messages.length !== 1 ? 's' : ''}
+                    {unreadCount > 0 ? ` (${unreadCount} unread)` : ' (all caught up)'}
+                  </p>
+                </div>
+              </div>
+
+              {unreadCount > 0 && (
+                <div className="section-editor-actions">
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    onClick={handleMarkAllAsRead}
+                  >
+                    <CheckCircle size={14} /> Mark All as Read
+                  </button>
+                </div>
               )}
+            </div>
+
+            {/* Search & Filter Toolbar */}
+            <div className="inbox-toolbar">
+              <div className="inbox-search-box">
+                <Search size={15} className="inbox-search-icon" />
+                <input
+                  type="text"
+                  placeholder="Search sender name, email, phone, text..."
+                  value={inboxSearch}
+                  onChange={(e) => setInboxSearch(e.target.value)}
+                />
+              </div>
+
+              <div className="inbox-filter-group">
+                <button
+                  type="button"
+                  className={`inbox-filter-btn ${inboxFilter === 'all' ? 'active' : ''}`}
+                  onClick={() => setInboxFilter('all')}
+                >
+                  All ({messages.length})
+                </button>
+                <button
+                  type="button"
+                  className={`inbox-filter-btn ${inboxFilter === 'unread' ? 'active' : ''}`}
+                  onClick={() => setInboxFilter('unread')}
+                >
+                  Unread ({unreadCount})
+                </button>
+                <button
+                  type="button"
+                  className={`inbox-filter-btn ${inboxFilter === 'read' ? 'active' : ''}`}
+                  onClick={() => setInboxFilter('read')}
+                >
+                  Read ({messages.length - unreadCount})
+                </button>
+              </div>
             </div>
 
             {loadingMessages ? (
@@ -1917,57 +2385,90 @@ export default function Dashboard() {
                 <h3>Your Inbox is Empty</h3>
                 <p>When visitors submit the contact form on your site, their messages will appear here in real-time.</p>
               </div>
-            ) : (
-              <div className="messages-list">
-                {messages.map((msg) => (
-                  <div 
-                    key={msg.id} 
-                    className={`message-card glass-panel ${msg.status === 'unread' ? 'unread' : 'read'}`}
-                  >
-                    <div className="message-card-header">
-                      <div className="sender-info">
-                        <div className="sender-name-row">
-                          <h3>{msg.name}</h3>
-                          {msg.status === 'unread' && <span className="unread-dot-badge">New</span>}
-                        </div>
-                        <a href={`mailto:${msg.email}`} className="sender-email">{msg.email}</a>
-                      </div>
-                      <div className="message-meta">
-                        <span className="meta-item"><Calendar size={14} /> {formatDate(msg.createdAt)}</span>
-                        <span className="meta-item project-badge"><Globe size={14} /> {formatProjectType(msg.projectType)}</span>
-                        <span className="meta-item budget-badge"><DollarSign size={14} /> {formatBudget(msg.budget)}</span>
-                        {msg.mobile && <span className="meta-item" style={{color:'#06eeff'}}>📱 {msg.mobile}</span>}
-                        {(msg.tehsil || msg.district) && (
-                          <span className="meta-item" style={{color:'#a855f7'}}>
-                            📍 {[msg.tehsil, msg.district].filter(Boolean).join(', ')}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="message-body">
-                      <p>{msg.message}</p>
-                    </div>
-                    
-                    <div className="message-actions">
-                      <button 
-                        className={`btn btn-secondary btn-sm read-toggle-btn ${msg.status === 'unread' ? 'action-read' : 'action-unread'}`}
-                        onClick={() => toggleReadStatus(msg.id, msg.status)}
-                      >
-                        {msg.status === 'unread' ? <MailOpen size={14} /> : <Mail size={14} />}
-                        {msg.status === 'unread' ? 'Mark as Read' : 'Mark as Unread'}
-                      </button>
-                      <button 
-                        className="btn btn-secondary btn-sm delete-btn"
-                        onClick={() => deleteMessage(msg.id)}
-                      >
-                        <Trash2 size={14} /> Delete
-                      </button>
-                    </div>
+            ) : (() => {
+              const displayMessages = messages.filter((msg) => {
+                if (inboxFilter === 'unread' && msg.status !== 'unread') return false;
+                if (inboxFilter === 'read' && msg.status === 'unread') return false;
+                if (inboxSearch.trim()) {
+                  const q = inboxSearch.toLowerCase();
+                  const matchesName = (msg.name || '').toLowerCase().includes(q);
+                  const matchesEmail = (msg.email || '').toLowerCase().includes(q);
+                  const matchesMsg = (msg.message || '').toLowerCase().includes(q);
+                  const matchesMobile = (msg.mobile || '').toLowerCase().includes(q);
+                  const matchesLoc = `${msg.tehsil || ''} ${msg.district || ''}`.toLowerCase().includes(q);
+                  return matchesName || matchesEmail || matchesMsg || matchesMobile || matchesLoc;
+                }
+                return true;
+              });
+
+              if (displayMessages.length === 0) {
+                return (
+                  <div className="inbox-empty glass-panel" style={{ padding: '3rem 2rem' }}>
+                    <Search size={36} className="empty-icon" />
+                    <h3>No Matching Messages</h3>
+                    <p>No messages match your search filter "{inboxSearch || inboxFilter}".</p>
                   </div>
-                ))}
-              </div>
-            )}
+                );
+              }
+
+              return (
+                <div className="messages-list">
+                  {displayMessages.map((msg) => (
+                    <div 
+                      key={msg.id} 
+                      className={`message-card glass-panel ${msg.status === 'unread' ? 'unread' : 'read'}`}
+                    >
+                      <div className="message-card-header">
+                        <div className="sender-info">
+                          <div className="sender-name-row">
+                            <h3>{msg.name}</h3>
+                            {msg.status === 'unread' && <span className="unread-dot-badge">New</span>}
+                          </div>
+                          <a href={`mailto:${msg.email}`} className="sender-email">{msg.email}</a>
+                        </div>
+                        <div className="message-meta">
+                          <span className="meta-item"><Calendar size={14} /> {formatDate(msg.createdAt)}</span>
+                          <span className="meta-item project-badge"><Globe size={14} /> {formatProjectType(msg.projectType)}</span>
+                          <span className="meta-item budget-badge"><DollarSign size={14} /> {formatBudget(msg.budget)}</span>
+                          {msg.mobile && <span className="meta-item" style={{ color: 'var(--accent-secondary, #06b6d4)' }}>📱 {msg.mobile}</span>}
+                          {(msg.tehsil || msg.district) && (
+                            <span className="meta-item" style={{ color: 'var(--accent-primary, #8b5cf6)' }}>
+                              📍 {[msg.tehsil, msg.district].filter(Boolean).join(', ')}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="message-body">
+                        <p>{msg.message}</p>
+                      </div>
+                      
+                      <div className="message-actions">
+                        <button 
+                          className={`btn btn-secondary btn-sm read-toggle-btn ${msg.status === 'unread' ? 'action-read' : 'action-unread'}`}
+                          onClick={() => toggleReadStatus(msg.id, msg.status)}
+                        >
+                          {msg.status === 'unread' ? <MailOpen size={14} /> : <Mail size={14} />}
+                          {msg.status === 'unread' ? 'Mark as Read' : 'Mark as Unread'}
+                        </button>
+                        <a 
+                          href={`mailto:${msg.email}?subject=Re: Inquiry on NexLifTech (${formatProjectType(msg.projectType)})`}
+                          className="btn btn-secondary btn-sm reply-btn"
+                        >
+                          <Mail size={14} /> Reply via Email
+                        </a>
+                        <button 
+                          className="btn btn-secondary btn-sm delete-btn"
+                          onClick={() => deleteMessage(msg.id)}
+                        >
+                          <Trash2 size={14} /> Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
         ) : activeTab === 'awcMonitoring' ? (
           <AdminAwcMonitoring />
