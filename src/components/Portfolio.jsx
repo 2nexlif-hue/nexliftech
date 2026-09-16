@@ -136,6 +136,33 @@ export default function Portfolio() {
                     <span key={i} className="tech-tag">{tech}</span>
                   ))}
                 </div>
+
+                <div className="project-card-actions">
+                  {project.liveLink && (
+                    <a 
+                      href={project.liveLink} 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      className="btn-project-action primary"
+                      aria-label={`View live demo of ${project.title}`}
+                    >
+                      <span>Live Demo</span>
+                      <ExternalLink size={14} />
+                    </a>
+                  )}
+                  {project.githubLink && (
+                    <a 
+                      href={project.githubLink} 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      className="btn-project-action secondary"
+                      aria-label={`View source code of ${project.title}`}
+                    >
+                      <span>Code</span>
+                      <Code size={14} />
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           ))}

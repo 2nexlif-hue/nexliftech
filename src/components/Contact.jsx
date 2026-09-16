@@ -182,11 +182,11 @@ export default function Contact() {
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="email">Email</label>
-                  <input type="email" id="email" name="email" required placeholder="john@example.com" maxLength={150} />
+                  <input type="email" id="email" name="email" required placeholder="john@example.com" maxLength={150} inputMode="email" autoComplete="email" />
                 </div>
                 <div className="form-group">
                   <label htmlFor="mobile">Mobile No</label>
-                  <input type="tel" id="mobile" name="mobile" required placeholder="+91 9XXXXXXXXX" pattern="[+0-9]{7,15}" maxLength={15} />
+                  <input type="tel" id="mobile" name="mobile" required placeholder="+91 9XXXXXXXXX" pattern="[+0-9]{7,15}" maxLength={15} inputMode="tel" autoComplete="tel" />
                 </div>
               </div>
 

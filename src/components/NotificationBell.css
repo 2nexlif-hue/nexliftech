@@ -45,20 +45,27 @@
 .notification-dropdown {
   position: absolute;
   top: calc(100% + 0.5rem);
-  right: -1rem;
+  right: -0.5rem;
   width: 320px;
-  background: var(--bg-elevated);
+  background: var(--bg-secondary);
   border: 1px solid var(--border-light);
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
   z-index: 1000;
   overflow: hidden;
   animation: slideDown 0.2s ease-out;
 }
 
-.mobile .notification-dropdown {
-  right: auto;
-  left: -200px;
+@media (max-width: 768px) {
+  .notification-dropdown,
+  .mobile .notification-dropdown {
+    position: fixed;
+    top: calc(var(--nav-height) + 0.5rem);
+    right: 1rem;
+    left: auto;
+    width: calc(100vw - 2rem);
+    max-width: 340px;
+  }
 }
 
 @keyframes slideDown {
@@ -67,12 +74,12 @@
 }
 
 .dropdown-header {
-  padding: 1rem;
+  padding: 1rem 1.25rem;
   border-bottom: 1px solid var(--border-light);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-elevated);
 }
 
 .dropdown-header h3 {

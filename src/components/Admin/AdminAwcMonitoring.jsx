@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { 
-  Building2, Save, FileText, Download, Clock, CheckCircle2, AlertCircle, 
-  Plus, Edit3, Trash2, Copy, Search, RefreshCw, ChevronRight, User, Calendar
+  Building2, Save, Download, Clock, CheckCircle2, AlertCircle, AlertTriangle,
+  Plus, Edit3, Trash2, Copy, Search, RefreshCw
 } from 'lucide-react';
 import { db } from '../../firebase';
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, orderBy, serverTimestamp } from 'firebase/firestore';

@@ -56,12 +56,13 @@ function LandingPage() {
   return (
     <>
       <CustomCursor />
-      <NotificationBanner
-        activeBanner={activeBanner}
-        dismissNotification={dismissNotification}
-      />
-
-      <Navbar notificationsHook={notificationsHook} />
+      <header className="site-header">
+        <NotificationBanner
+          activeBanner={activeBanner}
+          dismissNotification={dismissNotification}
+        />
+        <Navbar notificationsHook={notificationsHook} />
+      </header>
 
       <main>
         <Hero />

@@ -141,20 +141,32 @@ export default function Navbar({ notificationsHook }) {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu Backdrop */}
+        {isMobileMenuOpen && (
+          <div 
+            className="mobile-menu-backdrop" 
+            onClick={() => setIsMobileMenuOpen(false)} 
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Mobile Menu Drawer */}
         <div className={`mobile-menu ${isMobileMenuOpen ? 'open' : ''}`}>
-          <div className="container">
+          <div className="container mobile-menu-inner">
             <ul className="mobile-nav-links">
               {navLinks.map((link) => (
                 <li key={link.name}>
                   <a 
                     href={link.href} 
                     onClick={(e) => handleNavClick(e, link.href)}
+                    className="mobile-nav-item"
                   >
-                    {link.name}
+                    <span>{link.name}</span>
+                    <span className="mobile-nav-arrow">→</span>
                   </a>
                 </li>
               ))}
+              <li className="mobile-menu-divider" />
               <li>
                 <Link 
                   to="/admin/login" 
@@ -162,13 +174,13 @@ export default function Navbar({ notificationsHook }) {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <LogIn size={16} />
-                  <span>Admin Login</span>
+                  <span>Admin Portal</span>
                 </Link>
               </li>
               <li>
                 <a 
                   href="#contact" 
-                  className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem' }}
+                  className="btn btn-primary mobile-cta-btn"
                   onClick={(e) => handleNavClick(e, '#contact')}
                 >
                   Start Project

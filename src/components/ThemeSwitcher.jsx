@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Sun, Moon, Zap, Palette } from 'lucide-react';
+import { Sun, Moon, Zap } from 'lucide-react';
 import './ThemeSwitcher.css';
 
 const THEMES = [
