@@ -146,47 +146,57 @@ const DEFAULT_DATA = {
 
 const DEFAULT_PRICING = [
   {
-    name: "Starter",
+    name: "Starter Build",
     tabName: "Starter",
-    description: "Perfect for personal brands and small local businesses.",
+    badge: "For Tutors & Academies",
+    description: "High-converting single-page web app for modern brands, tutors & coaching academies.",
     price: "₹14,999",
     features: [
-      "Single-page responsive website",
-      "Modern design (Vite + React)",
-      "Basic SEO setup",
-      "Contact form integration",
-      "1 Revision cycle",
-      "1 month free support"
+      "High-Converting Single-Page Web App (React / Vite)",
+      "Course & Fee Structure Showcase with Gallery",
+      "Instant WhatsApp & Email Admission Inquiry forms",
+      "Sub-second load speed & Mobile-First luxury UI",
+      "Google Search & Business Maps indexing setup",
+      "Free SSL & Custom Domain connection assistance",
+      "2 Iteration rounds + 30 days warranty support"
     ],
     isPopular: false
   },
   {
-    name: "Professional",
+    name: "Pro Application",
     tabName: "Pro",
-    description: "Ideal for growing businesses needing a comprehensive online presence.",
+    badge: "For Schools & Businesses",
+    description: "Dynamic multi-page portal with visual CMS for schools, institutes & growing businesses.",
     price: "₹34,999",
     features: [
-      "Multi-page website (up to 7 pages)",
-      "CMS integration for easy updates",
-      "Advanced SEO & Analytics",
-      "Security headers & hardening",
-      "3 Revision cycles",
-      "3 months free support"
+      "Multi-Page Dynamic Website (Up to 7 custom pages)",
+      "Online Student Admission & Inquiry Application Form",
+      "Digital Notice Board & Circular Management CMS",
+      "Faculty & Staff Directory with Events & Gallery",
+      "Lead Management Pipeline with CSV / Excel export",
+      "Advanced Google Analytics 4 & Social Share cards",
+      "Bank-Grade Security, DDoS & Anti-Spam protection",
+      "3 Revision rounds + 90 days dedicated support"
     ],
     isPopular: true
   },
   {
     name: "Enterprise ERP",
     tabName: "Enterprise",
-    description: "Custom web applications and portals for schools or large organizations.",
+    badge: "Institutional ERP",
+    referenceLink: "https://hssshangus.netlify.app/",
+    referenceName: "Live Reference: Govt HSS Shangus",
+    description: "Full-stack institutional ERPs, RBAC databases, and complex automation systems.",
     price: "Custom",
     features: [
-      "Full-stack Web Application",
-      "Database & User Authentication",
-      "Custom dashboards & reporting",
-      "Payment gateway integration",
-      "Unlimited revisions during dev",
-      "1 year priority support"
+      "Tailored School / College ERP (As in Govt HSS Shangus)",
+      "Online Admission & Student Registration Workflow",
+      "Bulk Roll Number Assigner & Automated Subject Mapping",
+      "1-Click Printable Student ID Cards & PDF Result Sheets",
+      "Role-Based Access (Principal Admin, Exam Cell, Staff Portals)",
+      "Online Fee Collection & Payment Gateway (UPI / Cards)",
+      "100% Full Source Code & Database Ownership",
+      "1-Year Priority SLA Support & Dedicated Maintenance"
     ],
     isPopular: false
   }

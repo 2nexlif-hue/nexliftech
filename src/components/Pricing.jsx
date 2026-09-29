@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Check } from 'lucide-react';
+import { Check, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -9,45 +9,55 @@ const DEFAULT_PLANS = [
   {
     name: "Starter Build",
     tabName: "Starter",
-    description: "Lightweight SPA for personal sites or concise company landers.",
+    badge: "For Tutors & Academies",
+    description: "High-converting single-page web app for modern brands, tutors & coaching academies.",
     price: "₹14,999",
     features: [
-      "Single-page React / Vite SPA",
-      "Sub-second load times",
-      "Lighthouse SEO & Schema setup",
-      "Sanitized contact form integration",
-      "1 Revision cycle",
-      "30 days technical support"
+      "High-Converting Single-Page Web App (React / Vite)",
+      "Course & Fee Structure Showcase with Gallery",
+      "Instant WhatsApp & Email Admission Inquiry forms",
+      "Sub-second load speed & Mobile-First luxury UI",
+      "Google Search & Business Maps indexing setup",
+      "Free SSL & Custom Domain connection assistance",
+      "2 Iteration rounds + 30 days warranty support"
     ],
     isPopular: false
   },
   {
     name: "Pro Application",
     tabName: "Pro",
-    description: "Full multi-page Web App with CMS and analytics integration.",
+    badge: "For Schools & Businesses",
+    description: "Dynamic multi-page portal with visual CMS for schools, institutes & growing businesses.",
     price: "₹34,999",
     features: [
-      "Multi-page Web App (up to 7 routes)",
-      "Headless CMS integration",
-      "Advanced SEO & telemetry analytics",
-      "Security hardening & CSP headers",
-      "3 Revision cycles",
-      "90 days technical support"
+      "Multi-Page Dynamic Website (Up to 7 custom pages)",
+      "Online Student Admission & Inquiry Application Form",
+      "Digital Notice Board & Circular Management CMS",
+      "Faculty & Staff Directory with Events & Gallery",
+      "Lead Management Pipeline with CSV / Excel export",
+      "Advanced Google Analytics 4 & Social Share cards",
+      "Bank-Grade Security, DDoS & Anti-Spam protection",
+      "3 Revision rounds + 90 days dedicated support"
     ],
     isPopular: true
   },
   {
     name: "Enterprise ERP",
     tabName: "Enterprise",
-    description: "Custom ERPs, RBAC databases, and complex automation systems.",
+    badge: "Institutional ERP",
+    referenceLink: "https://hssshangus.netlify.app/",
+    referenceName: "Live Reference: Govt HSS Shangus",
+    description: "Full-stack institutional ERPs, RBAC databases, and complex automation systems.",
     price: "Custom",
     features: [
-      "Custom Full-Stack Web Application",
-      "Postgres/Firestore DB & Auth",
-      "Custom dashboards & automated reporting",
-      "Payment gateway & API pipelines",
-      "Dedicated development cycles",
-      "1 Year priority engineering support"
+      "Tailored School / College ERP (As in Govt HSS Shangus)",
+      "Online Admission & Student Registration Workflow",
+      "Bulk Roll Number Assigner & Automated Subject Mapping",
+      "1-Click Printable Student ID Cards & PDF Result Sheets",
+      "Role-Based Access (Principal Admin, Exam Cell, Staff Portals)",
+      "Online Fee Collection & Payment Gateway (UPI / Cards)",
+      "100% Full Source Code & Database Ownership",
+      "1-Year Priority SLA Support & Dedicated Maintenance"
     ],
     isPopular: false
   }
@@ -159,10 +169,22 @@ export default function Pricing() {
                 {plan.isPopular && <div className="popular-badge">Most Popular</div>}
                 
                 <div className="pricing-header">
+                  {plan.badge && <div className="pricing-tier-badge">{plan.badge}</div>}
                   <h3>{plan.name}</h3>
                   <p className="pricing-desc">{plan.description}</p>
                   <div className="price">{plan.price}</div>
                   {plan.price !== 'Custom' && <div className="price-suffix">Starting at</div>}
+                  {plan.referenceLink && (
+                    <a 
+                      href={plan.referenceLink} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="pricing-reference-pill"
+                      title="View live institutional reference"
+                    >
+                      <ExternalLink size={12} /> {plan.referenceName}
+                    </a>
+                  )}
                 </div>
                 
                 <ul className="pricing-features">
@@ -239,10 +261,22 @@ export default function Pricing() {
                       {plan.isPopular && <div className="popular-badge">Most Popular</div>}
                       
                       <div className="pricing-header">
+                        {plan.badge && <div className="pricing-tier-badge">{plan.badge}</div>}
                         <h3>{plan.name}</h3>
                         <p className="pricing-desc">{plan.description}</p>
                         <div className="price">{plan.price}</div>
                         {plan.price !== 'Custom' && <div className="price-suffix">Starting at</div>}
+                        {plan.referenceLink && (
+                          <a 
+                            href={plan.referenceLink} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="pricing-reference-pill"
+                            title="View live institutional reference"
+                          >
+                            <ExternalLink size={12} /> {plan.referenceName}
+                          </a>
+                        )}
                       </div>
                       
                       <ul className="pricing-features">
