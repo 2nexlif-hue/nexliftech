@@ -42,42 +42,50 @@ export default function Login() {
   }
 
   return (
-    <div className="admin-page">
+    <div className="admin-page login-page-layout">
       <div className="admin-bg-effects">
         <div className="admin-glow admin-glow-1"></div>
         <div className="admin-glow admin-glow-2"></div>
       </div>
 
-      <a href="/" className="admin-back-link">
-        <ArrowLeft size={18} /> Back to Site
-      </a>
+      <header className="login-top-bar">
+        <a href="/" className="admin-back-link">
+          <ArrowLeft size={16} /> <span>Back to Site</span>
+        </a>
+      </header>
 
-      <div className="login-container">
+      <main className="login-container">
         <div className="login-card glass-panel">
           <div className="login-header">
-            <div className="login-logo">
-              <Lock size={28} />
+            <div className="login-logo" aria-hidden="true">
+              <Lock className="login-logo-icon" />
             </div>
             <h1>Admin Access</h1>
-            <p>Select workspace & sign in to manage your data</p>
+            <p>Select workspace &amp; sign in to manage your data</p>
           </div>
 
           {/* Workspace Target Selector */}
-          <div className="login-workspace-selector">
+          <div className="login-workspace-selector" role="tablist" aria-label="Select Workspace">
             <button
               type="button"
+              role="tab"
+              aria-selected={portalMode === 'cms'}
               onClick={() => setPortalMode('cms')}
               className={`workspace-tab-btn ${portalMode === 'cms' ? 'active-cms' : ''}`}
             >
-              <span>🌐 Website CMS</span>
+              <span className="workspace-tab-icon">🌐</span>
+              <span className="workspace-tab-label">Website CMS</span>
             </button>
 
             <button
               type="button"
+              role="tab"
+              aria-selected={portalMode === 'personal'}
               onClick={() => setPortalMode('personal')}
               className={`workspace-tab-btn ${portalMode === 'personal' ? 'active-personal' : ''}`}
             >
-              <span>🏢 Personal & Govt</span>
+              <span className="workspace-tab-icon">🏢</span>
+              <span className="workspace-tab-label">Personal &amp; Govt</span>
             </button>
           </div>
 
@@ -148,7 +156,7 @@ export default function Login() {
             Protected area. Unauthorized access is prohibited.
           </p>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
