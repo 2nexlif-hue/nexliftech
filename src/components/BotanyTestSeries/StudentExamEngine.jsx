@@ -1,0 +1,395 @@
+import { useState, useEffect } from 'react';
+import { 
+  Clock, AlertTriangle, ArrowLeft, ArrowRight, Bookmark, 
+  RotateCcw, Award, Check, X, HelpCircle, BookOpen 
+} from 'lucide-react';
+import './BotanySeries.css';
+
+export default function StudentExamEngine({ testData, questions = [], onClose }) {
+  // Test state
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [userAnswers, setUserAnswers] = useState({}); // { [qId]: 'A' | 'B' | 'C' | 'D' }
+  const [markedForReview, setMarkedForReview] = useState({}); // { [qId]: true }
+  const [secondsRemaining, setSecondsRemaining] = useState((testData?.durationMinutes || 60) * 60);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
+
+  // Countdown timer
+  useEffect(() => {
+    if (isSubmitted || secondsRemaining <= 0) return;
+    const timer = setInterval(() => {
+      setSecondsRemaining(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          handleSubmitTest();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isSubmitted, secondsRemaining]);
+
+  function formatTime(secs) {
+    const hrs = Math.floor(secs / 3600);
+    const mins = Math.floor((secs % 3600) / 60);
+    const s = secs % 60;
+    if (hrs > 0) {
+      return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+    return `${String(mins).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+
+  const currentQ = questions[currentIdx] || null;
+
+  function selectOption(optChar) {
+    if (!currentQ || isSubmitted) return;
+    setUserAnswers(prev => ({ ...prev, [currentQ.id]: optChar }));
+  }
+
+  function clearResponse() {
+    if (!currentQ || isSubmitted) return;
+    setUserAnswers(prev => {
+      const copy = { ...prev };
+      delete copy[currentQ.id];
+      return copy;
+    });
+  }
+
+  function toggleMarkForReview() {
+    if (!currentQ || isSubmitted) return;
+    setMarkedForReview(prev => ({
+      ...prev,
+      [currentQ.id]: !prev[currentQ.id]
+    }));
+  }
+
+  function handleSubmitTest() {
+    setShowConfirmSubmit(false);
+    setIsSubmitted(true);
+  }
+
+  // Calculate score & statistics
+  let correctCount = 0;
+  let incorrectCount = 0;
+  let unattemptedCount = 0;
+
+  if (isSubmitted) {
+    questions.forEach(q => {
+      const selected = userAnswers[q.id];
+      if (!selected) {
+        unattemptedCount++;
+      } else if (selected === q.correctOption) {
+        correctCount++;
+      } else {
+        incorrectCount++;
+      }
+    });
+  }
+
+  const score = (correctCount * 1) - (incorrectCount * 0.25); // Standard PSC negative marking (0.25)
+  const accuracy = (correctCount + incorrectCount) > 0 
+    ? Math.round((correctCount / (correctCount + incorrectCount)) * 100) 
+    : 0;
+
+  return (
+    <div className="cbt-modal-fullscreen">
+      {/* Top CBT Header Bar */}
+      <header className="cbt-topbar">
+        <div className="cbt-topbar-left">
+          <button type="button" className="btn btn-secondary btn-sm" onClick={onClose}>
+            <ArrowLeft size={14} /> <span>Exit CBT</span>
+          </button>
+          <div className="cbt-test-info">
+            <h2>{testData?.title || 'Botany Entrance CBT Simulation'}</h2>
+            <span>{testData?.unitCovered || 'PSC Entrance Syllabus'}</span>
+          </div>
+        </div>
+
+        <div className="cbt-topbar-right">
+          {!isSubmitted && (
+            <div className={`cbt-timer ${secondsRemaining < 300 ? 'urgent' : ''}`}>
+              <Clock size={16} />
+              <span>{formatTime(secondsRemaining)}</span>
+            </div>
+          )}
+          {!isSubmitted ? (
+            <button 
+              type="button" 
+              className="btn btn-primary btn-sm cbt-submit-btn"
+              onClick={() => setShowConfirmSubmit(true)}
+            >
+              Submit Test
+            </button>
+          ) : (
+            <span className="cbt-badge-completed">Completed</span>
+          )}
+        </div>
+      </header>
+
+      {/* Main Examination Canvas */}
+      {!isSubmitted ? (
+        <div className="cbt-body-layout">
+          {/* Question Area */}
+          <main className="cbt-question-pane">
+            {currentQ ? (
+              <>
+                <div className="cbt-question-header">
+                  <span className="cbt-q-badge">Question {currentIdx + 1} of {questions.length}</span>
+                  <span className="cbt-marks-badge">+1.0 / -0.25</span>
+                </div>
+
+                <div className="cbt-question-body">
+                  <p className="cbt-question-text">{currentQ.question}</p>
+
+                  <div className="cbt-options-list">
+                    {['A', 'B', 'C', 'D'].map((opt) => {
+                      const text = currentQ[`option${opt}`];
+                      if (!text) return null;
+                      const isSelected = userAnswers[currentQ.id] === opt;
+                      return (
+                        <button
+                          key={opt}
+                          type="button"
+                          className={`cbt-option-item ${isSelected ? 'selected' : ''}`}
+                          onClick={() => selectOption(opt)}
+                        >
+                          <span className="cbt-opt-char">{opt}</span>
+                          <span className="cbt-opt-text">{text}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <footer className="cbt-question-footer">
+                  <div className="cbt-footer-left">
+                    <button 
+                      type="button" 
+                      className={`btn btn-secondary btn-sm ${markedForReview[currentQ.id] ? 'is-marked' : ''}`}
+                      onClick={toggleMarkForReview}
+                    >
+                      <Bookmark size={14} />
+                      <span>{markedForReview[currentQ.id] ? 'Marked for Review' : 'Mark for Review'}</span>
+                    </button>
+                    {userAnswers[currentQ.id] && (
+                      <button 
+                        type="button" 
+                        className="btn btn-secondary btn-sm"
+                        onClick={clearResponse}
+                      >
+                        <RotateCcw size={14} />
+                        <span>Clear Response</span>
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="cbt-footer-right">
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => setCurrentIdx(prev => Math.max(0, prev - 1))}
+                      disabled={currentIdx === 0}
+                    >
+                      <ArrowLeft size={14} /> Previous
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-sm"
+                      onClick={() => setCurrentIdx(prev => Math.min(questions.length - 1, prev + 1))}
+                      disabled={currentIdx === questions.length - 1}
+                    >
+                      Save &amp; Next <ArrowRight size={14} />
+                    </button>
+                  </div>
+                </footer>
+              </>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+                No questions loaded for this test.
+              </div>
+            )}
+          </main>
+
+          {/* Palette Sidebar */}
+          <aside className="cbt-palette-pane">
+            <div className="cbt-palette-legend">
+              <div className="legend-item"><span className="legend-dot green"></span> Answered ({Object.keys(userAnswers).length})</div>
+              <div className="legend-item"><span className="legend-dot purple"></span> Review ({Object.values(markedForReview).filter(Boolean).length})</div>
+              <div className="legend-item"><span className="legend-dot grey"></span> Unattempted ({questions.length - Object.keys(userAnswers).length})</div>
+            </div>
+
+            <h4 className="cbt-palette-heading">Question Palette</h4>
+
+            <div className="cbt-palette-grid">
+              {questions.map((q, idx) => {
+                const isCurrent = idx === currentIdx;
+                const isAnswered = !!userAnswers[q.id];
+                const isMarked = !!markedForReview[q.id];
+
+                let statusClass = 'unattempted';
+                if (isAnswered) statusClass = 'answered';
+                else if (isMarked) statusClass = 'marked';
+
+                return (
+                  <button
+                    key={q.id || idx}
+                    type="button"
+                    className={`cbt-palette-btn ${statusClass} ${isCurrent ? 'current' : ''}`}
+                    onClick={() => setCurrentIdx(idx)}
+                  >
+                    {idx + 1}
+                  </button>
+                );
+              })}
+            </div>
+          </aside>
+        </div>
+      ) : (
+        /* Post-Submission Scorecard & Option-By-Option Scientific Review */
+        <main className="cbt-results-container">
+          <div className="cbt-scorecard glass-panel">
+            <div className="scorecard-header">
+              <div className="scorecard-icon">
+                <Award size={36} />
+              </div>
+              <div>
+                <h2>Test Completed &amp; Evaluated</h2>
+                <p>Evaluation with +1.0 for correct and -0.25 negative marking</p>
+              </div>
+            </div>
+
+            <div className="scorecard-metrics">
+              <div className="metric-box">
+                <span className="metric-label">Calculated Score</span>
+                <span className="metric-value">{score.toFixed(2)}</span>
+                <span className="metric-sub">Out of {questions.length}</span>
+              </div>
+              <div className="metric-box">
+                <span className="metric-label">Accuracy</span>
+                <span className="metric-value">{accuracy}%</span>
+                <span className="metric-sub">Correct vs Attempted</span>
+              </div>
+              <div className="metric-box green">
+                <span className="metric-label">Correct</span>
+                <span className="metric-value">{correctCount}</span>
+                <span className="metric-sub">Questions</span>
+              </div>
+              <div className="metric-box red">
+                <span className="metric-label">Incorrect</span>
+                <span className="metric-value">{incorrectCount}</span>
+                <span className="metric-sub">-0.25 penalty</span>
+              </div>
+              <div className="metric-box grey">
+                <span className="metric-label">Unattempted</span>
+                <span className="metric-value">{unattemptedCount}</span>
+                <span className="metric-sub">0 marks</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Option-By-Option Detailed Scientific Analysis */}
+          <div className="cbt-analysis-section">
+            <div className="analysis-header">
+              <BookOpen size={20} className="accent-icon" />
+              <h3>Detailed Scientific Analysis &amp; Option Breakdown</h3>
+            </div>
+
+            <div className="analysis-list">
+              {questions.map((q, idx) => {
+                const userChoice = userAnswers[q.id];
+                const isCorrect = userChoice === q.correctOption;
+                const isSkipped = !userChoice;
+
+                return (
+                  <div key={q.id || idx} className={`analysis-card ${isCorrect ? 'correct' : isSkipped ? 'skipped' : 'incorrect'}`}>
+                    <div className="analysis-card-top">
+                      <span className="analysis-q-num">Q{idx + 1}.</span>
+                      <div className="analysis-status-pill">
+                        {isCorrect && <span className="pill green"><Check size={12} /> Correct (+1.0)</span>}
+                        {!isCorrect && !isSkipped && <span className="pill red"><X size={12} /> Incorrect (-0.25)</span>}
+                        {isSkipped && <span className="pill grey"><HelpCircle size={12} /> Not Attempted (0.0)</span>}
+                      </div>
+                    </div>
+
+                    <p className="analysis-q-text">{q.question}</p>
+
+                    {/* Options list with highlight */}
+                    <div className="analysis-options-breakdown">
+                      {['A', 'B', 'C', 'D'].map(opt => {
+                        const optText = q[`option${opt}`];
+                        const optAnalysis = q[`analysis${opt}`];
+                        if (!optText) return null;
+                        const isThisCorrect = q.correctOption === opt;
+                        const isThisUserPick = userChoice === opt;
+
+                        let rowClass = '';
+                        if (isThisCorrect) rowClass = 'correct-opt';
+                        else if (isThisUserPick) rowClass = 'wrong-opt';
+
+                        return (
+                          <div key={opt} className={`analysis-opt-row ${rowClass}`}>
+                            <div className="opt-row-main">
+                              <span className="opt-letter">{opt}</span>
+                              <span className="opt-text-val">{optText}</span>
+                              {isThisCorrect && <span className="tag-correct">Correct Answer</span>}
+                              {isThisUserPick && !isThisCorrect && <span className="tag-user-wrong">Your Pick</span>}
+                            </div>
+                            {optAnalysis && (
+                              <div className="opt-analysis-text">
+                                <strong>Rationale:</strong> {optAnalysis}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {q.referenceNote && (
+                      <div className="analysis-ref-tip">
+                        <strong>Exam Tip / Reference Note:</strong> {q.referenceNote}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </main>
+      )}
+
+      {/* Confirmation Dialog before submitting test */}
+      {showConfirmSubmit && (
+        <div className="botany-modal-overlay">
+          <div className="botany-modal-card" style={{ maxWidth: '420px', textAlign: 'center' }}>
+            <div style={{ color: '#f59e0b', margin: '0 auto 0.75rem auto' }}>
+              <AlertTriangle size={36} />
+            </div>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }}>Submit Test Confirmation</h3>
+            <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', margin: '0 0 1.25rem 0', lineHeight: 1.5 }}>
+              You have answered <strong>{Object.keys(userAnswers).length}</strong> of <strong>{questions.length}</strong> questions.
+              <br />
+              Are you sure you want to finish and submit your test?
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+              <button 
+                type="button" 
+                className="btn btn-secondary"
+                onClick={() => setShowConfirmSubmit(false)}
+              >
+                Continue Test
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-primary"
+                onClick={handleSubmitTest}
+              >
+                Yes, Submit Test
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

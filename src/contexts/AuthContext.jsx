@@ -2,9 +2,15 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { 
   onAuthStateChanged, 
   signInWithEmailAndPassword, 
-  signOut 
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+  updateProfile,
+  sendPasswordResetEmail
 } from 'firebase/auth';
-import { auth } from '../firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../firebase';
 
 const AuthContext = createContext(null);
 
@@ -18,11 +24,41 @@ export function useAuth() {
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Sync user profile in Firestore
+  async function syncUserProfile(user) {
+    if (!user) {
+      setUserProfile(null);
+      return;
+    }
+    try {
+      const userRef = doc(db, 'users', user.uid);
+      const snap = await getDoc(userRef);
+      if (snap.exists()) {
+        setUserProfile(snap.data());
+      } else {
+        const newProfile = {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName || user.email.split('@')[0],
+          photoURL: user.photoURL || '',
+          role: 'student',
+          createdAt: new Date().toISOString()
+        };
+        await setDoc(userRef, newProfile, { merge: true });
+        setUserProfile(newProfile);
+      }
+    } catch (err) {
+      console.warn('Could not sync user profile in Firestore:', err);
+    }
+  }
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
+      await syncUserProfile(user);
       setLoading(false);
     });
 
@@ -33,28 +69,47 @@ export function AuthProvider({ children }) {
     return signInWithEmailAndPassword(auth, email, password);
   }
 
+  async function signup(email, password, displayName = '') {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    if (displayName && cred.user) {
+      await updateProfile(cred.user, { displayName });
+    }
+    await syncUserProfile(cred.user);
+    return cred;
+  }
+
+  async function signInWithGoogle() {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    const cred = await signInWithPopup(auth, provider);
+    await syncUserProfile(cred.user);
+    return cred;
+  }
+
+  async function resetPassword(email) {
+    return sendPasswordResetEmail(auth, email);
+  }
+
   async function logout() {
     return signOut(auth);
   }
 
-  // Auto-logout user after 30 minutes of inactivity
+  // Auto-logout admin users after 30 minutes of complete inactivity
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser || userProfile?.role !== 'admin') return;
 
-    // 30 minutes timeout
     const TIMEOUT_DURATION = 30 * 60 * 1000;
     let timeoutId;
 
     const resetTimer = () => {
       if (timeoutId) clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
-        console.warn('Session expired due to inactivity. Signing out.');
+        console.warn('Admin session expired due to inactivity. Signing out.');
         logout();
       }, TIMEOUT_DURATION);
     };
 
     const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
-    
     activityEvents.forEach((event) => {
       window.addEventListener(event, resetTimer);
     });
@@ -67,12 +122,16 @@ export function AuthProvider({ children }) {
         window.removeEventListener(event, resetTimer);
       });
     };
-  }, [currentUser]);
+  }, [currentUser, userProfile]);
 
   const value = {
     currentUser,
+    userProfile,
     loading,
     login,
+    signup,
+    signInWithGoogle,
+    resetPassword,
     logout
   };
 

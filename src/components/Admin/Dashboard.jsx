@@ -10,6 +10,7 @@ import {
   ArrowUp, ArrowDown, Copy, Plus, Search, Star, ExternalLink, Sparkles
 } from 'lucide-react';
 import AdminAwcMonitoring from './AdminAwcMonitoring';
+import AdminBotanyTestSeries from './AdminBotanyTestSeries';
 import './Admin.css';
 
 const ABOUT_DOC_ID = 'about_developer';
@@ -66,6 +67,15 @@ const DEFAULT_SERVICES = [
 ];
 
 const DEFAULT_PROJECTS = [
+  {
+    title: 'Botany Assistant Professor CBT Examination Suite',
+    category: 'EdTech & Assessment Engines',
+    clientTag: 'Curated by Dr. Aubid Ahmad (Asst. Professor) • Built & Deployed by NexLifTech',
+    description: 'An advanced, high-stakes Computer-Based Testing (CBT) portal and examination suite engineered for Dr. Aubid Ahmad, Assistant Professor. Features 35 scheduled tests, ~2,700 high-yield questions across 10 PSC units, Excel bulk uploads with 3-version rollbacks, automated option analysis, and Razorpay student enrollment workflows.',
+    tech: ['React', 'Firebase', 'Razorpay', 'Excel Engine', 'CBT Analytics'],
+    liveLink: '/botany-test-series',
+    image: '/botany-suite-preview.svg'
+  },
   {
     title: 'Govt HSS Shangus ERP',
     category: 'Education & Portals',
@@ -208,7 +218,7 @@ export default function Dashboard() {
   const [searchParams] = useSearchParams();
   const fileInputRef = useRef(null);
 
-  const initialWorkspace = searchParams.get('workspace') === 'personal' ? 'personal' : 'cms';
+  const initialWorkspace = searchParams.get('workspace') === 'personal' ? 'personal' : searchParams.get('workspace') === 'botany' ? 'botany' : 'cms';
   const [workspace, setWorkspace] = useState(initialWorkspace);
 
   const [formData, setFormData] = useState(DEFAULT_DATA);
@@ -218,7 +228,9 @@ export default function Dashboard() {
   const [toast, setToast] = useState({ show: false, type: '', message: '' });
   const [confirmModal, setConfirmModal] = useState(null);
 
-  const [activeTab, setActiveTab] = useState(initialWorkspace === 'personal' ? 'awcMonitoring' : 'hero');
+  const [activeTab, setActiveTab] = useState(
+    initialWorkspace === 'personal' ? 'awcMonitoring' : initialWorkspace === 'botany' ? 'botanySuite' : 'hero'
+  );
   const [messages, setMessages] = useState([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
   const [inboxFilter, setInboxFilter] = useState('all'); // 'all' | 'unread' | 'read'
@@ -1088,6 +1100,18 @@ export default function Dashboard() {
           <button
             type="button"
             onClick={() => {
+              setWorkspace('botany');
+              setActiveTab('botanySuite');
+            }}
+            className={`workspace-bar-btn ${workspace === 'botany' ? 'active-botany' : ''}`}
+          >
+            <GraduationCap size={16} />
+            <span>Botany Assistant Professor Suite</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
               setWorkspace('personal');
               setActiveTab('awcMonitoring');
             }}
@@ -1100,86 +1124,96 @@ export default function Dashboard() {
 
         <div className="dashboard-header-wrapper">
           <div className="dashboard-header">
-            <h1>{workspace === 'cms' ? 'Website Content Portal' : 'Personal & Official Projects Suite'}</h1>
+            <h1>
+              {workspace === 'cms'
+                ? 'Website Content Portal'
+                : workspace === 'botany'
+                ? 'Botany Assistant Professor Examination Suite'
+                : 'Personal & Official Projects Suite'}
+            </h1>
             <p className="dashboard-subtitle">
               {workspace === 'cms' 
                 ? 'Manage site content, portfolio, pricing plans, and view incoming customer messages.'
+                : workspace === 'botany'
+                ? 'Curated by Dr. Aubid Ahmad, Asst. Professor. Manage 10-unit syllabus, 35-test calendar, Excel question banks, versioning, and subscriptions.'
                 : 'Access & manage official government inspection checklists, personal apps, and Firestore records.'}
             </p>
           </div>
           
-          <div className="dashboard-tabs">
-            {workspace === 'cms' ? (
-              <>
-                <button 
-                  className={`tab-btn ${activeTab === 'hero' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('hero')}
-                >
-                  <Globe size={16} /> <span>Hero</span>
-                </button>
-                <button 
-                  className={`tab-btn ${activeTab === 'content' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('content')}
-                >
-                  <User size={16} /> <span>About</span>
-                </button>
-                <button 
-                  className={`tab-btn ${activeTab === 'services' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('services')}
-                >
-                  <BookOpen size={16} /> <span>Services</span>
-                  {servicesList.length > 0 && (
-                    <span className="tab-count-badge">{servicesList.length}</span>
-                  )}
-                </button>
-                <button 
-                  className={`tab-btn ${activeTab === 'projects' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('projects')}
-                >
-                  <Briefcase size={16} /> <span>Projects</span>
-                  {projectsList.length > 0 && (
-                    <span className="tab-count-badge">{projectsList.length}</span>
-                  )}
-                </button>
-                <button 
-                  className={`tab-btn ${activeTab === 'pricing' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('pricing')}
-                >
-                  <DollarSign size={16} /> <span>Pricing</span>
-                  {pricingPlans.length > 0 && (
-                    <span className="tab-count-badge">{pricingPlans.length}</span>
-                  )}
-                </button>
-                <button 
-                  className={`tab-btn ${activeTab === 'testimonials' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('testimonials')}
-                >
-                  <Award size={16} /> <span>Testimonials</span>
-                  {testimonialsList.length > 0 && (
-                    <span className="tab-count-badge">{testimonialsList.length}</span>
-                  )}
-                </button>
-                <button 
-                  className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('messages')}
-                >
-                  <Mail size={16} /> <span>Messages Inbox</span>
-                  {unreadCount > 0 ? (
-                    <span className="unread-badge">{unreadCount}</span>
-                  ) : messages.length > 0 ? (
-                    <span className="tab-count-badge">{messages.length}</span>
-                  ) : null}
-                </button>
-              </>
-            ) : (
+          {workspace === 'cms' && (
+            <div className="dashboard-tabs">
+              <button 
+                className={`tab-btn ${activeTab === 'hero' ? 'active' : ''}`}
+                onClick={() => setActiveTab('hero')}
+              >
+                <Globe size={16} /> <span>Hero</span>
+              </button>
+              <button 
+                className={`tab-btn ${activeTab === 'content' ? 'active' : ''}`}
+                onClick={() => setActiveTab('content')}
+              >
+                <User size={16} /> <span>About</span>
+              </button>
+              <button 
+                className={`tab-btn ${activeTab === 'services' ? 'active' : ''}`}
+                onClick={() => setActiveTab('services')}
+              >
+                <BookOpen size={16} /> <span>Services</span>
+                {servicesList.length > 0 && (
+                  <span className="tab-count-badge">{servicesList.length}</span>
+                )}
+              </button>
+              <button 
+                className={`tab-btn ${activeTab === 'projects' ? 'active' : ''}`}
+                onClick={() => setActiveTab('projects')}
+              >
+                <Briefcase size={16} /> <span>Projects</span>
+                {projectsList.length > 0 && (
+                  <span className="tab-count-badge">{projectsList.length}</span>
+                )}
+              </button>
+              <button 
+                className={`tab-btn ${activeTab === 'pricing' ? 'active' : ''}`}
+                onClick={() => setActiveTab('pricing')}
+              >
+                <DollarSign size={16} /> <span>Pricing</span>
+                {pricingPlans.length > 0 && (
+                  <span className="tab-count-badge">{pricingPlans.length}</span>
+                )}
+              </button>
+              <button 
+                className={`tab-btn ${activeTab === 'testimonials' ? 'active' : ''}`}
+                onClick={() => setActiveTab('testimonials')}
+              >
+                <Award size={16} /> <span>Testimonials</span>
+                {testimonialsList.length > 0 && (
+                  <span className="tab-count-badge">{testimonialsList.length}</span>
+                )}
+              </button>
+              <button 
+                className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
+                onClick={() => setActiveTab('messages')}
+              >
+                <Mail size={16} /> <span>Messages Inbox</span>
+                {unreadCount > 0 ? (
+                  <span className="unread-badge">{unreadCount}</span>
+                ) : messages.length > 0 ? (
+                  <span className="tab-count-badge">{messages.length}</span>
+                ) : null}
+              </button>
+            </div>
+          )}
+
+          {workspace === 'personal' && (
+            <div className="dashboard-tabs">
               <button 
                 className={`tab-btn ${activeTab === 'awcMonitoring' ? 'active' : ''}`}
                 onClick={() => setActiveTab('awcMonitoring')}
               >
                 <Building2 size={16} /> <span>Anganwadi Monitoring (Poshan)</span>
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {activeTab === 'hero' ? (
@@ -2482,6 +2516,8 @@ export default function Dashboard() {
           </div>
         ) : activeTab === 'awcMonitoring' ? (
           <AdminAwcMonitoring />
+        ) : workspace === 'botany' || activeTab === 'botanySuite' ? (
+          <AdminBotanyTestSeries currentUser={currentUser} />
         ) : null}
       </div>
 

@@ -355,3 +355,29 @@
     height: 38px;
   }
 }
+
+.nav-link-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  background: var(--gradient-accent);
+  color: #ffffff;
+  margin-left: 0.35rem;
+  display: inline-block;
+  line-height: 1.2;
+}
+
+.nav-route-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.92rem;
+  transition: color var(--transition-fast);
+}
+
+.nav-route-link:hover {
+  color: var(--accent-primary);
+}

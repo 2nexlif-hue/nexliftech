@@ -1,0 +1,125 @@
+<svg width="800" height="450" viewBox="0 0 800 450" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b0f19"/>
+      <stop offset="50%" stop-color="#111827"/>
+      <stop offset="100%" stop-color="#161b2e"/>
+    </linearGradient>
+    <linearGradient id="violetGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+    <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="450" fill="url(#bgGrad)"/>
+
+  <!-- Subtle Grid lines -->
+  <g opacity="0.08" stroke="#ffffff" stroke-width="1">
+    <line x1="0" y1="75" x2="800" y2="75"/>
+    <line x1="0" y1="150" x2="800" y2="150"/>
+    <line x1="0" y1="225" x2="800" y2="225"/>
+    <line x1="0" y1="300" x2="800" y2="300"/>
+    <line x1="0" y1="375" x2="800" y2="375"/>
+    <line x1="160" y1="0" x2="160" y2="450"/>
+    <line x1="320" y1="0" x2="320" y2="450"/>
+    <line x1="480" y1="0" x2="480" y2="450"/>
+    <line x1="640" y1="0" x2="640" y2="450"/>
+  </g>
+
+  <!-- Glow circles -->
+  <circle cx="200" cy="180" r="140" fill="#7c3aed" opacity="0.18" filter="blur(60px)"/>
+  <circle cx="620" cy="240" r="120" fill="#10b981" opacity="0.15" filter="blur(50px)"/>
+
+  <!-- Mock CBT Window Card -->
+  <rect x="60" y="55" width="680" height="340" rx="14" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+
+  <!-- Window Header Bar -->
+  <rect x="60" y="55" width="680" height="44" rx="14" fill="#1e293b"/>
+  <rect x="60" y="85" width="680" height="14" fill="#1e293b"/>
+  <circle cx="85" cy="77" r="5" fill="#ef4444"/>
+  <circle cx="102" cy="77" r="5" fill="#f59e0b"/>
+  <circle cx="119" cy="77" r="5" fill="#10b981"/>
+
+  <text x="145" y="82" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600">
+    Botany Assistant Professor Entrance Examination • CBT Platform
+  </text>
+  
+  <rect x="610" y="67" width="110" height="22" rx="4" fill="#10b981" fill-opacity="0.15" stroke="#10b981" stroke-width="1"/>
+  <text x="665" y="82" fill="#10b981" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" text-anchor="middle">
+    ⏱ 01:54:20 LIVE
+  </text>
+
+  <!-- Left Main Question Canvas -->
+  <rect x="85" y="115" width="440" height="255" rx="8" fill="#1e293b" fill-opacity="0.6" stroke="#334155" stroke-width="1"/>
+  
+  <rect x="105" y="132" width="70" height="20" rx="4" fill="#7c3aed" fill-opacity="0.2"/>
+  <text x="140" y="146" fill="#a78bfa" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" text-anchor="middle">
+    QUESTION 14
+  </text>
+  <text x="190" y="146" fill="#64748b" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">
+    Unit 1: Microbiology &amp; Plant Pathology
+  </text>
+
+  <text x="105" y="180" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600">
+    Which of the following plant viruses possesses a circular double-stranded
+  </text>
+  <text x="105" y="200" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600">
+    DNA genome with discontinuous site-specific gaps?
+  </text>
+
+  <!-- Options -->
+  <rect x="105" y="222" width="400" height="28" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+  <text x="120" y="240" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">A. Tobacco Mosaic Virus (TMV)</text>
+
+  <rect x="105" y="256" width="400" height="28" rx="6" fill="#10b981" fill-opacity="0.12" stroke="#10b981" stroke-width="1.2"/>
+  <circle cx="118" cy="270" r="5" fill="#10b981"/>
+  <text x="132" y="274" fill="#34d399" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700">B. Cauliflower Mosaic Virus (CaMV) ✓</text>
+
+  <rect x="105" y="290" width="400" height="28" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+  <text x="120" y="308" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">C. Turnip Yellow Mosaic Virus (TYMV)</text>
+
+  <rect x="105" y="324" width="400" height="28" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+  <text x="120" y="342" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">D. Potato Virus X (PVX)</text>
+
+  <!-- Right Palette -->
+  <rect x="540" y="115" width="180" height="255" rx="8" fill="#1e293b" fill-opacity="0.6" stroke="#334155" stroke-width="1"/>
+  <text x="555" y="138" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700">
+    QUESTION PALETTE
+  </text>
+
+  <!-- Palette grid -->
+  <g transform="translate(555, 150)">
+    <!-- Row 1 -->
+    <rect x="0" y="0" width="26" height="26" rx="4" fill="#10b981"/><text x="13" y="17" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">1</text>
+    <rect x="32" y="0" width="26" height="26" rx="4" fill="#10b981"/><text x="45" y="17" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">2</text>
+    <rect x="64" y="0" width="26" height="26" rx="4" fill="#7c3aed"/><text x="77" y="17" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">3</text>
+    <rect x="96" y="0" width="26" height="26" rx="4" fill="#10b981"/><text x="109" y="17" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">4</text>
+    <rect x="128" y="0" width="26" height="26" rx="4" fill="#64748b"/><text x="141" y="17" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">5</text>
+
+    <!-- Row 2 -->
+    <rect x="0" y="32" width="26" height="26" rx="4" fill="#10b981"/><text x="13" y="49" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">6</text>
+    <rect x="32" y="32" width="26" height="26" rx="4" fill="#64748b"/><text x="45" y="49" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">7</text>
+    <rect x="64" y="32" width="26" height="26" rx="4" fill="#10b981"/><text x="77" y="49" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">8</text>
+    <rect x="96" y="32" width="26" height="26" rx="4" fill="#10b981"/><text x="109" y="49" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">9</text>
+    <rect x="128" y="32" width="26" height="26" rx="4" fill="#f59e0b"/><text x="141" y="49" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">10</text>
+
+    <!-- Row 3 -->
+    <rect x="0" y="64" width="26" height="26" rx="4" fill="#10b981"/><text x="13" y="81" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">11</text>
+    <rect x="32" y="64" width="26" height="26" rx="4" fill="#10b981"/><text x="45" y="81" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">12</text>
+    <rect x="64" y="64" width="26" height="26" rx="4" fill="#7c3aed"/><text x="77" y="81" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">13</text>
+    <rect x="96" y="64" width="26" height="26" rx="4" fill="#0284c7" stroke="#fff" stroke-width="1.5"/><text x="109" y="81" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">14</text>
+    <rect x="128" y="64" width="26" height="26" rx="4" fill="#334155"/><text x="141" y="81" fill="#94a3b8" font-size="10" font-weight="700" text-anchor="middle">15</text>
+  </g>
+
+  <!-- Attribution Badge at Bottom -->
+  <rect x="550" y="280" width="160" height="74" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+  <text x="560" y="298" fill="#a78bfa" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" font-weight="700">ACADEMIC DIRECTOR</text>
+  <text x="560" y="312" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="700">Dr. Aubid Ahmad</text>
+  <text x="560" y="324" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="8.5">Assistant Professor</text>
+  <text x="560" y="342" fill="#34d399" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="8.5" font-weight="600">Deployed by NexLifTech</text>
+</svg>

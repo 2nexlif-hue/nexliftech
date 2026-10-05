@@ -7,6 +7,15 @@ import './Portfolio.css';
 
 const DEFAULT_PROJECTS = [
   {
+    title: 'Botany Assistant Professor CBT Examination Suite',
+    category: 'EdTech & Assessment Engines',
+    clientTag: 'Curated by Dr. Aubid Ahmad (Asst. Professor) • Built & Deployed by NexLifTech',
+    description: 'High-stakes online Computer-Based Testing (CBT) portal developed for Dr. Aubid Ahmad, Assistant Professor. Features 35 scheduled tests, ~2,700 high-yield questions across 10 PSC units, Excel bulk uploads with 3-version rollbacks, automated option analysis, and Razorpay student enrollment workflows.',
+    tech: ['React', 'Firebase', 'Razorpay', 'Excel Engine', 'CBT Analytics'],
+    liveLink: '/botany-test-series',
+    image: '/botany-suite-preview.svg'
+  },
+  {
     title: 'Govt HSS Shangus ERP',
     category: 'Education & Portals',
     description: 'Full-stack institutional ERP with automated roll assignment, student database management, and administrative reporting.',
@@ -127,6 +136,20 @@ export default function Portfolio() {
               <div className="project-content">
                 <div className="project-meta">
                   <span className="project-category">{project.category}</span>
+                  {project.clientTag && (
+                    <span style={{
+                      fontSize: '0.72rem',
+                      fontWeight: 600,
+                      color: 'var(--accent-primary)',
+                      background: 'rgba(124, 58, 237, 0.12)',
+                      border: '1px solid rgba(124, 58, 237, 0.25)',
+                      padding: '0.2rem 0.5rem',
+                      borderRadius: '4px',
+                      display: 'inline-block'
+                    }}>
+                      {project.clientTag}
+                    </span>
+                  )}
                 </div>
                 <h3 className="project-title">{project.title}</h3>
                 <p className="project-desc">{project.description}</p>

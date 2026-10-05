@@ -56,6 +56,7 @@ export default function Navbar({ notificationsHook }) {
   const navLinks = [
     { name: 'Home', href: '#home' },
     { name: 'Services', href: '#services' },
+    { name: 'Botany Test Series', href: '/botany-test-series', isRoute: true, badge: 'PSC 2026' },
     { name: 'About', href: '#about' },
     { name: 'Portfolio', href: '#portfolio' },
     { name: 'Pricing', href: '#pricing' },
@@ -91,7 +92,14 @@ export default function Navbar({ notificationsHook }) {
             <ul className="nav-links">
               {navLinks.map((link) => (
                 <li key={link.name}>
-                  <a href={link.href} onClick={(e) => handleNavClick(e, link.href)}>{link.name}</a>
+                  {link.isRoute ? (
+                    <Link to={link.href} className="nav-route-link">
+                      <span>{link.name}</span>
+                      {link.badge && <span className="nav-link-badge">{link.badge}</span>}
+                    </Link>
+                  ) : (
+                    <a href={link.href} onClick={(e) => handleNavClick(e, link.href)}>{link.name}</a>
+                  )}
                 </li>
               ))}
             </ul>
@@ -156,14 +164,28 @@ export default function Navbar({ notificationsHook }) {
             <ul className="mobile-nav-links">
               {navLinks.map((link) => (
                 <li key={link.name}>
-                  <a 
-                    href={link.href} 
-                    onClick={(e) => handleNavClick(e, link.href)}
-                    className="mobile-nav-item"
-                  >
-                    <span>{link.name}</span>
-                    <span className="mobile-nav-arrow">→</span>
-                  </a>
+                  {link.isRoute ? (
+                    <Link 
+                      to={link.href} 
+                      className="mobile-nav-item"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <span style={{ display: 'flex', alignItems: 'center' }}>
+                        {link.name}
+                        {link.badge && <span className="nav-link-badge" style={{ marginLeft: '6px' }}>{link.badge}</span>}
+                      </span>
+                      <span className="mobile-nav-arrow">→</span>
+                    </Link>
+                  ) : (
+                    <a 
+                      href={link.href} 
+                      onClick={(e) => handleNavClick(e, link.href)}
+                      className="mobile-nav-item"
+                    >
+                      <span>{link.name}</span>
+                      <span className="mobile-nav-arrow">→</span>
+                    </a>
+                  )}
                 </li>
               ))}
               <li className="mobile-menu-divider" />

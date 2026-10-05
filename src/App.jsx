@@ -18,11 +18,13 @@ import WhatsAppButton from './components/WhatsAppButton';
 import CustomCursor from './components/CustomCursor';
 import SecurityGuard from './components/SecurityGuard';
 import ThemeSwitcher from './components/ThemeSwitcher';
+import BotanySpotlightBanner from './components/BotanyTestSeries/BotanySpotlightBanner';
 
 // Admin components (lazy loaded — only fetched when admin routes are visited)
 const Login = lazy(() => import('./components/Admin/Login'));
 const Dashboard = lazy(() => import('./components/Admin/Dashboard'));
 const ProtectedRoute = lazy(() => import('./components/Admin/ProtectedRoute'));
+const BotanySeriesHome = lazy(() => import('./components/BotanyTestSeries/BotanySeriesHome'));
 
 function AdminFallback() {
   return (
@@ -64,6 +66,8 @@ function LandingPage() {
         <Navbar notificationsHook={notificationsHook} />
       </header>
 
+      <BotanySpotlightBanner />
+
       <main>
         <Hero />
         <Services />
@@ -88,6 +92,14 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route
+            path="/botany-test-series"
+            element={
+              <Suspense fallback={<AdminFallback />}>
+                <BotanySeriesHome />
+              </Suspense>
+            }
+          />
           <Route
             path="/admin/login"
             element={
