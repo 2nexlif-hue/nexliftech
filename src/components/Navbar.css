@@ -85,6 +85,7 @@
   transition: all var(--transition-fast);
   padding: 0.35rem 0.25rem;
   position: relative;
+  white-space: nowrap;
 }
 
 .nav-links a::after {
@@ -376,8 +377,42 @@
   font-weight: 600;
   font-size: 0.92rem;
   transition: color var(--transition-fast);
+  white-space: nowrap;
 }
 
 .nav-route-link:hover {
   color: var(--accent-primary);
+}
+
+.nav-link-badge.flash-badge-nav {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 0.14rem 0.45rem;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+  animation: navFlashPulse 2s infinite ease-in-out;
+}
+
+@keyframes navFlashPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 14px rgba(239, 68, 68, 0.85);
+  }
+}
+
+@media (max-width: 1220px) and (min-width: 993px) {
+  .nav-desktop {
+    gap: 1rem;
+  }
+  .nav-links {
+    gap: 1.1rem;
+  }
+  .nav-actions {
+    gap: 0.6rem;
+  }
 }

@@ -3,6 +3,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { ArrowRight, Code } from 'lucide-react';
 import { motion } from 'framer-motion';
+import BotanySpotlightBanner from './BotanyTestSeries/BotanySpotlightBanner';
 import './Hero.css';
 
 const DEFAULT_HERO = {
@@ -109,6 +110,16 @@ export default function Hero() {
           >
             {data.subtitle}
           </motion.p>
+
+          {/* Middle of screen Test Series Flash Announcement */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.58, duration: 0.6 }}
+            style={{ width: '100%' }}
+          >
+            <BotanySpotlightBanner />
+          </motion.div>
 
           <motion.div
             className="hero-actions"

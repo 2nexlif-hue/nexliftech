@@ -56,7 +56,7 @@ export default function Navbar({ notificationsHook }) {
   const navLinks = [
     { name: 'Home', href: '#home' },
     { name: 'Services', href: '#services' },
-    { name: 'Botany Test Series', href: '/botany-test-series', isRoute: true, badge: 'PSC 2026' },
+    { name: 'Test Series', href: '/botany-test-series', isRoute: true, badge: '⚡ FLASH' },
     { name: 'About', href: '#about' },
     { name: 'Portfolio', href: '#portfolio' },
     { name: 'Pricing', href: '#pricing' },
@@ -95,7 +95,11 @@ export default function Navbar({ notificationsHook }) {
                   {link.isRoute ? (
                     <Link to={link.href} className="nav-route-link">
                       <span>{link.name}</span>
-                      {link.badge && <span className="nav-link-badge">{link.badge}</span>}
+                      {link.badge && (
+                        <span className={`nav-link-badge ${link.badge.includes('FLASH') ? 'flash-badge-nav' : ''}`}>
+                          {link.badge}
+                        </span>
+                      )}
                     </Link>
                   ) : (
                     <a href={link.href} onClick={(e) => handleNavClick(e, link.href)}>{link.name}</a>
@@ -172,7 +176,11 @@ export default function Navbar({ notificationsHook }) {
                     >
                       <span style={{ display: 'flex', alignItems: 'center' }}>
                         {link.name}
-                        {link.badge && <span className="nav-link-badge" style={{ marginLeft: '6px' }}>{link.badge}</span>}
+                        {link.badge && (
+                          <span className={`nav-link-badge ${link.badge.includes('FLASH') ? 'flash-badge-nav' : ''}`} style={{ marginLeft: '6px' }}>
+                            {link.badge}
+                          </span>
+                        )}
                       </span>
                       <span className="mobile-nav-arrow">→</span>
                     </Link>

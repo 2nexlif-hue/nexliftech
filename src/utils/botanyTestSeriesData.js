@@ -1,5 +1,5 @@
 // Official Botany Assistant Professor Syllabus & Test Series Calendar
-// Compiled by Sheikh Gulfam for Public Service Commission Entrance Examination
+// Curated by Dr. Aubid Ahmad, Assistant Professor (Botany)
 
 export const BOTANY_SYLLABUS = [
   {

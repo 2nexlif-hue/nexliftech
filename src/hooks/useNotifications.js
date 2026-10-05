@@ -9,7 +9,7 @@ const INITIAL_NOTIFICATIONS = [
     title: 'Welcome to NexLifTech!',
     message: 'We are live! Get a free performance audit with any new project.',
     type: 'promo',
-    isBanner: true, // Should show as a banner at the top
+    isBanner: false, // Disabled as requested
     date: new Date().toISOString(),
   }
 ];
@@ -57,7 +57,7 @@ export function useNotifications() {
     );
   };
 
-  const activeBanner = notifications.find(n => n.isBanner && !n.dismissed);
+  const activeBanner = null; // Top promo banner disabled per user request
   const unreadCount = notifications.filter(n => !n.dismissed).length;
 
   return {

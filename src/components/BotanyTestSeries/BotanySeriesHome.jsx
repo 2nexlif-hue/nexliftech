@@ -259,11 +259,11 @@ export default function BotanySeriesHome() {
             <div style={{ width: '1px', background: 'var(--border-light)' }}></div>
 
             <div className="attribution-item">
-              <div className="attribution-avatar" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>SG</div>
+              <div className="attribution-avatar" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>NL</div>
               <div className="attribution-text">
-                <span className="attribution-role">Engineering, CBT &amp; Deployment</span>
-                <span className="attribution-name">Sheikh Gulfam / NexLifTech</span>
-                <span className="attribution-desc">Lecturer Botany | CSIR NET-JRF | MSc Data Science Scholar</span>
+                <span className="attribution-role">Platform &amp; CBT Hosting</span>
+                <span className="attribution-name">NexLifTech Platform</span>
+                <span className="attribution-desc">Online Assessment &amp; CBT Examination Suite</span>
               </div>
             </div>
           </div>
@@ -409,7 +409,7 @@ export default function BotanySeriesHome() {
               <div>
                 <h3>Official PSC Entrance Syllabus (10 Units)</h3>
                 <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                  Organized by Sheikh Gulfam for Public Service Commission examination.
+                  Public Service Commission Assistant Professor Entrance Examination.
                 </p>
               </div>
             </div>

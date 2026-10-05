@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, ArrowRight, X } from 'lucide-react';
+import { Zap, ArrowRight } from 'lucide-react';
 import { getBotanySettings } from '../../utils/botanyFirestoreService';
+import { DEFAULT_SERIES_SETTINGS } from '../../utils/botanyTestSeriesData';
 import './BotanySeries.css';
 
 export default function BotanySpotlightBanner() {
-  const [settings, setSettings] = useState(null);
-  const [dismissed, setDismissed] = useState(false);
+  const [settings, setSettings] = useState(DEFAULT_SERIES_SETTINGS);
 
   useEffect(() => {
     async function fetchSettings() {
       try {
         const s = await getBotanySettings();
-        setSettings(s);
+        if (s) setSettings(s);
       } catch (err) {
         console.warn('Could not load spotlight settings:', err);
       }
@@ -20,7 +20,7 @@ export default function BotanySpotlightBanner() {
     fetchSettings();
   }, []);
 
-  if (dismissed || !settings || !settings.isProminent) return null;
+  if (!settings || !settings.isProminent) return null;
 
   // Check if prominentUntil has passed
   if (settings.prominentUntil) {
@@ -29,36 +29,31 @@ export default function BotanySpotlightBanner() {
   }
 
   return (
-    <aside className="botany-spotlight-banner" aria-label="Featured Examination Test Series">
-      <div className="container spotlight-content">
-        <div className="spotlight-left">
-          <span className="spotlight-pill">
-            <Sparkles size={13} />
-            <span>{settings.badgeText || 'PSC Entrance 2026'}</span>
+    <div className="hero-middle-flash-card" role="region" aria-label="Botany Test Series Flash Announcement">
+      <div className="hero-flash-inner">
+        <div className="hero-flash-left">
+          <span className="hero-flash-badge">
+            <span className="hero-flash-beacon" />
+            <Zap size={13} fill="currentColor" />
+            <span>FLASH UPDATE</span>
           </span>
-          <span className="spotlight-headline">
-            <strong>Botany Assistant Professor Test Series is Live!</strong>{' '}
-            <span className="spotlight-details">
-              35 Tests • ~2,700 Questions with Option-by-Option Analysis (Curated by Dr. Aubid Ahmad)
-            </span>
-          </span>
+          <div className="hero-flash-copy">
+            <h4 className="hero-flash-title">
+              {settings.flashHeadline || 'Botany Assistant Professor (PSC 2026) CBT Test Series is Live!'}
+            </h4>
+            <p className="hero-flash-details">
+              {settings.flashDetails || '35 Scheduled Tests • ~2,700 High-Yield Questions • Option-by-Option Analysis (Curated by Dr. Aubid Ahmad)'}
+            </p>
+          </div>
         </div>
 
-        <div className="spotlight-right">
-          <Link to="/botany-test-series" className="spotlight-btn">
+        <div className="hero-flash-right">
+          <Link to="/botany-test-series" className="hero-flash-btn">
             <span>Explore Test Series</span>
-            <ArrowRight size={14} />
+            <ArrowRight size={15} />
           </Link>
-          <button 
-            type="button" 
-            className="spotlight-close-btn"
-            onClick={() => setDismissed(true)}
-            aria-label="Dismiss spotlight banner"
-          >
-            <X size={15} />
-          </button>
         </div>
       </div>
-    </aside>
+    </div>
   );
 }

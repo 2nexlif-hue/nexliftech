@@ -5,7 +5,6 @@ import { useNotifications } from './hooks/useNotifications';
 
 // Public components (eagerly loaded for the landing page)
 import Navbar from './components/Navbar';
-import NotificationBanner from './components/NotificationBanner';
 import Hero from './components/Hero';
 import Services from './components/Services';
 import About from './components/About';
@@ -18,7 +17,6 @@ import WhatsAppButton from './components/WhatsAppButton';
 import CustomCursor from './components/CustomCursor';
 import SecurityGuard from './components/SecurityGuard';
 import ThemeSwitcher from './components/ThemeSwitcher';
-import BotanySpotlightBanner from './components/BotanyTestSeries/BotanySpotlightBanner';
 
 // Admin components (lazy loaded — only fetched when admin routes are visited)
 const Login = lazy(() => import('./components/Admin/Login'));
@@ -53,20 +51,13 @@ function AdminFallback() {
 
 function LandingPage() {
   const notificationsHook = useNotifications();
-  const { activeBanner, dismissNotification } = notificationsHook;
 
   return (
     <>
       <CustomCursor />
       <header className="site-header">
-        <NotificationBanner
-          activeBanner={activeBanner}
-          dismissNotification={dismissNotification}
-        />
         <Navbar notificationsHook={notificationsHook} />
       </header>
-
-      <BotanySpotlightBanner />
 
       <main>
         <Hero />

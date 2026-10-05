@@ -299,7 +299,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
             <span className="botany-header-badge">PSC Entrance 2026</span>
           </h2>
           <p className="botany-header-subtitle">
-            Curated by Sheikh Gulfam. Manage official 10-Unit syllabus, 35-Test day-by-day calendar, Excel question bank uploads, 3-version rollbacks, and student subscriptions.
+            Curated by Dr. Aubid Ahmad, Assistant Professor (Botany). Managed, hosted, and deployed via NexLifTech.
           </p>
         </div>
 
@@ -450,7 +450,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
             <div>
               <h3>Official Public Service Commission Syllabus (10 Units)</h3>
               <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Complete syllabus compiled by Sheikh Gulfam for reference and ongoing updates.
+                Complete syllabus curated by Dr. Aubid Ahmad, Assistant Professor (Botany).
               </p>
             </div>
             <div className="botany-card-actions">
