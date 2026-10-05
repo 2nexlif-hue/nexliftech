@@ -1,70 +1,79 @@
 import * as XLSX from 'xlsx';
 
-// Standard expected column headers
+// Standard official column headers
 export const EXCEL_COLUMNS = [
   { key: 'question', label: 'Question', width: 45 },
-  { key: 'optionA', label: 'Option A', width: 25 },
-  { key: 'optionB', label: 'Option B', width: 25 },
-  { key: 'optionC', label: 'Option C', width: 25 },
-  { key: 'optionD', label: 'Option D', width: 25 },
-  { key: 'correctOption', label: 'Correct Option (A/B/C/D)', width: 22 },
-  { key: 'analysisA', label: 'Analysis Option A', width: 35 },
-  { key: 'analysisB', label: 'Analysis Option B', width: 35 },
-  { key: 'analysisC', label: 'Analysis Option C', width: 35 },
-  { key: 'analysisD', label: 'Analysis Option D', width: 35 },
-  { key: 'referenceNote', label: 'General Note / Exam Tip', width: 30 }
+  { key: 'optionA', label: 'Option A', width: 28 },
+  { key: 'optionB', label: 'Option B', width: 28 },
+  { key: 'optionC', label: 'Option C', width: 28 },
+  { key: 'optionD', label: 'Option D', width: 28 },
+  { key: 'correctOption', label: 'Correct Answer', width: 16 },
+  { key: 'analysisA', label: 'Analysis – Option A', width: 38 },
+  { key: 'analysisB', label: 'Analysis – Option B', width: 38 },
+  { key: 'analysisC', label: 'Analysis – Option C', width: 38 },
+  { key: 'analysisD', label: 'Analysis – Option D', width: 38 },
+  { key: 'referenceNote', label: 'Brief Context Note', width: 35 }
 ];
 
-// Sample questions tailored to Botany Assistant Professor exam
-const SAMPLE_QUESTIONS_BY_UNIT = {
-  unit_1: [
-    {
-      question: 'Which of the following plant viruses possesses a circular double-stranded DNA genome with discontinuous strands (gaps)?',
-      optionA: 'Tobacco Mosaic Virus (TMV)',
-      optionB: 'Cauliflower Mosaic Virus (CaMV)',
-      optionC: 'Turnip Yellow Mosaic Virus (TYMV)',
-      optionD: 'Potato Virus X (PVX)',
-      correctOption: 'B',
-      analysisA: 'Incorrect. TMV has a single-stranded positive-sense RNA genome (~6.4 kb).',
-      analysisB: 'Correct. CaMV is a pararetrovirus containing open circular dsDNA with site-specific discontinuities/gaps.',
-      analysisC: 'Incorrect. TYMV has a positive-sense single-stranded RNA genome enclosed in an icosahedral capsid.',
-      analysisD: 'Incorrect. PVX is a potexvirus having a single-stranded positive-sense RNA genome.',
-      referenceNote: 'CaMV replicates via reverse transcription of 35S pregenomic RNA using host RNA polymerase II.'
-    },
-    {
-      question: 'In Carl Woese\'s Three-Domain classification, the archaebacterial cell membrane is uniquely characterized by:',
-      optionA: 'Ester-linked unbranched fatty acids',
-      optionB: 'Ether-linked branched phytanyl isoprenoid chains',
-      optionC: 'Peptidoglycan containing muramic acid',
-      optionD: 'Cellulose and chitin microfibrils',
-      correctOption: 'B',
-      analysisA: 'Incorrect. Ester-linked unbranched fatty acids are characteristic of Eukarya and Eubacteria.',
-      analysisB: 'Correct. Archaea uniquely possess branched phytanyl chains connected to glycerol via ether linkages, forming heat-stable monolayers or bilayers.',
-      analysisC: 'Incorrect. Archaebacterial cell walls lack peptidoglycan (muramic acid); some possess pseudomurein.',
-      analysisD: 'Incorrect. Cellulose and chitin occur in plant and fungal cell walls, respectively.',
-      referenceNote: 'Ether bonds provide extreme resistance to high temperatures, hypersaline, and acidic pH conditions.'
-    }
-  ]
-};
+// Official sample questions tailored to Botany Assistant Professor exam
+export const OFFICIAL_SAMPLE_QUESTIONS = [
+  {
+    question: 'Which feature is characteristic of Tobacco mosaic virus (TMV) virions?',
+    optionA: 'Icosahedral capsid with circular ssDNA',
+    optionB: 'Rod-shaped particle containing positive-sense ssRNA',
+    optionC: 'Enveloped particle containing dsRNA',
+    optionD: 'Filamentous particle containing dsDNA',
+    correctOption: 'B',
+    analysisA: 'Incorrect. TMV is not an icosahedral DNA virus.',
+    analysisB: 'Correct. TMV is a rigid rod-shaped virus with a single-stranded positive-sense RNA genome.',
+    analysisC: 'Incorrect. TMV is non-enveloped and its genome is RNA, not dsRNA.',
+    analysisD: 'Incorrect. TMV does not contain DNA.',
+    referenceNote: 'Syllabus focus: viruses—general characteristics and ultrastructure of TMV.'
+  },
+  {
+    question: 'The genome of Cauliflower mosaic virus (CaMV) is best described as:',
+    optionA: 'Circular double-stranded DNA with a discontinuity/gap',
+    optionB: 'Linear double-stranded DNA',
+    optionC: 'Positive-sense single-stranded RNA',
+    optionD: 'Negative-sense single-stranded RNA',
+    correctOption: 'A',
+    analysisA: 'Correct. CaMV has a circular dsDNA genome with characteristic discontinuities that are repaired during replication.',
+    analysisB: 'Incorrect. CaMV DNA is circular rather than a simple linear dsDNA molecule.',
+    analysisC: 'Incorrect. CaMV is a DNA virus, not an RNA virus.',
+    analysisD: 'Incorrect. CaMV is not a negative-sense RNA virus.',
+    referenceNote: 'Syllabus focus: ultrastructure and replication of CaMV.'
+  },
+  {
+    question: 'In a typical lytic bacteriophage cycle, which event occurs first after adsorption?',
+    optionA: 'Assembly of mature phage particles',
+    optionB: 'Host-cell lysis',
+    optionC: 'Injection of the phage nucleic acid into the host',
+    optionD: 'Formation of bacterial endospores',
+    correctOption: 'C',
+    analysisA: 'Incorrect. Assembly occurs late in the lytic cycle.',
+    analysisB: 'Incorrect. Lysis is the final release step of the lytic cycle.',
+    analysisC: 'Correct. After attachment, the phage delivers its nucleic acid into the host cell.',
+    analysisD: 'Incorrect. Endospore formation is a bacterial survival response, not a normal phage step.',
+    referenceNote: 'Syllabus focus: structural characteristics and biology of bacteriophages such as λ and T4.'
+  }
+];
 
 /**
- * Downloads a pre-formatted Excel template with sample rows and guidance
+ * Downloads a pre-formatted Excel template with canonical headers and sample rows
  */
 export function downloadExcelTemplate(unitId = 'unit_1', unitTitle = 'Unit 1') {
-  const samples = SAMPLE_QUESTIONS_BY_UNIT[unitId] || SAMPLE_QUESTIONS_BY_UNIT['unit_1'];
-
-  const rows = samples.map((q) => ({
+  const rows = OFFICIAL_SAMPLE_QUESTIONS.map((q) => ({
     'Question': q.question,
     'Option A': q.optionA,
     'Option B': q.optionB,
     'Option C': q.optionC,
     'Option D': q.optionD,
-    'Correct Option (A/B/C/D)': q.correctOption,
-    'Analysis Option A': q.analysisA,
-    'Analysis Option B': q.analysisB,
-    'Analysis Option C': q.analysisC,
-    'Analysis Option D': q.analysisD,
-    'General Note / Exam Tip': q.referenceNote
+    'Correct Answer': q.correctOption,
+    'Analysis – Option A': q.analysisA,
+    'Analysis – Option B': q.analysisB,
+    'Analysis – Option C': q.analysisC,
+    'Analysis – Option D': q.analysisD,
+    'Brief Context Note': q.referenceNote
   }));
 
   const worksheet = XLSX.utils.json_to_sheet(rows);
@@ -80,30 +89,29 @@ export function downloadExcelTemplate(unitId = 'unit_1', unitTitle = 'Unit 1') {
 }
 
 /**
- * Exports any saved question list to a downloadable Excel file
+ * Exports any saved question list to a downloadable Excel file using canonical headers
  */
 export function exportQuestionsToExcel(questions, unitTitle = 'Unit', version = 1) {
   if (!questions || !questions.length) {
     throw new Error('No questions to export.');
   }
 
-  const rows = questions.map((q, idx) => ({
-    'S.No': idx + 1,
+  const rows = questions.map((q) => ({
     'Question': q.question || '',
     'Option A': q.optionA || '',
     'Option B': q.optionB || '',
     'Option C': q.optionC || '',
     'Option D': q.optionD || '',
-    'Correct Option (A/B/C/D)': (q.correctOption || '').toUpperCase(),
-    'Analysis Option A': q.analysisA || '',
-    'Analysis Option B': q.analysisB || '',
-    'Analysis Option C': q.analysisC || '',
-    'Analysis Option D': q.analysisD || '',
-    'General Note / Exam Tip': q.referenceNote || ''
+    'Correct Answer': (q.correctOption || '').toUpperCase(),
+    'Analysis – Option A': q.analysisA || '',
+    'Analysis – Option B': q.analysisB || '',
+    'Analysis – Option C': q.analysisC || '',
+    'Analysis – Option D': q.analysisD || '',
+    'Brief Context Note': q.referenceNote || ''
   }));
 
   const worksheet = XLSX.utils.json_to_sheet(rows);
-  worksheet['!cols'] = [{ wch: 8 }, ...EXCEL_COLUMNS.map(col => ({ wch: col.width }))];
+  worksheet['!cols'] = EXCEL_COLUMNS.map(col => ({ wch: col.width }));
 
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Questions');
