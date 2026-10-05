@@ -660,6 +660,81 @@
   border-color: rgba(255, 255, 255, 0.15);
 }
 
+/* Isolated Faculty Workspace Banner */
+.isolated-faculty-workspace-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(5, 150, 105, 0.06));
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  border-radius: 16px;
+  padding: 1.1rem 1.4rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 20px -4px rgba(16, 185, 129, 0.15);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.faculty-workspace-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.faculty-badge-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.15));
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.faculty-workspace-info h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.2rem 0;
+  letter-spacing: -0.01em;
+}
+
+.faculty-workspace-info p {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.faculty-account-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #10b981;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .isolated-faculty-workspace-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+    padding: 1rem;
+  }
+}
+
 .login-divider {
   display: flex;
   align-items: center;

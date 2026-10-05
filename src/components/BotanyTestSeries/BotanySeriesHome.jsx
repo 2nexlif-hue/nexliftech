@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { 
   BookOpen, Calendar, CheckCircle2, Play, 
-  ArrowRight, Tag, Sparkles, UserCheck, LogOut, ArrowLeft, Search 
+  ArrowRight, Tag, Sparkles, UserCheck, LogOut, ArrowLeft, Search, GraduationCap, Lock 
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getBotanySettings, getBotanySyllabus, getBotanySchedule } from '../../utils/botanyFirestoreService';
@@ -58,7 +58,16 @@ const DEMO_QUESTIONS = [
 ];
 
 export default function BotanySeriesHome() {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, userProfile, logout } = useAuth();
+
+  const emailLower = currentUser?.email?.toLowerCase().trim() || '';
+  const isFacultyAdmin = (
+    emailLower === 'e.educational.24@gmail.com' ||
+    emailLower === 'admin@nexliftech.com' ||
+    emailLower === 'sheikhgulfam91@gmail.com' ||
+    userProfile?.role === 'botany_admin' ||
+    userProfile?.role === 'admin'
+  );
 
   // Data states
   const [settings, setSettings] = useState(null);
@@ -199,6 +208,15 @@ export default function BotanySeriesHome() {
         <div className="cbt-topbar-right">
           {currentUser ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              {isFacultyAdmin && (
+                <a 
+                  href="/admin/dashboard?workspace=botany" 
+                  className="btn btn-secondary btn-sm" 
+                  style={{ gap: '0.4rem', borderColor: 'rgba(16, 185, 129, 0.4)', background: 'rgba(16, 185, 129, 0.12)', color: '#10b981', fontWeight: 700 }}
+                >
+                  <GraduationCap size={14} /> <span>Faculty Suite</span>
+                </a>
+              )}
               <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
                 {currentUser.displayName || currentUser.email}
               </span>
@@ -207,13 +225,23 @@ export default function BotanySeriesHome() {
               </button>
             </div>
           ) : (
-            <button 
-              type="button" 
-              className="btn btn-primary btn-sm"
-              onClick={() => { setAuthPendingAction(null); setShowAuthModal(true); }}
-            >
-              <UserCheck size={14} /> <span>Student Sign In</span>
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+              <button 
+                type="button" 
+                className="btn btn-primary btn-sm"
+                onClick={() => { setAuthPendingAction(null); setShowAuthModal(true); }}
+              >
+                <UserCheck size={14} /> <span>Student Sign In</span>
+              </button>
+              <a 
+                href="/admin/login" 
+                className="btn btn-secondary btn-sm"
+                title="Unified Portal Login"
+                style={{ gap: '0.35rem' }}
+              >
+                <Lock size={13} /> <span>Admin</span>
+              </a>
+            </div>
           )}
         </div>
       </header>

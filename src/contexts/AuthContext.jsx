@@ -36,15 +36,40 @@ export function AuthProvider({ children }) {
     try {
       const userRef = doc(db, 'users', user.uid);
       const snap = await getDoc(userRef);
+      const emailLower = user.email ? user.email.toLowerCase().trim() : '';
+      const isBotanyAdmin = emailLower === 'e.educational.24@gmail.com';
+      const isSuperAdmin = emailLower === 'admin@nexliftech.com' || emailLower === 'sheikhgulfam91@gmail.com';
+
       if (snap.exists()) {
-        setUserProfile(snap.data());
+        const existingData = snap.data();
+        let needsUpdate = false;
+        let role = existingData.role;
+        let displayName = existingData.displayName;
+
+        if (isBotanyAdmin && role !== 'botany_admin') {
+          role = 'botany_admin';
+          displayName = displayName || 'Dr. Aubid Ahmad';
+          needsUpdate = true;
+        } else if (isSuperAdmin && role !== 'admin') {
+          role = 'admin';
+          needsUpdate = true;
+        }
+
+        if (needsUpdate) {
+          await setDoc(userRef, { role, displayName }, { merge: true });
+          setUserProfile({ ...existingData, role, displayName });
+        } else {
+          setUserProfile(existingData);
+        }
       } else {
+        const defaultRole = isBotanyAdmin ? 'botany_admin' : isSuperAdmin ? 'admin' : 'student';
+        const displayName = isBotanyAdmin ? (user.displayName || 'Dr. Aubid Ahmad') : (user.displayName || user.email.split('@')[0]);
         const newProfile = {
           uid: user.uid,
           email: user.email,
-          displayName: user.displayName || user.email.split('@')[0],
+          displayName,
           photoURL: user.photoURL || '',
-          role: 'student',
+          role: defaultRole,
           createdAt: new Date().toISOString()
         };
         await setDoc(userRef, newProfile, { merge: true });
@@ -96,7 +121,8 @@ export function AuthProvider({ children }) {
 
   // Auto-logout admin users after 30 minutes of complete inactivity
   useEffect(() => {
-    if (!currentUser || userProfile?.role !== 'admin') return;
+    const isAdminRole = userProfile?.role === 'admin' || userProfile?.role === 'botany_admin';
+    if (!currentUser || !isAdminRole) return;
 
     const TIMEOUT_DURATION = 30 * 60 * 1000;
     let timeoutId;

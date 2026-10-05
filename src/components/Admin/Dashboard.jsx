@@ -213,12 +213,31 @@ const DEFAULT_PRICING = [
 ];
 
 export default function Dashboard() {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, userProfile, logout } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const fileInputRef = useRef(null);
 
-  const initialWorkspace = searchParams.get('workspace') === 'personal' ? 'personal' : searchParams.get('workspace') === 'botany' ? 'botany' : 'cms';
+  const emailLower = currentUser?.email?.toLowerCase().trim() || '';
+  const isBotanyAdminOnly = (
+    emailLower === 'e.educational.24@gmail.com' || 
+    userProfile?.role === 'botany_admin'
+  );
+  const isSuperAdmin = (
+    emailLower === 'admin@nexliftech.com' ||
+    emailLower === 'sheikhgulfam91@gmail.com' ||
+    userProfile?.role === 'admin' ||
+    userProfile?.role === 'superadmin'
+  );
+
+  const initialWorkspace = isBotanyAdminOnly
+    ? 'botany'
+    : searchParams.get('workspace') === 'personal'
+    ? 'personal'
+    : searchParams.get('workspace') === 'botany'
+    ? 'botany'
+    : 'cms';
+
   const [workspace, setWorkspace] = useState(initialWorkspace);
 
   const [formData, setFormData] = useState(DEFAULT_DATA);
@@ -229,8 +248,30 @@ export default function Dashboard() {
   const [confirmModal, setConfirmModal] = useState(null);
 
   const [activeTab, setActiveTab] = useState(
-    initialWorkspace === 'personal' ? 'awcMonitoring' : initialWorkspace === 'botany' ? 'botanySuite' : 'hero'
+    isBotanyAdminOnly
+      ? 'botanySuite'
+      : initialWorkspace === 'personal'
+      ? 'awcMonitoring'
+      : initialWorkspace === 'botany'
+      ? 'botanySuite'
+      : 'hero'
   );
+
+  // Enforce Botany Suite workspace for dedicated test series admin account
+  useEffect(() => {
+    if (isBotanyAdminOnly) {
+      if (workspace !== 'botany') setWorkspace('botany');
+      if (activeTab !== 'botanySuite') setActiveTab('botanySuite');
+    }
+  }, [isBotanyAdminOnly, workspace, activeTab]);
+
+  // Non-admin students should not access admin dashboard
+  useEffect(() => {
+    if (userProfile && userProfile.role === 'student' && !isBotanyAdminOnly && !isSuperAdmin) {
+      navigate('/botany-test-series', { replace: true });
+    }
+  }, [userProfile, isBotanyAdminOnly, isSuperAdmin, navigate]);
+
   const [messages, setMessages] = useState([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
   const [inboxFilter, setInboxFilter] = useState('all'); // 'all' | 'unread' | 'read'
@@ -1047,33 +1088,64 @@ export default function Dashboard() {
             <ArrowLeft size={16} /> <span>Back to Site</span>
           </a>
           
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.25rem 0.65rem',
-            borderRadius: '999px',
-            background: 'rgba(16, 185, 129, 0.1)',
-            border: '1px solid rgba(16, 185, 129, 0.25)',
-            color: '#10b981',
-            fontSize: '0.75rem',
-            fontWeight: 700
-          }}>
-            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }}></span>
-            <span>Firestore Operational</span>
-          </div>
+          {isBotanyAdminOnly ? (
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.25rem 0.75rem',
+              borderRadius: '999px',
+              background: 'rgba(16, 185, 129, 0.12)',
+              border: '1px solid rgba(16, 185, 129, 0.3)',
+              color: '#10b981',
+              fontSize: '0.75rem',
+              fontWeight: 700
+            }}>
+              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }}></span>
+              <span>Botany Examination Suite • Faculty Portal</span>
+            </div>
+          ) : (
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.25rem 0.65rem',
+              borderRadius: '999px',
+              background: 'rgba(16, 185, 129, 0.1)',
+              border: '1px solid rgba(16, 185, 129, 0.25)',
+              color: '#10b981',
+              fontSize: '0.75rem',
+              fontWeight: 700
+            }}>
+              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }}></span>
+              <span>Firestore Operational</span>
+            </div>
+          )}
         </div>
 
         <div className="topbar-right">
-          <a href="/" target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm" style={{ gap: '0.4rem', fontSize: '0.78rem' }}>
-            <Eye size={14} /> Preview Site
+          <a 
+            href={isBotanyAdminOnly ? "/botany-test-series" : "/"} 
+            target="_blank" 
+            rel="noreferrer" 
+            className="btn btn-secondary btn-sm" 
+            style={{ gap: '0.4rem', fontSize: '0.78rem' }}
+          >
+            <Eye size={14} /> {isBotanyAdminOnly ? 'Preview Test Series' : 'Preview Site'}
           </a>
 
-          <div className="topbar-user-badge">
-            <div className="user-avatar-mini">
-              {(currentUser?.email || 'A')[0].toUpperCase()}
+          <div className="topbar-user-badge" style={isBotanyAdminOnly ? { borderColor: 'rgba(16, 185, 129, 0.35)', background: 'rgba(16, 185, 129, 0.08)' } : {}}>
+            <div className="user-avatar-mini" style={isBotanyAdminOnly ? { background: 'linear-gradient(135deg, #10b981, #059669)', color: '#ffffff' } : {}}>
+              {(userProfile?.displayName || currentUser?.email || 'A')[0].toUpperCase()}
             </div>
-            <span className="admin-email-text">{currentUser?.email}</span>
+            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
+              <span className="admin-email-text" style={isBotanyAdminOnly ? { color: '#10b981' } : {}}>
+                {isBotanyAdminOnly ? 'Dr. Aubid Ahmad' : currentUser?.email}
+              </span>
+              {isBotanyAdminOnly && (
+                <span style={{ fontSize: '0.67rem', color: 'var(--text-muted)' }}>{currentUser?.email}</span>
+              )}
+            </div>
           </div>
 
           <button onClick={handleLogout} className="btn btn-secondary btn-sm" style={{ color: '#f43f5e', borderColor: 'rgba(244, 63, 94, 0.25)', background: 'rgba(244, 63, 94, 0.08)' }}>
@@ -1083,46 +1155,62 @@ export default function Dashboard() {
       </div>
 
       <div className="dashboard-container">
-        {/* Workspace Mode Category Selector */}
-        <div className="dashboard-workspace-bar">
-          <button
-            type="button"
-            onClick={() => {
-              setWorkspace('cms');
-              setActiveTab('hero');
-            }}
-            className={`workspace-bar-btn ${workspace === 'cms' ? 'active-cms' : ''}`}
-          >
-            <Globe size={16} />
-            <span>Website CMS Account</span>
-          </button>
+        {/* Workspace Mode Category Selector or Isolated Faculty Banner */}
+        {isBotanyAdminOnly ? (
+          <div className="isolated-faculty-workspace-banner">
+            <div className="faculty-workspace-info">
+              <div className="faculty-badge-icon">🌿</div>
+              <div>
+                <h2>Botany Assistant Professor Examination Suite</h2>
+                <p>Dedicated Examination &amp; Question Bank Workspace • Curated by Dr. Aubid Ahmad</p>
+              </div>
+            </div>
+            <div className="faculty-account-pill">
+              <span>Faculty Admin</span>
+            </div>
+          </div>
+        ) : (
+          <div className="dashboard-workspace-bar">
+            <button
+              type="button"
+              onClick={() => {
+                setWorkspace('cms');
+                setActiveTab('hero');
+              }}
+              className={`workspace-bar-btn ${workspace === 'cms' ? 'active-cms' : ''}`}
+            >
+              <Globe size={16} />
+              <span>Website CMS Account</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              setWorkspace('botany');
-              setActiveTab('botanySuite');
-            }}
-            className={`workspace-bar-btn ${workspace === 'botany' ? 'active-botany' : ''}`}
-          >
-            <GraduationCap size={16} />
-            <span>Botany Assistant Professor Suite</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => {
+                setWorkspace('botany');
+                setActiveTab('botanySuite');
+              }}
+              className={`workspace-bar-btn ${workspace === 'botany' ? 'active-botany' : ''}`}
+            >
+              <GraduationCap size={16} />
+              <span>Botany Assistant Professor Suite</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              setWorkspace('personal');
-              setActiveTab('awcMonitoring');
-            }}
-            className={`workspace-bar-btn ${workspace === 'personal' ? 'active-personal' : ''}`}
-          >
-            <Building2 size={16} />
-            <span>Personal & Govt Projects Account</span>
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={() => {
+                setWorkspace('personal');
+                setActiveTab('awcMonitoring');
+              }}
+              className={`workspace-bar-btn ${workspace === 'personal' ? 'active-personal' : ''}`}
+            >
+              <Building2 size={16} />
+              <span>Personal & Govt Projects Account</span>
+            </button>
+          </div>
+        )}
 
-        <div className="dashboard-header-wrapper">
+        {!isBotanyAdminOnly && (
+          <div className="dashboard-header-wrapper">
           <div className="dashboard-header">
             <h1>
               {workspace === 'cms'
@@ -1215,6 +1303,7 @@ export default function Dashboard() {
             </div>
           )}
         </div>
+        )}
 
         {activeTab === 'hero' ? (
           <div className="pricing-editor-section">

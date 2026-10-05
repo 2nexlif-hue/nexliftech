@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
 import { Lock, Mail, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import './Admin.css';
 
@@ -8,20 +10,82 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [portalMode, setPortalMode] = useState('cms'); // 'cms' | 'botany' | 'personal'
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login, signInWithGoogle } = useAuth();
+  const { login, signup, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
+
+  async function routeUserByRole(user) {
+    if (!user) {
+      navigate('/', { replace: true });
+      return;
+    }
+
+    const emailClean = (user.email || '').toLowerCase().trim();
+
+    // 1. Dedicated test series admin account: e.educational.24@gmail.com
+    if (emailClean === 'e.educational.24@gmail.com') {
+      navigate('/admin/dashboard?workspace=botany', { replace: true });
+      return;
+    }
+
+    // 2. Super admin accounts
+    if (emailClean === 'sheikhgulfam91@gmail.com' || emailClean === 'admin@nexliftech.com') {
+      navigate('/admin/dashboard?workspace=cms', { replace: true });
+      return;
+    }
+
+    // 3. Inspect role from Firestore user record
+    try {
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      if (snap.exists()) {
+        const role = snap.data().role;
+        if (role === 'botany_admin') {
+          navigate('/admin/dashboard?workspace=botany', { replace: true });
+          return;
+        }
+        if (role === 'admin' || role === 'superadmin') {
+          navigate('/admin/dashboard?workspace=cms', { replace: true });
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('Could not query user role for redirect:', e);
+    }
+
+    // 4. Default: students or candidates
+    navigate('/botany-test-series', { replace: true });
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
     setLoading(true);
 
+    const emailTrimmed = email.trim().toLowerCase();
+    const isBotanyAdminEmail = (emailTrimmed === 'e.educational.24@gmail.com');
+
     try {
-      await login(email, password);
-      navigate(`/admin/dashboard?workspace=${portalMode}`);
+      let cred;
+      try {
+        cred = await login(emailTrimmed, password);
+      } catch (authErr) {
+        // If it's the designated Botany Admin account and it does not exist in Firebase Auth yet, auto-provision it
+        if (isBotanyAdminEmail && (authErr.code === 'auth/user-not-found' || authErr.code === 'auth/invalid-credential')) {
+          try {
+            cred = await signup(emailTrimmed, password, 'Dr. Aubid Ahmad');
+          } catch (signupErr) {
+            if (signupErr.code === 'auth/email-already-in-use') {
+              throw authErr;
+            }
+            throw signupErr;
+          }
+        } else {
+          throw authErr;
+        }
+      }
+
+      await routeUserByRole(cred.user);
     } catch (err) {
       console.error('Login error:', err);
       switch (err.code) {
@@ -34,7 +98,7 @@ export default function Login() {
           setError('Too many failed attempts. Please try again later.');
           break;
         default:
-          setError('Failed to sign in. Please try again.');
+          setError(err.message || 'Failed to sign in. Please verify your credentials.');
       }
     } finally {
       setLoading(false);
@@ -45,8 +109,8 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      await signInWithGoogle();
-      navigate(`/admin/dashboard?workspace=${portalMode}`);
+      const cred = await signInWithGoogle();
+      await routeUserByRole(cred.user);
     } catch (err) {
       console.error('Google sign-in error:', err);
       if (err.code !== 'auth/popup-closed-by-user') {
@@ -76,44 +140,8 @@ export default function Login() {
             <div className="login-logo" aria-hidden="true">
               <Lock className="login-logo-icon" />
             </div>
-            <h1>Admin Access</h1>
-            <p>Select workspace &amp; sign in to manage your data</p>
-          </div>
-
-          {/* Workspace Target Selector */}
-          <div className="login-workspace-selector" role="tablist" aria-label="Select Workspace">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={portalMode === 'cms'}
-              onClick={() => setPortalMode('cms')}
-              className={`workspace-tab-btn ${portalMode === 'cms' ? 'active-cms' : ''}`}
-            >
-              <span className="workspace-tab-icon">🌐</span>
-              <span className="workspace-tab-label">Website CMS</span>
-            </button>
-
-            <button
-              type="button"
-              role="tab"
-              aria-selected={portalMode === 'botany'}
-              onClick={() => setPortalMode('botany')}
-              className={`workspace-tab-btn ${portalMode === 'botany' ? 'active-botany' : ''}`}
-            >
-              <span className="workspace-tab-icon">🌿</span>
-              <span className="workspace-tab-label">Botany Suite</span>
-            </button>
-
-            <button
-              type="button"
-              role="tab"
-              aria-selected={portalMode === 'personal'}
-              onClick={() => setPortalMode('personal')}
-              className={`workspace-tab-btn ${portalMode === 'personal' ? 'active-personal' : ''}`}
-            >
-              <span className="workspace-tab-icon">🏢</span>
-              <span className="workspace-tab-label">Personal &amp; Govt</span>
-            </button>
+            <h1>Portal Sign In</h1>
+            <p>Enter your credentials to access your designated workspace</p>
           </div>
 
           {error && (
@@ -132,7 +160,7 @@ export default function Login() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@nexliftech.com"
+                  placeholder="name@example.com"
                   required
                   autoComplete="email"
                 />
