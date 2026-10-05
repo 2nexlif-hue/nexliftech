@@ -8,6 +8,7 @@ import { getBotanySettings, getBotanySyllabus, getBotanySchedule } from '../../u
 import { initiateRazorpayPayment } from '../../utils/razorpayService';
 import StudentAuthModal from './StudentAuthModal';
 import StudentExamEngine from './StudentExamEngine';
+import LogoSVG from '../Logo';
 import './BotanySeries.css';
 
 // Sample Diagnostic Demonstration Questions (Microbiology & Lower Plants)
@@ -186,13 +187,13 @@ export default function BotanySeriesHome() {
       {/* Top Navbar */}
       <header className="cbt-topbar" style={{ position: 'sticky', top: 0, zIndex: 100 }}>
         <div className="cbt-topbar-left">
-          <a href="/" className="btn btn-secondary btn-sm">
-            <ArrowLeft size={14} /> <span>Back to NexLifTech</span>
+          <a href="/" className="cbt-brand-back">
+            <LogoSVG size={24} />
+            <span className="cbt-brand-text">NexLifTech</span>
+            <span className="cbt-brand-dot">.</span>
           </a>
-          <div className="cbt-test-info">
-            <h2>Botany Assistant Professor Entrance Examination</h2>
-            <span>PSC Entrance Examination Suite 2026</span>
-          </div>
+          <span className="cbt-top-divider">/</span>
+          <span className="cbt-topbar-title">Botany Assistant Professor CBT Suite</span>
         </div>
 
         <div className="cbt-topbar-right">
@@ -219,101 +220,83 @@ export default function BotanySeriesHome() {
 
       <main className="botany-container">
         {enrollSuccessMessage && (
-          <div className="botany-modal-alert success" style={{ padding: '1.25rem', marginBottom: '1.5rem', borderRadius: '12px' }}>
-            <CheckCircle2 size={24} style={{ color: '#10b981', flexShrink: 0 }} />
+          <div className="botany-modal-alert success" style={{ padding: '1rem', marginBottom: '1rem', borderRadius: '10px' }}>
+            <CheckCircle2 size={20} style={{ color: '#10b981', flexShrink: 0 }} />
             <div>
-              <strong style={{ fontSize: '1rem', display: 'block', marginBottom: '0.25rem' }}>
+              <strong style={{ fontSize: '0.95rem', display: 'block' }}>
                 🎉 Congratulations! You are successfully enrolled.
               </strong>
-              <span>{enrollSuccessMessage}</span>
+              <span style={{ fontSize: '0.84rem' }}>{enrollSuccessMessage}</span>
             </div>
           </div>
         )}
 
-        {/* Hero Card */}
-        <section className="botany-hero-card">
-          <div className="botany-badge-pill">
-            <Sparkles size={14} />
-            <span>Target PSC Entrance 2026 • Computer-Based Test (CBT) Portal</span>
-          </div>
-
-          <h1 className="botany-hero-title">
-            Botany Assistant Professor <span className="text-gradient">Entrance Examination</span> Test Series
-          </h1>
-
-          <p className="botany-hero-subtitle">
-            Comprehensive 35-Test Calendar covering all 10 PSC Units, ~2,700 High-Yield Questions, Full-Length Mocks &amp; In-Depth Option-by-Option Scientific Analysis.
-          </p>
-
-          {/* Academic Direction & Service Attribution */}
-          <div className="botany-attributions-bar">
-            <div className="attribution-item">
-              <div className="attribution-avatar">DA</div>
-              <div className="attribution-text">
-                <span className="attribution-role">Academic Direction &amp; Content</span>
-                <span className="attribution-name">Dr. Aubid Ahmad</span>
-                <span className="attribution-desc">Assistant Professor (Botany)</span>
+        {/* Minimal, Compact & Modern Hero Section */}
+        <section className="botany-compact-hero">
+          <div className="compact-hero-body">
+            <div className="compact-hero-meta-top">
+              <span className="botany-compact-badge">
+                <span className="compact-pulse-dot" />
+                PSC Entrance 2026 • CBT Suite
+              </span>
+              <div className="botany-inline-credits">
+                <span><strong>Curated by:</strong> Dr. Aubid Ahmad (Asst. Professor)</span>
+                <span className="credit-sep">•</span>
+                <span><strong>Engine:</strong> NexLifTech Platform</span>
               </div>
             </div>
 
-            <div style={{ width: '1px', background: 'var(--border-light)' }}></div>
+            <h1 className="botany-compact-title">
+              Botany Assistant Professor <span className="text-gradient">Entrance Exam</span> Test Series
+            </h1>
 
-            <div className="attribution-item">
-              <div className="attribution-avatar" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>NL</div>
-              <div className="attribution-text">
-                <span className="attribution-role">Platform &amp; CBT Hosting</span>
-                <span className="attribution-name">NexLifTech Platform</span>
-                <span className="attribution-desc">Online Assessment &amp; CBT Examination Suite</span>
-              </div>
+            <p className="botany-compact-subtitle">
+              Comprehensive 35-test calendar covering all 10 PSC units (~2,700 questions) with full mocks &amp; option-by-option scientific rationale.
+            </p>
+
+            <div className="compact-hero-actions">
+              <button 
+                type="button" 
+                className="btn btn-primary btn-sm"
+                onClick={() => handleEnrollClick('full_series')}
+              >
+                <span>Enroll in Full Series — ₹1,499</span>
+                <ArrowRight size={14} />
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-secondary btn-sm"
+                onClick={handleDemoCbtClick}
+              >
+                <Play size={13} className="accent-icon" />
+                <span>Launch Diagnostic Demo CBT</span>
+              </button>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.85rem', flexWrap: 'wrap' }}>
-            <button 
-              type="button" 
-              className="btn btn-primary"
-              onClick={() => handleEnrollClick('full_series')}
-            >
-              <span>Enroll in Full Test Series</span>
-              <ArrowRight size={16} />
-            </button>
-            <button 
-              type="button" 
-              className="btn btn-secondary"
-              onClick={handleDemoCbtClick}
-            >
-              <Play size={14} className="accent-icon" />
-              <span>Launch Diagnostic Demo CBT (Free)</span>
-            </button>
+          {/* Minimal 4-Metric Horizontal Bar */}
+          <div className="botany-compact-stats-bar">
+            <div className="compact-stat-item">
+              <span className="c-stat-val">10</span>
+              <span className="c-stat-lbl">PSC Units</span>
+            </div>
+            <div className="c-stat-div" />
+            <div className="compact-stat-item">
+              <span className="c-stat-val">35</span>
+              <span className="c-stat-lbl">Scheduled Tests</span>
+            </div>
+            <div className="c-stat-div" />
+            <div className="compact-stat-item">
+              <span className="c-stat-val">~2,700</span>
+              <span className="c-stat-lbl">Target Questions</span>
+            </div>
+            <div className="c-stat-div" />
+            <div className="compact-stat-item">
+              <span className="c-stat-val">100%</span>
+              <span className="c-stat-lbl">Scientific Analysis</span>
+            </div>
           </div>
         </section>
-
-        {/* Key Metrics */}
-        <div className="botany-metrics-grid">
-          <div className="botany-metric-card">
-            <span className="metric-card-val">10</span>
-            <span className="metric-card-label">Syllabus Units</span>
-            <span className="metric-card-sub">Microbiology to Biostats</span>
-          </div>
-
-          <div className="botany-metric-card">
-            <span className="metric-card-val">35</span>
-            <span className="metric-card-label">Scheduled Tests</span>
-            <span className="metric-card-sub">Unit Tests, Clusters &amp; 9 Mocks</span>
-          </div>
-
-          <div className="botany-metric-card">
-            <span className="metric-card-val">~2,700</span>
-            <span className="metric-card-label">High-Yield Questions</span>
-            <span className="metric-card-sub">Exam Difficulty &amp; Numericals</span>
-          </div>
-
-          <div className="botany-metric-card">
-            <span className="metric-card-val">100%</span>
-            <span className="metric-card-label">Option Analysis</span>
-            <span className="metric-card-sub">Why A is right, B/C/D wrong</span>
-          </div>
-        </div>
 
         {/* Portal Tabs */}
         <div className="botany-portal-tabs">

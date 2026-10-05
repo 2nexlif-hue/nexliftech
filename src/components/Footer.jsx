@@ -1,19 +1,6 @@
 import { Lock } from 'lucide-react';
+import LogoSVG from './Logo';
 import './Footer.css';
-
-const LogoSVG = () => (
-  <svg className="footer-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="footer-logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#8b5cf6" />
-        <stop offset="50%" stopColor="#6366f1" />
-        <stop offset="100%" stopColor="#06b6d4" />
-      </linearGradient>
-    </defs>
-    <path d="M 42 85 C 18 70 15 40 38 22 C 45 16 50 12 50 12 C 50 12 48 22 44 32 C 34 55 46 78 42 85 Z" fill="url(#footer-logo-grad)" opacity="0.9" />
-    <path d="M 45 28 L 68 50 L 45 72" stroke="url(#footer-logo-grad)" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
