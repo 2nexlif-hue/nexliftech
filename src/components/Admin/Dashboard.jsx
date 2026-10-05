@@ -224,6 +224,7 @@ export default function Dashboard() {
     userProfile?.role === 'botany_admin'
   );
   const isSuperAdmin = (
+    emailLower === '2nexlif@gmail.com' ||
     emailLower === 'admin@nexliftech.com' ||
     emailLower === 'sheikhgulfam91@gmail.com' ||
     userProfile?.role === 'admin' ||

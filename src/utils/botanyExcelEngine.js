@@ -112,28 +112,40 @@ export function exportQuestionsToExcel(questions, unitTitle = 'Unit', version = 
   XLSX.writeFile(workbook, `${safeTitle}_v${version}_Questions.xlsx`);
 }
 
+function cleanKey(str) {
+  return String(str || '')
+    .toLowerCase()
+    .replace(/[\u2013\u2014\-_/]/g, ' ')
+    .replace(/[^a-z0-9 ]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 /**
  * Normalizes an uploaded sheet row into a structured Question object with validation
  */
 function normalizeRow(row, rowIndex) {
   const keys = Object.keys(row);
   const getVal = (possibleHeaders) => {
-    for (const h of possibleHeaders) {
-      const match = keys.find(k => k.trim().toLowerCase() === h.trim().toLowerCase());
-      if (match && row[match] !== undefined && row[match] !== null) {
-        return String(row[match]).trim();
+    const cleanedPossible = possibleHeaders.map(h => cleanKey(h));
+    for (const k of keys) {
+      const ck = cleanKey(k);
+      if (cleanedPossible.includes(ck)) {
+        if (row[k] !== undefined && row[k] !== null) {
+          return String(row[k]).trim();
+        }
       }
     }
     return '';
   };
 
-  const question = getVal(['question', 'question text', 'q', 'item']);
+  const question = getVal(['question', 'question text', 'q', 'item', 'statement', 'question statement']);
   const optionA = getVal(['option a', 'optiona', 'opt a', 'a']);
   const optionB = getVal(['option b', 'optionb', 'opt b', 'b']);
   const optionC = getVal(['option c', 'optionc', 'opt c', 'c']);
   const optionD = getVal(['option d', 'optiond', 'opt d', 'd']);
   
-  let correctRaw = getVal(['correct option (a/b/c/d)', 'correct option', 'correct answer', 'answer', 'correct', 'ans']);
+  let correctRaw = getVal(['correct answer', 'correct option', 'correct option (a/b/c/d)', 'answer', 'correct', 'ans']);
   let correctOption = '';
 
   if (correctRaw) {
@@ -154,11 +166,14 @@ function normalizeRow(row, rowIndex) {
     }
   }
 
-  const analysisA = getVal(['analysis option a', 'analysis a', 'opt a analysis', 'why a']);
-  const analysisB = getVal(['analysis option b', 'analysis b', 'opt b analysis', 'why b']);
-  const analysisC = getVal(['analysis option c', 'analysis c', 'opt c analysis', 'why c']);
-  const analysisD = getVal(['analysis option d', 'analysis d', 'opt d analysis', 'why d']);
-  const referenceNote = getVal(['general note / exam tip', 'general note', 'explanation', 'note', 'exam tip']);
+  const analysisA = getVal(['analysis option a', 'analysis a', 'opt a analysis', 'why a', 'option a analysis']);
+  const analysisB = getVal(['analysis option b', 'analysis b', 'opt b analysis', 'why b', 'option b analysis']);
+  const analysisC = getVal(['analysis option c', 'analysis c', 'opt c analysis', 'why c', 'option c analysis']);
+  const analysisD = getVal(['analysis option d', 'analysis d', 'opt d analysis', 'why d', 'option d analysis']);
+  const referenceNote = getVal([
+    'brief context note', 'context note', 'general note / exam tip', 
+    'general note', 'explanation', 'note', 'exam tip', 'reference note', 'brief note', 'rationale'
+  ]);
 
   const errors = [];
   if (!question) errors.push('Question statement is empty.');
@@ -188,8 +203,49 @@ function normalizeRow(row, rowIndex) {
 }
 
 /**
+ * Parses an Excel ArrayBuffer and returns structured questions
+ */
+export function parseExcelBuffer(buffer, fileName = 'question_bank.xlsx') {
+  const data = new Uint8Array(buffer);
+  const workbook = XLSX.read(data, { type: 'array' });
+
+  if (!workbook.SheetNames || !workbook.SheetNames.length) {
+    throw new Error('The Excel file contains no readable sheets.');
+  }
+
+  const firstSheetName = workbook.SheetNames[0];
+  const worksheet = workbook.Sheets[firstSheetName];
+  const rawJson = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+  if (!rawJson.length) {
+    throw new Error('The sheet is empty. Please ensure rows follow the template format.');
+  }
+
+  let detectedUnitId = null;
+  const unitMatch = fileName.match(/unit[_\s-]?0?(\d+)/i);
+  if (unitMatch && unitMatch[1]) {
+    detectedUnitId = `unit_${parseInt(unitMatch[1], 10)}`;
+  }
+
+  const parsedQuestions = rawJson.map((row, idx) => normalizeRow(row, idx));
+  const validQuestions = parsedQuestions.filter(q => q.isValid);
+  const invalidQuestions = parsedQuestions.filter(q => !q.isValid);
+
+  return {
+    fileName,
+    detectedUnitId,
+    totalRows: parsedQuestions.length,
+    validCount: validQuestions.length,
+    invalidCount: invalidQuestions.length,
+    questions: parsedQuestions,
+    validQuestions,
+    invalidQuestions
+  };
+}
+
+/**
  * Parses an Excel (.xlsx / .xls) File object
- * Returns { questions, errors, totalRows, validRows, fileName }
+ * Returns { questions, errors, totalRows, validRows, fileName, detectedUnitId }
  */
 export async function parseExcelFile(file) {
   return new Promise((resolve, reject) => {
@@ -197,34 +253,10 @@ export async function parseExcelFile(file) {
 
     reader.onload = (e) => {
       try {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-
-        if (!workbook.SheetNames || !workbook.SheetNames.length) {
-          throw new Error('The uploaded Excel file contains no readable sheets.');
-        }
-
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-        const rawJson = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
-
-        if (!rawJson.length) {
-          throw new Error('The sheet is empty. Please ensure rows follow the template format.');
-        }
-
-        const parsedQuestions = rawJson.map((row, idx) => normalizeRow(row, idx));
-        const validQuestions = parsedQuestions.filter(q => q.isValid);
-        const invalidQuestions = parsedQuestions.filter(q => !q.isValid);
-
+        const result = parseExcelBuffer(e.target.result, file.name);
         resolve({
-          fileName: file.name,
-          fileSize: file.size,
-          totalRows: parsedQuestions.length,
-          validCount: validQuestions.length,
-          invalidCount: invalidQuestions.length,
-          questions: parsedQuestions,
-          validQuestions,
-          invalidQuestions
+          ...result,
+          fileSize: file.size
         });
       } catch (err) {
         reject(err);
@@ -238,3 +270,4 @@ export async function parseExcelFile(file) {
     reader.readAsArrayBuffer(file);
   });
 }
+

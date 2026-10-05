@@ -38,7 +38,11 @@ export function AuthProvider({ children }) {
       const snap = await getDoc(userRef);
       const emailLower = user.email ? user.email.toLowerCase().trim() : '';
       const isBotanyAdmin = emailLower === 'e.educational.24@gmail.com';
-      const isSuperAdmin = emailLower === 'admin@nexliftech.com' || emailLower === 'sheikhgulfam91@gmail.com';
+      const isSuperAdmin = (
+        emailLower === '2nexlif@gmail.com' ||
+        emailLower === 'admin@nexliftech.com' ||
+        emailLower === 'sheikhgulfam91@gmail.com'
+      );
 
       if (snap.exists()) {
         const existingData = snap.data();
@@ -62,8 +66,13 @@ export function AuthProvider({ children }) {
           setUserProfile(existingData);
         }
       } else {
+        // When new user continues with Google or registers, student role is created by default
         const defaultRole = isBotanyAdmin ? 'botany_admin' : isSuperAdmin ? 'admin' : 'student';
-        const displayName = isBotanyAdmin ? (user.displayName || 'Dr. Aubid Ahmad') : (user.displayName || user.email.split('@')[0]);
+        const displayName = isBotanyAdmin 
+          ? (user.displayName || 'Dr. Aubid Ahmad') 
+          : isSuperAdmin 
+          ? (user.displayName || 'Website Admin') 
+          : (user.displayName || user.email.split('@')[0]);
         const newProfile = {
           uid: user.uid,
           email: user.email,

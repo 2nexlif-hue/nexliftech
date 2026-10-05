@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { 
   GraduationCap, BookOpen, Calendar, FileSpreadsheet, Settings, Users, 
   Download, Upload, RefreshCw, CheckCircle, AlertCircle, Clock, Eye, 
-  RotateCcw, ChevronDown, ChevronUp, Save, ArrowRight 
+  RotateCcw, ChevronDown, ChevronUp, Save, ArrowRight, Sparkles, Layers, CheckCircle2 
 } from 'lucide-react';
 import { 
   getBotanySettings, 
@@ -18,6 +18,7 @@ import {
 import { 
   downloadExcelTemplate, 
   parseExcelFile, 
+  parseExcelBuffer,
   exportQuestionsToExcel 
 } from '../../utils/botanyExcelEngine';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
@@ -44,7 +45,8 @@ export default function AdminBotanyTestSeries({ currentUser }) {
   const [loadingUnit, setLoadingUnit] = useState(false);
 
   // Upload & Preview state
-  const [uploadPreview, setUploadPreview] = useState(null); // { questions, validCount, invalidCount, fileName }
+  const [uploadPreview, setUploadPreview] = useState(null); // { questions, validCount, invalidCount, fileName, detectedUnitId }
+  const [batchUploadList, setBatchUploadList] = useState([]);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [committing, setCommitting] = useState(false);
   const fileInputRef = useRef(null);
@@ -156,24 +158,77 @@ export default function AdminBotanyTestSeries({ currentUser }) {
     }
   }
 
-  // Handle Excel Upload
+  // Handle Excel Upload (Single or Multi-file)
   async function handleFileSelect(e) {
-    const file = e.target.files[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
 
+    setSaving(true);
     try {
-      const parsed = await parseExcelFile(file);
-      setUploadPreview(parsed);
-      setShowPreviewModal(true);
+      const parsedList = await Promise.all(files.map(f => parseExcelFile(f)));
+      if (parsedList.length === 1) {
+        const single = parsedList[0];
+        if (single.detectedUnitId) {
+          setSelectedUnitId(single.detectedUnitId);
+        }
+        setUploadPreview(single);
+        setBatchUploadList([]);
+        setShowPreviewModal(true);
+      } else {
+        // Multi-file batch (e.g. all 10 files)
+        parsedList.sort((a, b) => {
+          const numA = parseInt((a.detectedUnitId || '').replace('unit_', ''), 10) || 0;
+          const numB = parseInt((b.detectedUnitId || '').replace('unit_', ''), 10) || 0;
+          return numA - numB;
+        });
+        setBatchUploadList(parsedList);
+        setUploadPreview(parsedList[0]);
+        if (parsedList[0].detectedUnitId) {
+          setSelectedUnitId(parsedList[0].detectedUnitId);
+        }
+        setShowPreviewModal(true);
+        showToast('success', `Parsed ${parsedList.length} Excel files. You can preview and commit each unit.`);
+      }
     } catch (err) {
       console.error('Excel parse error:', err);
       showToast('error', err.message || 'Failed to parse Excel file.');
     } finally {
+      setSaving(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   }
 
-  // Commit Questions to Firestore
+  // Load all 10 prepared sample unit files from docs/
+  async function handleLoadDocsSampleFiles() {
+    setSaving(true);
+    showToast('info', 'Loading 10 sample files prepared in docs/ ...');
+    try {
+      const parsedList = [];
+      for (let i = 1; i <= 10; i++) {
+        const padded = i < 10 ? `0${i}` : `${i}`;
+        const fileName = `Botany_Unit_${padded}_MCQ_Question_Bank.xlsx`;
+        const res = await fetch(`/sample_question_banks/${fileName}`);
+        if (!res.ok) throw new Error(`Could not load ${fileName}`);
+        const buf = await res.arrayBuffer();
+        const parsed = parseExcelBuffer(buf, fileName);
+        parsedList.push(parsed);
+      }
+      setBatchUploadList(parsedList);
+      setUploadPreview(parsedList[0]);
+      if (parsedList[0].detectedUnitId) {
+        setSelectedUnitId(parsedList[0].detectedUnitId);
+      }
+      setShowPreviewModal(true);
+      showToast('success', 'All 10 sample unit question banks loaded with 100 questions ready for preview!');
+    } catch (err) {
+      console.error('Error loading sample files:', err);
+      showToast('error', err.message || 'Could not load sample files.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  // Commit Questions to Firestore (active preview unit)
   async function handleCommitQuestions() {
     if (!uploadPreview || !uploadPreview.validQuestions?.length) {
       showToast('error', 'No valid questions to commit.');
@@ -182,27 +237,87 @@ export default function AdminBotanyTestSeries({ currentUser }) {
 
     setCommitting(true);
     try {
-      const targetUnit = syllabus.find(u => u.unitId === selectedUnitId);
-      const unitTitle = targetUnit ? `Unit ${targetUnit.unitNumber}: ${targetUnit.title}` : selectedUnitId;
+      const targetUnitId = uploadPreview.detectedUnitId || selectedUnitId;
+      const targetUnit = syllabus.find(u => u.unitId === targetUnitId);
+      const unitTitle = targetUnit ? `Unit ${targetUnit.unitNumber}: ${targetUnit.title}` : targetUnitId;
 
       const newRelease = await commitUnitQuestions({
-        unitId: selectedUnitId,
+        unitId: targetUnitId,
         unitTitle,
         questions: uploadPreview.validQuestions,
         fileName: uploadPreview.fileName,
         userEmail: currentUser?.email || 'admin'
       });
 
-      setUnitActiveData(newRelease);
-      const updatedVersions = await getUnitVersions(selectedUnitId);
-      setUnitVersions(updatedVersions);
+      if (targetUnitId === selectedUnitId) {
+        setUnitActiveData(newRelease);
+        const updatedVersions = await getUnitVersions(targetUnitId);
+        setUnitVersions(updatedVersions);
+      }
 
-      setShowPreviewModal(false);
-      setUploadPreview(null);
+      if (batchUploadList.length > 1) {
+        const remaining = batchUploadList.filter(b => b.fileName !== uploadPreview.fileName);
+        setBatchUploadList(remaining);
+        if (remaining.length > 0) {
+          setUploadPreview(remaining[0]);
+          if (remaining[0].detectedUnitId) setSelectedUnitId(remaining[0].detectedUnitId);
+        } else {
+          setShowPreviewModal(false);
+          setUploadPreview(null);
+        }
+      } else {
+        setShowPreviewModal(false);
+        setUploadPreview(null);
+      }
+
       showToast('success', `Committed ${newRelease.totalQuestions} questions for ${unitTitle} (v${newRelease.version}).`);
     } catch (err) {
       console.error('Commit error:', err);
       showToast('error', 'Failed to commit questions to database.');
+    } finally {
+      setCommitting(false);
+    }
+  }
+
+  // Commit All Batch Units to Firestore at once
+  async function handleCommitAllBatchUnits() {
+    if (!batchUploadList.length) return;
+    setCommitting(true);
+    let committedCount = 0;
+    let totalQuestionsCount = 0;
+    try {
+      for (const batchItem of batchUploadList) {
+        const unitId = batchItem.detectedUnitId || selectedUnitId;
+        const targetUnit = syllabus.find(u => u.unitId === unitId);
+        const unitTitle = targetUnit ? `Unit ${targetUnit.unitNumber}: ${targetUnit.title}` : unitId;
+
+        await commitUnitQuestions({
+          unitId,
+          unitTitle,
+          questions: batchItem.validQuestions,
+          fileName: batchItem.fileName,
+          userEmail: currentUser?.email || 'admin'
+        });
+        committedCount++;
+        totalQuestionsCount += batchItem.validQuestions.length;
+      }
+
+      setShowPreviewModal(false);
+      setUploadPreview(null);
+      setBatchUploadList([]);
+
+      // Refresh current active unit
+      const [activeData, versions] = await Promise.all([
+        getUnitQuestions(selectedUnitId),
+        getUnitVersions(selectedUnitId)
+      ]);
+      setUnitActiveData(activeData);
+      setUnitVersions(versions);
+
+      showToast('success', `🎉 Successfully committed all ${committedCount} Units (${totalQuestionsCount} questions) to Database!`);
+    } catch (err) {
+      console.error('Batch commit error:', err);
+      showToast('error', 'Failed to commit all units to database.');
     } finally {
       setCommitting(false);
     }
@@ -662,20 +777,34 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                 ref={fileInputRef} 
                 onChange={handleFileSelect} 
                 accept=".xlsx, .xls" 
+                multiple
                 style={{ display: 'none' }} 
               />
               <div className="excel-drop-icon">
                 <Upload size={24} />
               </div>
               <div className="excel-drop-title">
-                Click to browse or drop Excel file (.xlsx)
+                Click to browse or drop Excel file(s) (.xlsx)
               </div>
               <div className="excel-drop-desc">
-                Must follow standard template columns: Question, Option A-D, Correct Option, Analysis A-D, and Reference Note.
+                Supports single or multi-file upload for all 10 units (Question, Options A-D, Correct Answer, Analysis A-D, Brief Context Note).
               </div>
-              <span className="btn btn-primary btn-sm">
-                Choose .xlsx File
-              </span>
+              <div style={{ display: 'flex', gap: '0.65rem', marginTop: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                <span className="btn btn-primary btn-sm">
+                  <Upload size={14} /> <span>Choose .xlsx File(s)</span>
+                </span>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleLoadDocsSampleFiles();
+                  }}
+                  style={{ borderColor: 'rgba(16, 185, 129, 0.4)', background: 'rgba(16, 185, 129, 0.12)', color: '#10b981', fontWeight: 700 }}
+                >
+                  <Sparkles size={14} /> <span>⚡ Load &amp; Preview All 10 Units from docs/</span>
+                </button>
+              </div>
             </div>
 
             {/* Currently Active Release Summary */}
@@ -945,18 +1074,74 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                 <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-primary)' }}>
                   Excel Upload Preview: {uploadPreview.fileName}
                 </h3>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                  Target: {syllabus.find(u => u.unitId === selectedUnitId)?.title || selectedUnitId}
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.3rem', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    Target Unit:
+                  </span>
+                  <select
+                    value={uploadPreview.detectedUnitId || selectedUnitId}
+                    onChange={(e) => {
+                      const newUId = e.target.value;
+                      setSelectedUnitId(newUId);
+                      setUploadPreview(prev => ({ ...prev, detectedUnitId: newUId }));
+                    }}
+                    style={{ fontSize: '0.78rem', padding: '0.2rem 0.5rem', borderRadius: '6px', background: 'var(--bg-elevated)', color: 'var(--text-primary)', border: '1px solid var(--border-light)' }}
+                  >
+                    {syllabus.map(u => (
+                      <option key={u.unitId} value={u.unitId}>
+                        Unit {u.unitNumber}: {u.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <button 
                 type="button" 
                 className="btn btn-secondary btn-sm"
-                onClick={() => setShowPreviewModal(false)}
+                onClick={() => {
+                  setShowPreviewModal(false);
+                  setBatchUploadList([]);
+                }}
               >
-                Cancel
+                Close
               </button>
             </div>
+
+            {/* If Batch Mode (Multiple units loaded) - Unit Navigation Tabs */}
+            {batchUploadList.length > 1 && (
+              <div style={{ padding: '0.65rem 1.25rem', background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border-light)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
+                    PREPARED UNITS ({batchUploadList.length} files detected): Click to switch &amp; preview any unit
+                  </span>
+                  <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700 }}>
+                    Total: {batchUploadList.reduce((acc, b) => acc + b.validCount, 0)} Questions
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: '0.4rem', overflowX: 'auto', paddingBottom: '0.35rem' }}>
+                  {batchUploadList.map((bItem, bIdx) => {
+                    const uId = bItem.detectedUnitId || `unit_${bIdx + 1}`;
+                    const targetU = syllabus.find(u => u.unitId === uId);
+                    const label = targetU ? `Unit ${targetU.unitNumber}` : `Unit ${bIdx + 1}`;
+                    const isActive = uploadPreview.fileName === bItem.fileName;
+                    return (
+                      <button
+                        key={bIdx}
+                        type="button"
+                        onClick={() => {
+                          setUploadPreview(bItem);
+                          if (bItem.detectedUnitId) setSelectedUnitId(bItem.detectedUnitId);
+                        }}
+                        className={`btn btn-sm ${isActive ? 'btn-primary' : 'btn-secondary'}`}
+                        style={{ fontSize: '0.76rem', padding: '0.3rem 0.65rem', whiteSpace: 'nowrap' }}
+                      >
+                        {label} ({bItem.validCount} Qs)
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <div className="preview-modal-body">
               {/* Stat summary */}
@@ -1009,13 +1194,21 @@ export default function AdminBotanyTestSeries({ currentUser }) {
 
                     {/* Option analyses preview */}
                     <div className="preview-analyses-box">
-                      <div><strong>Analysis A:</strong> {q.analysisA || '—'}</div>
-                      <div><strong>Analysis B:</strong> {q.analysisB || '—'}</div>
-                      <div><strong>Analysis C:</strong> {q.analysisC || '—'}</div>
-                      <div><strong>Analysis D:</strong> {q.analysisD || '—'}</div>
+                      <div style={{ marginBottom: '0.2rem' }}>
+                        <strong style={{ color: q.correctOption === 'A' ? '#10b981' : 'var(--text-secondary)' }}>Analysis A:</strong> {q.analysisA || '—'}
+                      </div>
+                      <div style={{ marginBottom: '0.2rem' }}>
+                        <strong style={{ color: q.correctOption === 'B' ? '#10b981' : 'var(--text-secondary)' }}>Analysis B:</strong> {q.analysisB || '—'}
+                      </div>
+                      <div style={{ marginBottom: '0.2rem' }}>
+                        <strong style={{ color: q.correctOption === 'C' ? '#10b981' : 'var(--text-secondary)' }}>Analysis C:</strong> {q.analysisC || '—'}
+                      </div>
+                      <div style={{ marginBottom: '0.2rem' }}>
+                        <strong style={{ color: q.correctOption === 'D' ? '#10b981' : 'var(--text-secondary)' }}>Analysis D:</strong> {q.analysisD || '—'}
+                      </div>
                       {q.referenceNote && (
-                        <div style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>
-                          <strong>Note:</strong> {q.referenceNote}
+                        <div style={{ color: 'var(--accent-primary)', fontWeight: 600, marginTop: '0.4rem', borderTop: '1px dashed var(--border-light)', paddingTop: '0.4rem', fontSize: '0.8rem' }}>
+                          <strong>💡 Brief Context Note:</strong> {q.referenceNote}
                         </div>
                       )}
                     </div>
@@ -1033,28 +1226,50 @@ export default function AdminBotanyTestSeries({ currentUser }) {
               </div>
             </div>
 
-            <div className="preview-modal-footer">
+            <div className="preview-modal-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
               <button 
                 type="button" 
                 className="btn btn-secondary"
-                onClick={() => setShowPreviewModal(false)}
+                onClick={() => {
+                  setShowPreviewModal(false);
+                  setBatchUploadList([]);
+                }}
                 disabled={committing}
               >
-                Cancel &amp; Re-Upload
+                Cancel &amp; Close
               </button>
-              <button 
-                type="button" 
-                className="btn btn-primary"
-                onClick={handleCommitQuestions}
-                disabled={committing || uploadPreview.validCount === 0}
-              >
-                {committing ? <span className="btn-spinner"></span> : <Save size={15} />}
-                <span>
-                  {committing 
-                    ? 'Archiving & Publishing...' 
-                    : `Confirm & Commit ${uploadPreview.validCount} Questions to DB`}
-                </span>
-              </button>
+
+              <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
+                {batchUploadList.length > 1 && (
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary"
+                    onClick={handleCommitQuestions}
+                    disabled={committing || uploadPreview.validCount === 0}
+                    style={{ borderColor: 'var(--accent-primary)', color: 'var(--accent-primary)', fontWeight: 600 }}
+                  >
+                    <Save size={14} />
+                    <span>Commit This Unit Only ({uploadPreview.validCount} Qs)</span>
+                  </button>
+                )}
+
+                <button 
+                  type="button" 
+                  className="btn btn-primary"
+                  onClick={batchUploadList.length > 1 ? handleCommitAllBatchUnits : handleCommitQuestions}
+                  disabled={committing || uploadPreview.validCount === 0}
+                  style={batchUploadList.length > 1 ? { background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', borderColor: '#10b981' } : {}}
+                >
+                  {committing ? <span className="btn-spinner"></span> : <Save size={15} />}
+                  <span>
+                    {committing 
+                      ? 'Archiving & Publishing...' 
+                      : batchUploadList.length > 1
+                      ? `Confirm & Commit All ${batchUploadList.length} Units (${batchUploadList.reduce((acc, b) => acc + b.validCount, 0)} Qs) to DB`
+                      : `Confirm & Commit ${uploadPreview.validCount} Questions to DB`}
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -10,6 +10,9 @@
   color: var(--text-primary);
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .botany-container {
@@ -17,56 +20,60 @@
   margin: 0 auto;
   padding: 1.25rem 1.25rem 3rem;
   width: 100%;
+  box-sizing: border-box;
 }
 
-/* Minimal, Compact & Modern Hero Card */
-.botany-compact-hero {
+/* ====================================================
+   1. High-Impact Test Series Hero Section
+   ==================================================== */
+.botany-hero-test-card {
   background: var(--bg-secondary);
   border: 1px solid var(--border-light);
-  border-radius: 14px;
-  box-shadow: var(--shadow-sm);
-  margin-bottom: 1.25rem;
+  border-radius: 18px;
+  box-shadow: var(--shadow-sm), 0 8px 30px rgba(0, 0, 0, 0.15);
+  margin-bottom: 2rem;
   overflow: hidden;
   position: relative;
+  background-image: radial-gradient(circle at 100% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+                    radial-gradient(circle at 0% 100%, rgba(124, 58, 237, 0.06) 0%, transparent 40%);
 }
 
-.compact-hero-body {
-  padding: 1.35rem 1.5rem 1.15rem;
-}
-
-.compact-hero-meta-top {
+.hero-test-header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin-bottom: 0.65rem;
+  padding: 1.15rem 1.5rem 0.85rem;
+  border-bottom: 1px solid var(--border-light);
+  background: rgba(255, 255, 255, 0.015);
 }
 
-.botany-compact-badge {
+.hero-exam-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.2rem 0.6rem;
+  gap: 0.45rem;
+  padding: 0.25rem 0.65rem;
   border-radius: 999px;
-  background: rgba(16, 185, 129, 0.1);
+  background: rgba(16, 185, 129, 0.12);
   color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.22);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-.compact-pulse-dot {
-  width: 6px;
-  height: 6px;
+.exam-pulse-beacon {
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: #10b981;
-  box-shadow: 0 0 6px #10b981;
+  box-shadow: 0 0 8px #10b981;
   animation: beaconPulse 1.5s infinite ease-in-out;
 }
 
-.botany-inline-credits {
+.hero-curator-tag {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -74,59 +81,99 @@
   color: var(--text-secondary);
 }
 
-.botany-inline-credits strong {
+.curator-icon {
+  color: #10b981;
+}
+
+.hero-curator-tag strong {
   color: var(--text-primary);
   font-weight: 600;
 }
 
-.credit-sep {
+.tag-divider {
   color: var(--text-muted);
+  opacity: 0.5;
 }
 
-.botany-compact-title {
+.platform-tag {
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+.hero-test-main-content {
+  padding: 1.5rem 1.6rem 1.25rem;
+}
+
+.hero-test-title {
   font-family: var(--font-heading);
-  font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+  font-size: clamp(1.45rem, 2.6vw, 2rem);
   font-weight: 800;
   line-height: 1.25;
   color: var(--text-primary);
-  margin: 0 0 0.45rem 0;
+  margin: 0 0 0.65rem 0;
   letter-spacing: -0.015em;
 }
 
-.botany-compact-subtitle {
-  font-size: 0.88rem;
+.hero-test-desc {
+  font-size: clamp(0.85rem, 1.4vw, 0.94rem);
   color: var(--text-secondary);
-  line-height: 1.5;
-  margin: 0 0 1rem 0;
-  max-width: 820px;
+  line-height: 1.55;
+  margin: 0 0 1.25rem 0;
+  max-width: 900px;
 }
 
-.compact-hero-actions {
+.hero-test-cta-bar {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.85rem;
   flex-wrap: wrap;
 }
 
-/* Minimal 4-Metric Horizontal Strip */
-.botany-compact-stats-bar {
+.hero-enroll-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.35) !important;
+  font-weight: 700 !important;
+  gap: 0.5rem !important;
+  padding: 0.65rem 1.25rem !important;
+  font-size: 0.88rem !important;
+}
+
+.hero-enroll-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(16, 185, 129, 0.5) !important;
+}
+
+.hero-demo-btn {
+  gap: 0.5rem !important;
+  padding: 0.65rem 1.15rem !important;
+  font-size: 0.88rem !important;
+  font-weight: 600 !important;
+}
+
+.accent-play-icon {
+  color: #10b981;
+}
+
+.hero-test-metrics-grid {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding: 0.75rem 1rem;
+  padding: 0.85rem 1.25rem;
   background: var(--bg-elevated);
   border-top: 1px solid var(--border-light);
   flex-wrap: wrap;
   gap: 0.5rem;
 }
 
-.compact-stat-item {
+.test-metric-cell {
   display: flex;
   align-items: baseline;
   gap: 0.45rem;
 }
 
-.c-stat-val {
+.metric-num {
   font-family: var(--font-heading);
   font-size: 1.25rem;
   font-weight: 800;
@@ -134,103 +181,559 @@
   letter-spacing: -0.02em;
 }
 
-.c-stat-lbl {
+.metric-lbl {
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--text-secondary);
 }
 
-.c-stat-div {
+.metric-divider {
   width: 1px;
-  height: 20px;
+  height: 22px;
   background: var(--border-light);
 }
 
-/* Top bar back brand styling */
-.cbt-brand-back {
+/* ====================================================
+   2. Prominent & Compact Plans & Pricing Section
+   ==================================================== */
+.botany-pricing-showcase-section {
+  margin-bottom: 2.5rem;
+  scroll-margin-top: 80px;
+}
+
+.section-title-wrap {
+  margin-bottom: 1.5rem;
+}
+
+.section-title-wrap.text-center {
+  text-align: center;
+}
+
+.sub-badge-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  text-decoration: none;
-  padding: 0.35rem 0.75rem;
-  border-radius: 8px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-light);
-  transition: all var(--transition-fast);
-}
-
-.cbt-brand-back:hover {
-  background: var(--bg-glass-hover);
-  border-color: var(--border-glow);
-  transform: translateX(-2px);
-}
-
-.cbt-brand-text {
-  font-family: var(--font-heading);
+  gap: 0.4rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(124, 58, 237, 0.12);
+  border: 1px solid rgba(124, 58, 237, 0.25);
+  color: var(--accent-primary);
+  font-size: 0.72rem;
   font-weight: 800;
-  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.section-heading {
+  font-family: var(--font-heading);
+  font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 0.4rem 0;
+  letter-spacing: -0.02em;
+}
+
+.section-subtext {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  max-width: 650px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+.botany-pricing-cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+.pricing-card-box {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 1.4rem 1.4rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.pricing-card-box:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-glass), 0 12px 30px rgba(0, 0, 0, 0.18);
+  border-color: var(--border-glow);
+}
+
+.pricing-card-box.featured-pass {
+  background: linear-gradient(180deg, var(--bg-secondary) 0%, rgba(16, 185, 129, 0.04) 100%);
+  border: 2px solid #10b981;
+  box-shadow: 0 8px 30px rgba(16, 185, 129, 0.16);
+}
+
+.featured-ribbon {
+  position: absolute;
+  top: -12px;
+  right: 20px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.p-card-header {
+  margin-bottom: 0.85rem;
+}
+
+.p-plan-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.35rem;
+  letter-spacing: 0.03em;
+}
+
+.p-plan-badge.flexi {
+  color: var(--accent-cyan);
+  background: rgba(6, 182, 212, 0.1);
+}
+
+.p-plan-badge.free {
+  color: #a855f7;
+  background: rgba(168, 85, 247, 0.1);
+}
+
+.p-plan-title {
+  font-size: 1.22rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 0.35rem 0;
+  letter-spacing: -0.01em;
+}
+
+.p-plan-summary {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin: 0;
+  min-height: 2.6em;
+}
+
+.p-price-container {
+  padding: 0.85rem 0 1rem;
+  border-top: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 1rem;
+}
+
+.p-amount-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  margin-bottom: 0.25rem;
+}
+
+.p-currency {
+  font-size: 1.25rem;
+  font-weight: 800;
   color: var(--text-primary);
 }
 
-.cbt-brand-dot {
-  color: var(--accent-cyan);
+.p-value {
+  font-size: 2.15rem;
+  font-weight: 800;
+  font-family: var(--font-heading);
+  color: var(--text-primary);
+  line-height: 1;
 }
 
-.cbt-top-divider {
+.p-original {
+  font-size: 1.05rem;
   color: var(--text-muted);
-  font-size: 0.9rem;
-  opacity: 0.5;
+  text-decoration: line-through;
+  margin-left: 0.35rem;
 }
 
-.cbt-topbar-title {
-  font-size: 0.88rem;
+.p-discount-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  margin-left: 0.25rem;
+}
+
+.p-free-text {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #10b981;
+  font-family: var(--font-heading);
+  line-height: 1;
+}
+
+.p-period {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.p-validity-note {
+  display: block;
+  font-size: 0.73rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* Coupon box */
+.p-coupon-bar {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+
+.p-coupon-input {
+  flex: 1;
+  padding: 0.45rem 0.65rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+
+.p-coupon-btn {
+  padding: 0.45rem 0.85rem;
+  border-radius: 6px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.p-coupon-btn:hover {
+  background: var(--bg-glass-hover);
+  border-color: var(--border-glow);
+}
+
+.p-coupon-msg {
+  font-size: 0.74rem;
+  margin-bottom: 0.75rem;
   font-weight: 600;
+}
+
+.p-coupon-msg.success { color: #10b981; }
+.p-coupon-msg.error { color: #ef4444; }
+
+/* Unit selector dropdown */
+.p-unit-select-box {
+  margin-bottom: 1rem;
+}
+
+.p-select-label {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+}
+
+.p-unit-dropdown {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Demo preview pill */
+.p-demo-preview-pill {
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  background: rgba(168, 85, 247, 0.08);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  margin-bottom: 1rem;
+  font-size: 0.76rem;
+}
+
+.demo-pill-title {
+  display: block;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+
+.demo-pill-topics {
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+
+/* Features checklist */
+.p-features-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  flex: 1;
+}
+
+.p-features-checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.p-check-icon {
+  color: #10b981;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.p-enroll-action-btn {
+  width: 100%;
+  padding: 0.75rem 1rem !important;
+  font-weight: 700 !important;
+  font-size: 0.88rem !important;
+  justify-content: center !important;
+  border-radius: 10px !important;
+}
+
+.p-enroll-action-btn.demo-btn {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #10b981;
+}
+
+.p-enroll-action-btn.demo-btn:hover {
+  background: #10b981;
+  color: #ffffff;
+}
+
+/* ====================================================
+   3. Interactive CBT Simulator Preview Banner
+   ==================================================== */
+.botany-cbt-preview-banner {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 1.75rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 18px;
+  padding: 1.75rem 2rem;
+  margin-bottom: 2.5rem;
+  box-shadow: var(--shadow-sm);
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .botany-cbt-preview-banner {
+    grid-template-columns: 1fr;
+    padding: 1.25rem;
+    gap: 1.25rem;
+  }
+}
+
+.cbt-banner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(6, 182, 212, 0.12);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.65rem;
+}
+
+.cbt-banner-left h2 {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.015em;
+}
+
+.cbt-banner-left p {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: 0 0 1rem 0;
+}
+
+.cbt-feature-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cbt-feature-pills span {
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  color: var(--text-primary);
+}
+
+.cbt-mock-window {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.mock-window-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.85rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.mock-dots {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.mock-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border-light);
+}
+
+.mock-timer-display {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.mock-window-content {
+  padding: 1rem 1.15rem;
+}
+
+.mock-q-meta {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+}
+
+.mock-q-text {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+  margin: 0 0 0.75rem 0;
+}
+
+.mock-options-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.85rem;
+}
+
+.mock-opt {
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  font-size: 0.76rem;
   color: var(--text-secondary);
 }
 
-@media (max-width: 768px) {
-  .botany-container {
-    padding: 1rem 0.85rem 2.5rem;
-  }
-  .compact-hero-body {
-    padding: 1rem;
-  }
-  .botany-compact-stats-bar {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.65rem;
-    padding: 0.75rem;
-  }
-  .c-stat-div {
-    display: none;
-  }
-  .compact-hero-actions .btn {
-    width: 100%;
-    justify-content: center;
-  }
-  .cbt-topbar-title {
-    display: none;
-  }
+.mock-opt.active {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: #10b981;
+  color: #10b981;
+  font-weight: 700;
 }
 
-/* Navigation Tabs */
-.botany-portal-tabs {
+.mock-launch-btn {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
+  border: none;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.mock-launch-btn:hover {
+  filter: brightness(1.1);
+}
+
+/* ====================================================
+   4. Deep Explorer Tabs & Section Layout
+   ==================================================== */
+.botany-deep-explorer-section {
+  margin-bottom: 2.5rem;
+}
+
+.botany-subnav-tabs {
   display: flex;
   gap: 0.5rem;
   background: var(--bg-secondary);
   padding: 0.4rem;
   border-radius: 12px;
   border: 1px solid var(--border-light);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
   overflow-x: auto;
   scrollbar-width: none;
 }
 
-.botany-portal-tabs::-webkit-scrollbar {
+.botany-subnav-tabs::-webkit-scrollbar {
   display: none;
 }
 
-.botany-tab-btn {
+.subnav-tab-btn {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -239,137 +742,454 @@
   border: none;
   background: transparent;
   color: var(--text-secondary);
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
   transition: all var(--transition-fast);
 }
 
-.botany-tab-btn:hover {
+.subnav-tab-btn:hover {
   background: var(--bg-elevated);
   color: var(--text-primary);
 }
 
-.botany-tab-btn.active {
+.subnav-tab-btn.active {
   background: var(--accent-primary);
   color: #ffffff;
   box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3);
 }
 
-/* Pricing Grid */
-.botany-pricing-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1.5rem;
+.tab-pill-count {
+  font-size: 0.72rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  font-weight: 700;
 }
 
-.pricing-pack-card {
+.explorer-content-card {
   background: var(--bg-secondary);
   border: 1px solid var(--border-light);
   border-radius: 16px;
-  padding: 2rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.content-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.content-card-header h3 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 0.25rem 0;
+  letter-spacing: -0.01em;
+}
+
+.content-card-header p {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Schedule Controls & Table */
+.schedule-filter-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.schedule-pill-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.filter-pill-btn {
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filter-pill-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-glow);
+}
+
+.filter-pill-btn.active {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+}
+
+.schedule-search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 0.35rem 0.75rem;
+  min-width: 250px;
+}
+
+.schedule-search-box .search-icon {
+  color: var(--text-muted);
+}
+
+.schedule-search-box input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  width: 100%;
+}
+
+.schedule-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+}
+
+.schedule-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+  text-align: left;
+}
+
+.schedule-data-table th {
+  background: var(--bg-elevated);
+  padding: 0.75rem 1rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.schedule-data-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-light);
+  vertical-align: middle;
+}
+
+.schedule-data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.schedule-data-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.test-code-badge {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.78rem;
+  color: var(--accent-primary);
+  background: rgba(124, 58, 237, 0.1);
+  padding: 0.2rem 0.45rem;
+  border-radius: 4px;
+}
+
+.table-test-info {
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow-glass);
-  position: relative;
 }
 
-.pricing-pack-card.popular {
-  border-color: var(--accent-primary);
-  box-shadow: var(--shadow-glow);
-}
-
-.popular-badge {
-  position: absolute;
-  top: -12px;
-  right: 24px;
-  background: var(--gradient-accent);
-  color: #fff;
-  font-size: 0.74rem;
+.t-name {
   font-weight: 700;
-  padding: 0.25rem 0.75rem;
-  border-radius: 999px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  color: var(--text-primary);
 }
 
-.pricing-plan-name {
-  font-size: 1.25rem;
+.t-coverage {
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+.t-badge-mcq {
+  font-weight: 700;
+  color: #10b981;
+}
+
+.t-badge-time {
+  color: var(--text-muted);
+}
+
+.t-date-text {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.t-access-tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+}
+
+/* Syllabus Accordions */
+.syllabus-search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 0.45rem 0.85rem;
+  min-width: 280px;
+}
+
+.syllabus-search-box input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 0.84rem;
+  width: 100%;
+}
+
+.syllabus-accordions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.syllabus-unit-accordion {
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  background: var(--bg-elevated);
+  overflow: hidden;
+  transition: border-color var(--transition-fast);
+}
+
+.syllabus-unit-accordion.open {
+  border-color: #10b981;
+}
+
+.unit-accordion-trigger {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  text-align: left;
+}
+
+.unit-trigger-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.unit-number-pill {
+  font-size: 0.75rem;
   font-weight: 800;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.unit-title-text {
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.unit-trigger-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-muted);
+}
+
+.unit-q-weight {
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.unit-accordion-body {
+  padding: 0.75rem 1rem 1rem;
+  border-top: 1px solid var(--border-light);
+  background: var(--bg-secondary);
+}
+
+.subunits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0.75rem;
+}
+
+.subunit-topic-box {
+  padding: 0.75rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+}
+
+.subunit-topic-box h4 {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.35rem 0;
+}
+
+.subunit-topic-box p {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Platform Features Grid */
+.features-showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.feature-highlight-card {
+  padding: 1.25rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+}
+
+.f-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.85rem;
+}
+
+.feature-highlight-card h4 {
+  font-size: 1rem;
+  font-weight: 700;
   color: var(--text-primary);
   margin: 0 0 0.4rem 0;
 }
 
-.pricing-plan-desc {
-  font-size: 0.85rem;
+.feature-highlight-card p {
+  font-size: 0.82rem;
   color: var(--text-secondary);
   line-height: 1.5;
-  margin: 0 0 1.25rem 0;
+  margin: 0;
 }
 
-.pricing-amount-row {
-  display: flex;
-  align-items: baseline;
-  gap: 0.6rem;
-  margin-bottom: 1.5rem;
-}
-
-.pricing-final-price {
-  font-size: 2.2rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  font-family: var(--font-heading);
-}
-
-.pricing-strike-price {
-  font-size: 1.1rem;
-  color: var(--text-muted);
-  text-decoration: line-through;
-}
-
-.pricing-features-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1.5rem 0;
+/* Candidate FAQ Section */
+.faq-accordions-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  flex: 1;
+  gap: 0.65rem;
 }
 
-.pricing-feature-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.6rem;
-  font-size: 0.86rem;
-  color: var(--text-primary);
-  line-height: 1.4;
-}
-
-.feature-check-icon {
-  color: #10b981;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-/* Coupon input box */
-.coupon-input-box {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.coupon-input {
-  flex: 1;
-  padding: 0.55rem 0.85rem;
-  background: var(--bg-elevated);
+.faq-item-box {
   border: 1px solid var(--border-light);
-  border-radius: 8px;
+  border-radius: 10px;
+  background: var(--bg-elevated);
+  overflow: hidden;
+}
+
+.faq-trigger {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1.15rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
   color: var(--text-primary);
+  text-align: left;
+}
+
+.faq-q-text {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.faq-answer-body {
+  padding: 0.75rem 1.15rem 1rem;
+  border-top: 1px solid var(--border-light);
+  background: var(--bg-secondary);
+}
+
+.faq-answer-body p {
   font-size: 0.84rem;
-  font-family: var(--font-mono);
-  text-transform: uppercase;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Bottom CTA Banner */
+.botany-bottom-cta-banner {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(124, 58, 237, 0.1) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 16px;
+  padding: 1.5rem 1.75rem;
+  margin-top: 2rem;
+}
+
+.bottom-cta-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.bottom-cta-inner h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 0.25rem 0;
+}
+
+.bottom-cta-inner p {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.bottom-cta-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 /* Student Auth Modal Styles */
@@ -529,8 +1349,83 @@
   color: var(--text-secondary);
 }
 
+/* Student Modal Form & Global Inputs */
+.botany-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.botany-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  text-align: left;
+}
+
+.botany-form-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.botany-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.botany-input-icon {
+  position: absolute;
+  left: 0.85rem;
+  color: var(--text-muted);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.botany-auth-input {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 0.72rem 2.5rem 0.72rem 2.4rem !important;
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-light) !important;
+  border-radius: 10px !important;
+  color: var(--text-primary) !important;
+  font-size: 0.88rem !important;
+  font-family: inherit;
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.botany-auth-input:focus {
+  border-color: var(--accent-primary) !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.18) !important;
+  background: var(--bg-secondary) !important;
+}
+
+.botany-input-toggle {
+  position: absolute;
+  right: 0.65rem;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-fast);
+}
+
+.botany-input-toggle:hover {
+  color: var(--text-primary);
+}
+
 /* ====================================================
-   CBT Simulator Fullscreen Interface
+   CBT Simulator Fullscreen Interface & Topbar
    ==================================================== */
 .cbt-modal-fullscreen {
   position: fixed;
@@ -546,16 +1441,59 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.85rem 1.5rem;
+  padding: 0.75rem 1.5rem;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-light);
   box-shadow: var(--shadow-sm);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .cbt-topbar-left {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.cbt-brand-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  text-decoration: none;
+  font-weight: 800;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.cbt-brand-text {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.cbt-brand-dot {
+  color: var(--accent-primary);
+  font-size: 1.3rem;
+  line-height: 0.5;
+}
+
+.cbt-top-divider {
+  color: var(--text-muted);
+  opacity: 0.4;
+  user-select: none;
+  font-size: 0.9rem;
+}
+
+.cbt-topbar-title {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cbt-test-info h2 {
@@ -573,7 +1511,57 @@
 .cbt-topbar-right {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.cbt-user-actions-bar,
+.cbt-guest-actions-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cbt-user-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  max-width: 190px;
+}
+
+.cbt-avatar-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.cbt-user-email-text {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cbt-faculty-btn {
+  gap: 0.35rem;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: #10b981 !important;
+  font-weight: 700 !important;
 }
 
 .cbt-timer {
@@ -1234,4 +2222,223 @@
     justify-content: center;
     padding: 0.55rem 1rem;
   }
+
+  .botany-container {
+    padding: 0.85rem 0.85rem 3rem;
+  }
+
+  .cbt-top-divider {
+    display: none !important;
+  }
+
+  .cbt-topbar-title {
+    display: none !important;
+  }
+
+  .cbt-topbar {
+    padding: 0.65rem 0.85rem;
+  }
+
+  .cbt-user-badge {
+    max-width: 140px;
+    padding: 0.2rem 0.5rem;
+  }
+
+  .botany-modal-card {
+    padding: 1.5rem 1.25rem;
+    border-radius: 14px;
+    max-width: 95%;
+  }
+
+  .botany-pricing-cards-container {
+    grid-template-columns: 1fr;
+    gap: 1.15rem;
+  }
+
+  .botany-cbt-preview-banner {
+    grid-template-columns: 1fr;
+    padding: 1.15rem;
+    gap: 1.25rem;
+  }
+
+  .schedule-filter-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+  }
+
+  .schedule-search-box {
+    width: 100%;
+    min-width: unset;
+  }
 }
+
+@media (max-width: 640px) {
+  .hero-test-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.45rem;
+    padding: 0.75rem 0.85rem;
+  }
+
+  .hero-exam-badge {
+    font-size: 0.68rem;
+    padding: 0.2rem 0.5rem;
+    letter-spacing: 0.02em;
+  }
+
+  .hero-curator-tag {
+    font-size: 0.74rem;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .hero-test-main-content {
+    padding: 1rem 0.85rem 0.85rem;
+  }
+
+  .hero-test-title {
+    font-size: 1.28rem;
+    line-height: 1.25;
+    margin-bottom: 0.45rem;
+  }
+
+  .hero-test-desc {
+    font-size: 0.82rem;
+    line-height: 1.5;
+    margin-bottom: 0.85rem;
+  }
+
+  .hero-test-cta-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .hero-enroll-btn,
+  .hero-demo-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.65rem 0.85rem !important;
+    font-size: 0.82rem !important;
+  }
+
+  .hero-test-metrics-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.65rem !important;
+    padding: 0.75rem 0.85rem !important;
+  }
+
+  .metric-divider {
+    display: none !important;
+  }
+
+  .test-metric-cell {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 0.1rem;
+  }
+
+  .metric-num {
+    font-size: 1.15rem;
+  }
+
+  .metric-lbl {
+    font-size: 0.72rem;
+  }
+
+  .pricing-coupon-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .coupon-input-wrap {
+    width: 100%;
+  }
+
+  .coupon-apply-btn {
+    width: 100%;
+  }
+
+  .p-features-checklist li {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .botany-container {
+    padding: 0.65rem 0.5rem 3rem;
+  }
+
+  .cbt-topbar {
+    padding: 0.55rem 0.65rem;
+  }
+
+  .cbt-brand-text {
+    font-size: 1.02rem;
+  }
+
+  .cbt-user-badge {
+    padding: 0;
+    background: transparent;
+    border: none;
+  }
+
+  .cbt-user-email-text {
+    display: none !important;
+  }
+
+  .cbt-btn-text {
+    display: none !important;
+  }
+
+  .cbt-logout-btn,
+  .cbt-faculty-btn {
+    padding: 0.4rem 0.5rem !important;
+    min-width: 32px;
+  }
+
+  .cbt-signin-btn {
+    padding: 0.4rem 0.6rem !important;
+    font-size: 0.78rem !important;
+  }
+
+  .cbt-admin-btn {
+    padding: 0.4rem 0.55rem !important;
+    font-size: 0.78rem !important;
+  }
+
+  .section-heading {
+    font-size: 1.25rem;
+  }
+
+  .section-subtext {
+    font-size: 0.8rem;
+  }
+
+  .p-plan-title {
+    font-size: 1.1rem;
+  }
+
+  .p-price-val {
+    font-size: 1.65rem;
+  }
+
+  .botany-modal-card {
+    padding: 1.25rem 1rem;
+  }
+
+  .botany-modal-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .botany-auth-input {
+    padding: 0.6rem 2.2rem 0.6rem 2.2rem !important;
+    font-size: 0.84rem !important;
+  }
+}
+

@@ -29,8 +29,12 @@ export default function Login() {
       return;
     }
 
-    // 2. Super admin accounts
-    if (emailClean === 'sheikhgulfam91@gmail.com' || emailClean === 'admin@nexliftech.com') {
+    // 2. Super admin accounts (Website CMS and Govt portals)
+    if (
+      emailClean === '2nexlif@gmail.com' ||
+      emailClean === 'sheikhgulfam91@gmail.com' ||
+      emailClean === 'admin@nexliftech.com'
+    ) {
       navigate('/admin/dashboard?workspace=cms', { replace: true });
       return;
     }
