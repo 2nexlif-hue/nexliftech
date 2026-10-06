@@ -252,6 +252,12 @@ export function parseExcelBuffer(buffer, fileName = 'question_bank.xlsx') {
     detectedUnitId = `unit_${parseInt(unitMatch[1], 10)}`;
   } else if (/demo|diagnos|sample|entrance/i.test(fileName)) {
     detectedUnitId = 'diagnostic_demo';
+  } else {
+    const testMatch = fileName.match(/test[_\s-]?0?(\d+)/i);
+    if (testMatch && testMatch[1]) {
+      const num = parseInt(testMatch[1], 10);
+      detectedUnitId = `test_${num < 10 ? '0' + num : num}`;
+    }
   }
 
   const parsedQuestions = rawJson.map((row, idx) => normalizeRow(row, idx));

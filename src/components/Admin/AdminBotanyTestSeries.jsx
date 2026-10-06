@@ -251,6 +251,29 @@ export default function AdminBotanyTestSeries({ currentUser }) {
     }
   }
 
+  // Load prepared 30-MCQ Entrance Demo file from docs/
+  async function handleLoadEntranceDemoFile() {
+    setSaving(true);
+    showToast('info', 'Loading 30-MCQ Entrance Demo prepared in docs/ ...');
+    try {
+      const fileName = 'Botany_Entrance_30_MCQ_Mixed.xlsx';
+      const res = await fetch(`/sample_question_banks/${fileName}`);
+      if (!res.ok) throw new Error(`Could not load ${fileName}`);
+      const buf = await res.arrayBuffer();
+      const parsed = parseExcelBuffer(buf, fileName);
+      setBatchUploadList([]);
+      setUploadPreview(parsed);
+      setSelectedUnitId('diagnostic_demo');
+      setShowPreviewModal(true);
+      showToast('success', 'Loaded 30-MCQ Entrance Demo ready for preview!');
+    } catch (err) {
+      console.error('Error loading demo file:', err);
+      showToast('error', err.message || 'Could not load demo file.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
   // Commit Questions to Firestore (active preview unit)
   async function handleCommitQuestions() {
     if (!uploadPreview || !uploadPreview.validQuestions?.length) {
@@ -849,6 +872,9 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                   onClick={() => {
                     if (selectedUnitId === 'diagnostic_demo') {
                       downloadExcelTemplate('diagnostic_demo', 'Diagnostic Demo Entrance Test (10-30 MCQs)');
+                    } else if (selectedUnitId.startsWith('test_')) {
+                      const t = schedule.find(item => item.id === selectedUnitId);
+                      downloadExcelTemplate(selectedUnitId, t ? t.title : selectedUnitId);
                     } else {
                       const unit = syllabus.find(u => u.unitId === selectedUnitId);
                       downloadExcelTemplate(selectedUnitId, unit ? unit.title : selectedUnitId);
@@ -863,7 +889,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
             {/* Unit Selector */}
             <div style={{ marginBottom: '1.25rem' }}>
               <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
-                Select Unit to Manage:
+                Select Bank or Scheduled Test to Manage:
               </label>
               <select 
                 value={selectedUnitId}
@@ -879,6 +905,13 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                   {syllabus.map(u => (
                     <option key={u.unitId} value={u.unitId}>
                       Unit {u.unitNumber}: {u.title}
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="Official 35 Scheduled Tests (Diagnostic, Unit Tests, Clusters & Full Mocks)">
+                  {schedule.filter(t => t.isTest).map(t => (
+                    <option key={t.id} value={t.id}>
+                      {t.id.replace('test_', 'T')}: {t.title} ({t.category} — {t.questionCount} Qs)
                     </option>
                   ))}
                 </optgroup>
@@ -911,6 +944,17 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                 <span className="btn btn-primary btn-sm">
                   <Upload size={14} /> <span>Choose .xlsx File(s)</span>
                 </span>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleLoadEntranceDemoFile();
+                  }}
+                  style={{ borderColor: 'rgba(124, 58, 237, 0.4)', background: 'rgba(124, 58, 237, 0.12)', color: 'var(--accent-primary)', fontWeight: 700 }}
+                >
+                  <Sparkles size={14} /> <span>⚡ Load 30-MCQ Demo from docs/</span>
+                </button>
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
@@ -1206,12 +1250,23 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                     }}
                     style={{ fontSize: '0.78rem', padding: '0.2rem 0.5rem', borderRadius: '6px', background: 'var(--bg-elevated)', color: 'var(--text-primary)', border: '1px solid var(--border-light)' }}
                   >
-                    <option value="diagnostic_demo">🎯 Diagnostic Demo Entrance Test (10-30 MCQs)</option>
-                    {syllabus.map(u => (
-                      <option key={u.unitId} value={u.unitId}>
-                        Unit {u.unitNumber}: {u.title}
-                      </option>
-                    ))}
+                    <optgroup label="Free Entrance Assessment">
+                      <option value="diagnostic_demo">🎯 Diagnostic Demo Entrance Test (10-30 MCQs)</option>
+                    </optgroup>
+                    <optgroup label="PSC Curriculum Units (Units 1 to 10)">
+                      {syllabus.map(u => (
+                        <option key={u.unitId} value={u.unitId}>
+                          Unit {u.unitNumber}: {u.title}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="Official 35 Scheduled Tests">
+                      {schedule.filter(t => t.isTest).map(t => (
+                        <option key={t.id} value={t.id}>
+                          {t.id.replace('test_', 'T')}: {t.title} ({t.category})
+                        </option>
+                      ))}
+                    </optgroup>
                   </select>
                 </div>
               </div>
