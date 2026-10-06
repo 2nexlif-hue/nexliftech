@@ -32,3 +32,18 @@
 - **Dev Server**: `npm run dev` or `npm start`
 - **Build**: `npm run build`
 - **Linter**: `npm run lint` (or `npx oxlint`)
+
+---
+
+## Production Custom Domain (`https://nexliftech.space`)
+
+- **Primary Custom Domain**: `https://nexliftech.space`
+- **Checklist When Going Live**:
+  1. **Firebase Console > Authentication > Settings > Authorized Domains**:
+     - Add `nexliftech.space` and `www.nexliftech.space` to the list of Authorized Domains so Google Sign-In and email authentication work without cross-origin domain errors.
+  2. **SEO & Metadata**:
+     - Canonical URLs, Open Graph `og:url`, and JSON-LD structured schema point to `https://nexliftech.space`.
+     - `public/robots.txt` and `public/sitemap.xml` are generated and configured for `https://nexliftech.space`.
+  3. **Payment Gateway (Razorpay)**:
+     - Ensure `https://nexliftech.space` is whitelisted in Razorpay Dashboard for live API keys and webhook event delivery.
+
