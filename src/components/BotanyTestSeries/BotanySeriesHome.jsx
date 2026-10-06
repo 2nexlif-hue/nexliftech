@@ -159,6 +159,9 @@ export default function BotanySeriesHome() {
   const [showCbtEngine, setShowCbtEngine] = useState(false);
   const [enrollSuccessMessage, setEnrollSuccessMessage] = useState('');
 
+  // Active pricing plan tab for mobile view: 'full' | 'unit' | 'demo'
+  const [activePricingTab, setActivePricingTab] = useState('full');
+
   const pricingSectionRef = useRef(null);
 
   useEffect(() => {
@@ -182,7 +185,8 @@ export default function BotanySeriesHome() {
     loadData();
   }, []);
 
-  function scrollToPricing() {
+  function scrollToPricing(tab = 'full') {
+    if (tab) setActivePricingTab(tab);
     if (pricingSectionRef.current) {
       pricingSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -458,9 +462,60 @@ export default function BotanySeriesHome() {
             </p>
           </div>
 
+          {/* Mobile Tabbed Switcher: View plans at the exact same location by tabbing */}
+          <div className="pricing-mobile-tab-bar" role="tablist" aria-label="Test series package options">
+            <button 
+              type="button" 
+              role="tab"
+              aria-selected={activePricingTab === 'full'}
+              className={`pricing-mobile-tab-btn ${activePricingTab === 'full' ? 'active tab-featured' : ''}`}
+              onClick={() => setActivePricingTab('full')}
+            >
+              <div className="tab-btn-content">
+                <div className="tab-title-line">
+                  <Star size={13} className="tab-icon-star" fill={activePricingTab === 'full' ? '#10b981' : 'none'} />
+                  <span>Full Pass</span>
+                </div>
+                <div className="tab-meta-badge">₹{finalPrice}</div>
+              </div>
+            </button>
+
+            <button 
+              type="button" 
+              role="tab"
+              aria-selected={activePricingTab === 'unit'}
+              className={`pricing-mobile-tab-btn ${activePricingTab === 'unit' ? 'active tab-unit' : ''}`}
+              onClick={() => setActivePricingTab('unit')}
+            >
+              <div className="tab-btn-content">
+                <div className="tab-title-line">
+                  <BookOpen size={13} className="tab-icon-book" />
+                  <span>Unit-Wise</span>
+                </div>
+                <div className="tab-meta-badge">₹{unitPrice}</div>
+              </div>
+            </button>
+
+            <button 
+              type="button" 
+              role="tab"
+              aria-selected={activePricingTab === 'demo'}
+              className={`pricing-mobile-tab-btn ${activePricingTab === 'demo' ? 'active tab-demo' : ''}`}
+              onClick={() => setActivePricingTab('demo')}
+            >
+              <div className="tab-btn-content">
+                <div className="tab-title-line">
+                  <Play size={13} className="tab-icon-play" fill={activePricingTab === 'demo' ? '#a855f7' : 'none'} />
+                  <span>Free Demo</span>
+                </div>
+                <div className="tab-meta-badge demo-badge">FREE</div>
+              </div>
+            </button>
+          </div>
+
           <div className="botany-pricing-cards-container">
             {/* Card 1: Complete 35-Test Series Master Pass (Highlighted) */}
-            <div className="pricing-card-box featured-pass">
+            <div className={`pricing-card-box featured-pass ${activePricingTab === 'full' ? 'active-mobile-plan' : ''}`}>
               <div className="featured-ribbon">
                 <Star size={13} fill="#fff" />
                 <span>MOST POPULAR • ALL-INCLUSIVE</span>
@@ -534,10 +589,21 @@ export default function BotanySeriesHome() {
                 <span>Enroll in Full Test Series — ₹{finalPrice}</span>
                 <ArrowRight size={16} />
               </button>
+
+              <div className="p-mobile-sample-hint">
+                <span>Want to test the exam engine first?</span>
+                <button 
+                  type="button" 
+                  className="p-tab-switch-hint" 
+                  onClick={() => setActivePricingTab('demo')}
+                >
+                  Try Free Diagnostic Demo CBT →
+                </button>
+              </div>
             </div>
 
             {/* Card 2: Unit-Wise Flexi Pass */}
-            <div className="pricing-card-box flexi-pass">
+            <div className={`pricing-card-box flexi-pass ${activePricingTab === 'unit' ? 'active-mobile-plan' : ''}`}>
               <div className="p-card-header">
                 <span className="p-plan-badge flexi">Targeted Practice</span>
                 <h3 className="p-plan-title">Unit-Wise Individual Test</h3>
@@ -552,7 +618,9 @@ export default function BotanySeriesHome() {
                   <span className="p-value">{unitPrice}</span>
                   <span className="p-period">/ per single unit test</span>
                 </div>
-                <span className="p-validity-note">Upgrade to Full Series anytime with 100% price adjustment credit</span>
+                <span className="p-validity-note">
+                  Upgrade to Full Series anytime with 100% price adjustment credit
+                </span>
               </div>
 
               {/* Unit Selector */}
@@ -598,10 +666,21 @@ export default function BotanySeriesHome() {
                 <span>Enroll in Chosen Unit — ₹{unitPrice}</span>
                 <ArrowRight size={16} />
               </button>
+
+              <div className="p-mobile-sample-hint">
+                <span>Looking for all-inclusive 35-test prep?</span>
+                <button 
+                  type="button" 
+                  className="p-tab-switch-hint" 
+                  onClick={() => setActivePricingTab('full')}
+                >
+                  Switch to Full Pass (₹{finalPrice}) →
+                </button>
+              </div>
             </div>
 
             {/* Card 3: Free Diagnostic Entrance CBT Demo */}
-            <div className="pricing-card-box demo-pass">
+            <div className={`pricing-card-box demo-pass ${activePricingTab === 'demo' ? 'active-mobile-plan' : ''}`}>
               <div className="p-card-header">
                 <span className="p-plan-badge free">100% Free Sample</span>
                 <h3 className="p-plan-title">Diagnostic Demo CBT</h3>
@@ -615,7 +694,9 @@ export default function BotanySeriesHome() {
                   <span className="p-free-text">FREE</span>
                   <span className="p-period">/ No Credit Card Required</span>
                 </div>
-                <span className="p-validity-note">Instant 1-Click Launch • Real Simulation Engine</span>
+                <span className="p-validity-note">
+                  Instant 1-Click Launch • Real Simulation Engine
+                </span>
               </div>
 
               <div className="p-demo-preview-pill">
@@ -646,6 +727,17 @@ export default function BotanySeriesHome() {
                 <Play size={15} />
                 <span>Launch Free Demo CBT Test</span>
               </button>
+
+              <div className="p-mobile-sample-hint">
+                <span>Ready to enroll in full pass?</span>
+                <button 
+                  type="button" 
+                  className="p-tab-switch-hint" 
+                  onClick={() => setActivePricingTab('full')}
+                >
+                  Enroll in Full Pass (₹{finalPrice}) →
+                </button>
+              </div>
             </div>
           </div>
         </section>
