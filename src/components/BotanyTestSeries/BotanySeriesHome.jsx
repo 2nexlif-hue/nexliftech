@@ -131,7 +131,6 @@ export default function BotanySeriesHome() {
   const isFacultyAdmin = (
     emailLower === 'e.educational.24@gmail.com' ||
     emailLower === 'admin@nexliftech.com' ||
-    emailLower === 'sheikhgulfam91@gmail.com' ||
     emailLower === '2nexlif@gmail.com' ||
     userProfile?.role === 'botany_admin' ||
     userProfile?.role === 'admin'

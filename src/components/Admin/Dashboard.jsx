@@ -226,7 +226,6 @@ export default function Dashboard() {
   const isSuperAdmin = (
     emailLower === '2nexlif@gmail.com' ||
     emailLower === 'admin@nexliftech.com' ||
-    emailLower === 'sheikhgulfam91@gmail.com' ||
     userProfile?.role === 'admin' ||
     userProfile?.role === 'superadmin'
   );
