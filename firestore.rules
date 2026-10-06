@@ -40,8 +40,16 @@ service cloud.firestore {
     match /subscriptions/{document=**} {
       allow read, write: if true;
     }
+    match /botany_cbt_submissions/{subId} {
+      allow read, write: if true;
+    }
 
-    // 5. Default Security Boundary Rule
+    // 5. User Profiles
+    match /users/{userId} {
+      allow read, write: if true;
+    }
+
+    // 6. Default Security Boundary Rule
     match /{document=**} {
       allow read, write: if request.auth != null;
     }

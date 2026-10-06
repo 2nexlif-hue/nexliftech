@@ -12,7 +12,8 @@ import {
   getBotanySchedule,
   getAllUnitsQuestionStats,
   getTestQuestionStats,
-  getUnitQuestions
+  getUnitQuestions,
+  getUserBotanySubscriptions
 } from '../../utils/botanyFirestoreService';
 import { initiateRazorpayPayment } from '../../utils/razorpayService';
 import { BOTANY_SEED_QUESTION_BANKS } from '../../utils/botanySeedQuestionBanks';
@@ -177,14 +178,20 @@ export default function BotanySeriesHome() {
   // FAQ accordion
   const [openFaqIdx, setOpenFaqIdx] = useState(0);
 
-  // Modals
+  // Modals & Active Test
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authPendingAction, setAuthPendingAction] = useState(null); // 'cbt_demo' | 'full_series' | 'unit_pass'
+  const [authPendingAction, setAuthPendingAction] = useState(null); // 'full_series' | 'unit_pass'
   const [showCbtEngine, setShowCbtEngine] = useState(false);
+  const [activeTestForCbt, setActiveTestForCbt] = useState(null);
+  const [testLaunchLoading, setTestLaunchLoading] = useState(false);
+  const [testNotification, setTestNotification] = useState('');
   const [enrollSuccessMessage, setEnrollSuccessMessage] = useState('');
 
   // Active pricing plan tab for mobile view: 'full' | 'unit' | 'demo'
   const [activePricingTab, setActivePricingTab] = useState('full');
+
+  // User active subscriptions
+  const [userSubscriptions, setUserSubscriptions] = useState([]);
 
   const pricingSectionRef = useRef(null);
 
@@ -214,6 +221,23 @@ export default function BotanySeriesHome() {
     }
     loadData();
   }, []);
+
+  // Fetch subscriptions whenever currentUser changes
+  useEffect(() => {
+    async function fetchSubs() {
+      if (currentUser?.uid) {
+        try {
+          const subs = await getUserBotanySubscriptions(currentUser.uid);
+          setUserSubscriptions(subs);
+        } catch (err) {
+          console.warn('Could not fetch user subscriptions:', err);
+        }
+      } else {
+        setUserSubscriptions([]);
+      }
+    }
+    fetchSubs();
+  }, [currentUser]);
 
   // Real-time synchronization listener across tabs & admin uploads
   useEffect(() => {
@@ -258,6 +282,128 @@ export default function BotanySeriesHome() {
     }
   }
 
+  // Access validation: check if candidate has permission for a given test
+  const hasFullAccess = Boolean(
+    isFacultyAdmin ||
+    userProfile?.hasActiveBotanySeries ||
+    userSubscriptions.some(s => s.allowedUnits?.includes('all') || s.planType === 'full_series')
+  );
+
+  function hasTestAccess(test) {
+    if (hasFullAccess) return true;
+    // Test 1 (Diagnostic Entrance Demo) is ALWAYS 100% free for all candidates
+    if (test.testNumber === 'T-1' || test.id === 'test_01' || test.category === 'Diagnostic Test') {
+      return true;
+    }
+    // Check unit pass access
+    const unitMatch = test.unitCovered?.match(/Unit\s*(\d+)/i);
+    if (unitMatch) {
+      const unitId = `unit_${unitMatch[1]}`;
+      return userSubscriptions.some(s => s.allowedUnits?.includes(unitId));
+    }
+    return false;
+  }
+
+  async function handleLaunchTest(test) {
+    const isDemo = test.testNumber === 'T-1' || test.id === 'test_01' || test.category === 'Diagnostic Test';
+
+    if (isDemo) {
+      // Diagnostic Demo - 30 MCQs instantly available without blocking signin
+      try {
+        const fresh = await getUnitQuestions('diagnostic_demo');
+        if (fresh?.questions?.length > 0) setDemoQuestions(fresh.questions);
+      } catch (e) {}
+
+      setActiveTestForCbt({
+        id: 'diagnostic_demo',
+        testNumber: 'T-1',
+        title: test.title || 'Diagnostic Entrance Assessment Demo',
+        unitCovered: test.unitCovered || 'All 10 PSC Units',
+        durationMinutes: test.durationMinutes || 60,
+        questions: demoQuestions
+      });
+      setShowCbtEngine(true);
+      return;
+    }
+
+    if (!hasTestAccess(test)) {
+      handleUnlockTest(test);
+      return;
+    }
+
+    // Enrolled candidate or admin: Load test questions
+    setTestLaunchLoading(true);
+    setTestNotification('');
+    try {
+      let qList = [];
+      const testBank = await getUnitQuestions(test.id || test.testNumber).catch(() => null);
+      if (testBank?.questions?.length > 0) {
+        qList = testBank.questions;
+      } else {
+        const unitMatch = test.unitCovered?.match(/Unit\s*(\d+)/i);
+        if (unitMatch) {
+          const unitId = `unit_${unitMatch[1]}`;
+          const unitBank = await getUnitQuestions(unitId).catch(() => null);
+          if (unitBank?.questions?.length > 0) {
+            qList = unitBank.questions;
+          }
+        }
+      }
+
+      if (qList.length > 0) {
+        setActiveTestForCbt({
+          id: test.id || test.testNumber,
+          testNumber: test.testNumber,
+          title: test.title,
+          unitCovered: test.unitCovered,
+          durationMinutes: test.durationMinutes || 60,
+          questions: qList
+        });
+        setShowCbtEngine(true);
+      } else {
+        setTestNotification(`The verified question bank for "${test.title}" is currently being populated by faculty (Dr. Aubid Ahmad). Please practice with Unit 1 or the 30-MCQ Diagnostic Demo now!`);
+        setTimeout(() => setTestNotification(''), 7000);
+      }
+    } catch (err) {
+      console.error('Error launching test:', err);
+      setTestNotification('Could not load test questions. Please check connection and try again.');
+      setTimeout(() => setTestNotification(''), 5000);
+    } finally {
+      setTestLaunchLoading(false);
+    }
+  }
+
+  function handleUnlockTest(test) {
+    const unitMatch = test.unitCovered?.match(/Unit\s*(\d+)/i);
+    if (unitMatch) {
+      const uId = `unit_${unitMatch[1]}`;
+      setSelectedUnitForPass(uId);
+      scrollToPricing('unit');
+    } else {
+      scrollToPricing('full');
+    }
+  }
+
+  async function handleDemoCbtClick() {
+    // 1-Click Launch: Open Free Demo CBT immediately
+    try {
+      const fresh = await getUnitQuestions('diagnostic_demo');
+      if (fresh?.questions?.length > 0) {
+        setDemoQuestions(fresh.questions);
+      }
+    } catch (e) {}
+
+    setActiveTestForCbt({
+      id: 'diagnostic_demo',
+      testNumber: 'T-1',
+      title: 'Diagnostic Entrance Assessment Demo',
+      unitCovered: `High-Yield Entrance Sample (${demoQuestions.length} MCQs)`,
+      durationMinutes: Math.max(10, Math.round(demoQuestions.length * 1.5)),
+      questions: demoQuestions
+    });
+    setShowCbtEngine(true);
+  }
+
   function handleEnrollClick(planType = 'full_series') {
     if (!currentUser) {
       setAuthPendingAction(planType);
@@ -267,27 +413,8 @@ export default function BotanySeriesHome() {
     executeCheckout(currentUser, planType);
   }
 
-  async function handleDemoCbtClick() {
-    // Refresh demo bank immediately to ensure freshest uploaded questions
-    try {
-      const fresh = await getUnitQuestions('diagnostic_demo');
-      if (fresh?.questions?.length > 0) {
-        setDemoQuestions(fresh.questions);
-      }
-    } catch (e) {}
-
-    if (!currentUser) {
-      setAuthPendingAction('cbt_demo');
-      setShowAuthModal(true);
-      return;
-    }
-    setShowCbtEngine(true);
-  }
-
   function handleAuthSuccess(user) {
-    if (authPendingAction === 'cbt_demo') {
-      setShowCbtEngine(true);
-    } else if (authPendingAction === 'full_series' || authPendingAction === 'unit_pass') {
+    if (authPendingAction === 'full_series' || authPendingAction === 'unit_pass') {
       executeCheckout(user, authPendingAction);
     }
     setAuthPendingAction(null);
@@ -311,11 +438,17 @@ export default function BotanySeriesHome() {
     initiateRazorpayPayment({
       planType,
       planTitle,
+      unitId: planType === 'unit_pass' ? selectedUnitForPass : null,
       amountInINR: finalAmount,
       user,
       razorpayKeyId: settings?.razorpayKey,
-      onSuccess: (subRecord) => {
-        setEnrollSuccessMessage(`Enrollment confirmed! Subscription ID: ${subRecord.subscriptionId}. Your official receipt and access credentials have been recorded.`);
+      onSuccess: async (subRecord) => {
+        setEnrollSuccessMessage(`Enrollment confirmed! Subscription ID: ${subRecord.subscriptionId}. Your official access credentials have been activated.`);
+        // Refresh subscriptions immediately
+        if (user?.uid) {
+          const subs = await getUserBotanySubscriptions(user.uid);
+          setUserSubscriptions(subs);
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
       },
       onFailure: (err) => {
@@ -332,10 +465,22 @@ export default function BotanySeriesHome() {
   // Filtered Schedule
   const filteredSchedule = schedule.filter(test => {
     // Type filter
-    if (scheduleFilter === 'unit' && !test.testNumber.startsWith('T') && !test.title.toLowerCase().includes('unit')) return false;
-    if (scheduleFilter === 'cluster' && !test.title.toLowerCase().includes('cluster')) return false;
-    if (scheduleFilter === 'mock' && !test.title.toLowerCase().includes('grand mock') && !test.title.toLowerCase().includes('mock')) return false;
-    if (scheduleFilter === 'special' && (test.title.toLowerCase().includes('unit') || test.title.toLowerCase().includes('cluster') || test.title.toLowerCase().includes('grand mock'))) return false;
+    if (scheduleFilter === 'unit') {
+      const isUnit = test.category === 'Unit Test' || test.title?.toLowerCase().includes('unit ') || test.unitCovered?.toLowerCase().startsWith('unit');
+      if (!isUnit) return false;
+    }
+    if (scheduleFilter === 'cluster') {
+      const isCluster = test.category === 'Cluster Test' || test.title?.toLowerCase().includes('cluster');
+      if (!isCluster) return false;
+    }
+    if (scheduleFilter === 'mock') {
+      const isMock = test.category === 'Full Mock' || test.title?.toLowerCase().includes('mock');
+      if (!isMock) return false;
+    }
+    if (scheduleFilter === 'special') {
+      const isSpecial = test.category === 'Special Test' || test.title?.toLowerCase().includes('special') || test.title?.toLowerCase().includes('pyq') || test.title?.toLowerCase().includes('himalayan');
+      if (!isSpecial) return false;
+    }
 
     // Search filter
     if (!scheduleSearch.trim()) return true;
@@ -343,7 +488,8 @@ export default function BotanySeriesHome() {
     return (
       test.title?.toLowerCase().includes(q) ||
       test.unitCovered?.toLowerCase().includes(q) ||
-      test.testNumber?.toLowerCase().includes(q)
+      test.testNumber?.toLowerCase().includes(q) ||
+      test.category?.toLowerCase().includes(q)
     );
   });
 
@@ -461,10 +607,10 @@ export default function BotanySeriesHome() {
 
           <div className="hero-test-main-content">
             <h1 className="hero-test-title">
-              Botany Assistant Professor <span className="text-gradient">Entrance Examination</span> Test Series
+              Botany Assistant Professor <span className="text-gradient">CBT Suite</span>
             </h1>
             <p className="hero-test-desc">
-              High-stakes Computer-Based Testing (CBT) platform engineered for Botany PSC aspirants. Master the entire 10-unit syllabus with 35 scheduled tests, ~2,700 questions, negative marking calibration (-0.25), and comprehensive option-by-option scientific analysis.
+              Computer-Based Testing calibrated for Botany PSC aspirants. Master the 10-unit syllabus with {schedule.length || 35} scheduled tests, -0.25 negative marking, and option-by-option scientific rationales.
             </p>
 
             <div className="hero-test-cta-bar">
@@ -473,17 +619,17 @@ export default function BotanySeriesHome() {
                 className="btn btn-primary hero-enroll-btn"
                 onClick={scrollToPricing}
               >
-                <Zap size={16} />
-                <span>View Plans &amp; Enroll Now — ₹{finalPrice}</span>
-                <ArrowRight size={15} />
+                <Zap size={15} />
+                <span>Enroll in Full Series — ₹{finalPrice}</span>
+                <ArrowRight size={14} />
               </button>
               <button 
                 type="button" 
                 className="btn btn-secondary hero-demo-btn"
                 onClick={handleDemoCbtClick}
               >
-                <Play size={14} className="accent-play-icon" />
-                <span>Take Free Diagnostic Demo CBT ({demoQuestions.length} MCQs)</span>
+                <Play size={13} className="accent-play-icon" />
+                <span>Take Free Demo CBT ({demoQuestions.length} MCQs)</span>
               </button>
             </div>
           </div>
@@ -492,22 +638,22 @@ export default function BotanySeriesHome() {
           <div className="hero-test-metrics-grid">
             <div className="test-metric-cell">
               <div className="metric-num">10</div>
-              <div className="metric-lbl">PSC Units Covered</div>
+              <div className="metric-lbl">PSC Units</div>
             </div>
             <div className="metric-divider" />
             <div className="test-metric-cell">
-              <div className="metric-num">35</div>
+              <div className="metric-num">{schedule.length || 35}</div>
               <div className="metric-lbl">Scheduled Tests</div>
             </div>
             <div className="metric-divider" />
             <div className="test-metric-cell">
-              <div className="metric-num">~2,700</div>
-              <div className="metric-lbl">Target Questions</div>
+              <div className="metric-num">{questionStats?.totalUploadedQuestions || 100}+</div>
+              <div className="metric-lbl">Live MCQs Active</div>
             </div>
             <div className="metric-divider" />
             <div className="test-metric-cell">
               <div className="metric-num">100%</div>
-              <div className="metric-lbl">Option Scientific Rationale</div>
+              <div className="metric-lbl">Scientific Rationale</div>
             </div>
           </div>
         </section>
@@ -971,22 +1117,31 @@ export default function BotanySeriesHome() {
                 </div>
               </div>
 
+              {testNotification && (
+                <div className="botany-modal-alert error" style={{ marginBottom: '0.75rem', borderRadius: '8px' }}>
+                  <AlertCircle size={15} style={{ flexShrink: 0 }} />
+                  <span>{testNotification}</span>
+                </div>
+              )}
+
               {/* Tests Table */}
               <div className="schedule-table-wrapper">
                 <table className="schedule-data-table">
                   <thead>
                     <tr>
-                      <th style={{ width: '80px' }}>Test #</th>
+                      <th style={{ width: '70px' }}>Test #</th>
                       <th>Test Title &amp; Syllabus Coverage</th>
                       <th style={{ width: '130px' }}>Questions &amp; Bank</th>
-                      <th style={{ width: '100px' }}>Duration</th>
-                      <th style={{ width: '130px' }}>Scheduled Date</th>
-                      <th style={{ width: '120px', textAlign: 'right' }}>Status</th>
+                      <th style={{ width: '90px' }}>Duration</th>
+                      <th style={{ width: '120px' }}>Scheduled Date</th>
+                      <th style={{ width: '130px', textAlign: 'right' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredSchedule.map((t, idx) => {
                       const testBankStats = getTestQuestionStats(t, questionStats?.unitStats);
+                      const isAccessible = hasTestAccess(t);
+                      const isDemo = t.testNumber === 'T-1' || t.id === 'test_01' || t.category === 'Diagnostic Test';
 
                       return (
                         <tr key={t.testId || idx}>
@@ -1019,7 +1174,28 @@ export default function BotanySeriesHome() {
                             <span className="t-date-text">{t.scheduledDate || 'Flexible'}</span>
                           </td>
                           <td style={{ textAlign: 'right' }}>
-                            <span className="t-access-tag">Included in Pass</span>
+                            {isAccessible ? (
+                              <button
+                                type="button"
+                                className={`btn btn-sm cbt-table-action-btn ${isDemo ? 'demo' : 'start'}`}
+                                onClick={() => handleLaunchTest(t)}
+                                disabled={testLaunchLoading}
+                                title={isDemo ? 'Launch Free Diagnostic Demo' : 'Launch Official CBT Simulation'}
+                              >
+                                <Play size={12} />
+                                <span>{isDemo ? 'Free Demo' : 'Start CBT'}</span>
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                className="btn btn-secondary btn-sm cbt-table-action-btn unlock"
+                                onClick={() => handleUnlockTest(t)}
+                                title="Unlock Test Access"
+                              >
+                                <Lock size={12} />
+                                <span>Unlock</span>
+                              </button>
+                            )}
                           </td>
                         </tr>
                       );
@@ -1192,13 +1368,16 @@ export default function BotanySeriesHome() {
       {/* CBT Simulator Fullscreen Modal */}
       {showCbtEngine && (
         <StudentExamEngine 
-          testData={{
+          testData={activeTestForCbt || {
             title: 'Diagnostic Entrance Assessment Demo',
             unitCovered: `High-Yield Entrance Sample (${demoQuestions.length} MCQs)`,
             durationMinutes: Math.max(10, Math.round(demoQuestions.length * 1.5))
           }}
-          questions={demoQuestions}
-          onClose={() => setShowCbtEngine(false)}
+          questions={activeTestForCbt?.questions || demoQuestions}
+          onClose={() => {
+            setShowCbtEngine(false);
+            setActiveTestForCbt(null);
+          }}
         />
       )}
     </div>

@@ -18,20 +18,20 @@
 .botany-container {
   max-width: var(--container-width);
   margin: 0 auto;
-  padding: 1.25rem 1.25rem 3rem;
+  padding: 0.85rem 1rem 2.5rem;
   width: 100%;
   box-sizing: border-box;
 }
 
 /* ====================================================
-   1. High-Impact Test Series Hero Section
+   1. High-Impact Test Series Hero Section (Compact)
    ==================================================== */
 .botany-hero-test-card {
   background: var(--bg-secondary);
   border: 1px solid var(--border-light);
-  border-radius: 18px;
-  box-shadow: var(--shadow-sm), 0 8px 30px rgba(0, 0, 0, 0.15);
-  margin-bottom: 2rem;
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm), 0 4px 20px rgba(0, 0, 0, 0.12);
+  margin-bottom: 1.25rem;
   overflow: hidden;
   position: relative;
   background-image: radial-gradient(circle at 100% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
@@ -43,8 +43,8 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  padding: 1.15rem 1.5rem 0.85rem;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem 0.55rem;
   border-bottom: 1px solid var(--border-light);
   background: rgba(255, 255, 255, 0.015);
 }
@@ -52,32 +52,32 @@
 .hero-exam-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  padding: 0.25rem 0.65rem;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
   border-radius: 999px;
   background: rgba(16, 185, 129, 0.12);
   color: #10b981;
   border: 1px solid rgba(16, 185, 129, 0.28);
-  font-size: 0.74rem;
+  font-size: 0.7rem;
   font-weight: 800;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
 }
 
 .exam-pulse-beacon {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: #10b981;
-  box-shadow: 0 0 8px #10b981;
+  box-shadow: 0 0 6px #10b981;
   animation: beaconPulse 1.5s infinite ease-in-out;
 }
 
 .hero-curator-tag {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.8rem;
+  gap: 0.45rem;
+  font-size: 0.76rem;
   color: var(--text-secondary);
 }
 
@@ -101,31 +101,31 @@
 }
 
 .hero-test-main-content {
-  padding: 1.5rem 1.6rem 1.25rem;
+  padding: 1rem 1.15rem 0.85rem;
 }
 
 .hero-test-title {
   font-family: var(--font-heading);
-  font-size: clamp(1.45rem, 2.6vw, 2rem);
+  font-size: clamp(1.2rem, 2.2vw, 1.6rem);
   font-weight: 800;
   line-height: 1.25;
   color: var(--text-primary);
-  margin: 0 0 0.65rem 0;
+  margin: 0 0 0.4rem 0;
   letter-spacing: -0.015em;
 }
 
 .hero-test-desc {
-  font-size: clamp(0.85rem, 1.4vw, 0.94rem);
+  font-size: clamp(0.8rem, 1.3vw, 0.88rem);
   color: var(--text-secondary);
-  line-height: 1.55;
-  margin: 0 0 1.25rem 0;
-  max-width: 900px;
+  line-height: 1.45;
+  margin: 0 0 0.85rem 0;
+  max-width: 860px;
 }
 
 .hero-test-cta-bar {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: 0.65rem;
   flex-wrap: wrap;
 }
 
@@ -133,22 +133,22 @@
   background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
   color: #ffffff !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.35) !important;
+  box-shadow: 0 3px 14px rgba(16, 185, 129, 0.3) !important;
   font-weight: 700 !important;
-  gap: 0.5rem !important;
-  padding: 0.65rem 1.25rem !important;
-  font-size: 0.88rem !important;
+  gap: 0.45rem !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.82rem !important;
 }
 
 .hero-enroll-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(16, 185, 129, 0.5) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 18px rgba(16, 185, 129, 0.45) !important;
 }
 
 .hero-demo-btn {
-  gap: 0.5rem !important;
-  padding: 0.65rem 1.15rem !important;
-  font-size: 0.88rem !important;
+  gap: 0.45rem !important;
+  padding: 0.5rem 0.95rem !important;
+  font-size: 0.82rem !important;
   font-weight: 600 !important;
 }
 
@@ -160,36 +160,36 @@
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding: 0.85rem 1.25rem;
+  padding: 0.6rem 1rem;
   background: var(--bg-elevated);
   border-top: 1px solid var(--border-light);
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.45rem;
 }
 
 .test-metric-cell {
   display: flex;
   align-items: baseline;
-  gap: 0.45rem;
+  gap: 0.35rem;
 }
 
 .metric-num {
   font-family: var(--font-heading);
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 800;
   color: var(--accent-primary);
   letter-spacing: -0.02em;
 }
 
 .metric-lbl {
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   font-weight: 600;
   color: var(--text-secondary);
 }
 
 .metric-divider {
   width: 1px;
-  height: 22px;
+  height: 18px;
   background: var(--border-light);
 }
 
@@ -913,15 +913,15 @@
 .schedule-data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.84rem;
+  font-size: 0.81rem;
   text-align: left;
 }
 
 .schedule-data-table th {
   background: var(--bg-elevated);
-  padding: 0.75rem 1rem;
+  padding: 0.45rem 0.65rem;
   color: var(--text-muted);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -929,7 +929,7 @@
 }
 
 .schedule-data-table td {
-  padding: 0.75rem 1rem;
+  padding: 0.45rem 0.65rem;
   border-bottom: 1px solid var(--border-light);
   vertical-align: middle;
 }
@@ -945,51 +945,106 @@
 .test-code-badge {
   font-family: var(--font-mono);
   font-weight: 800;
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   color: var(--accent-primary);
   background: rgba(124, 58, 237, 0.1);
-  padding: 0.2rem 0.45rem;
+  padding: 0.15rem 0.4rem;
   border-radius: 4px;
 }
 
 .table-test-info {
   display: flex;
   flex-direction: column;
+  gap: 0.1rem;
 }
 
 .t-name {
   font-weight: 700;
   color: var(--text-primary);
+  font-size: 0.84rem;
 }
 
 .t-coverage {
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   color: var(--text-secondary);
 }
 
 .t-badge-mcq {
   font-weight: 700;
   color: #10b981;
+  font-size: 0.76rem;
 }
 
 .t-badge-time {
   color: var(--text-muted);
+  font-size: 0.76rem;
 }
 
 .t-date-text {
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   color: var(--text-secondary);
 }
 
 .t-access-tag {
   display: inline-block;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: #10b981;
   background: rgba(16, 185, 129, 0.12);
-  padding: 0.2rem 0.55rem;
+  padding: 0.15rem 0.45rem;
   border-radius: 4px;
+}
+
+/* Interactive CBT Table Action Buttons */
+.cbt-table-action-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.3rem !important;
+  padding: 0.26rem 0.6rem !important;
+  font-size: 0.74rem !important;
+  font-weight: 700 !important;
+  border-radius: 6px !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  transition: all var(--transition-fast) !important;
+}
+
+.cbt-table-action-btn.start {
+  background: linear-gradient(135deg, var(--accent-primary), #6d28d9) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25) !important;
+}
+
+.cbt-table-action-btn.start:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4) !important;
+}
+
+.cbt-table-action-btn.demo {
+  background: rgba(16, 185, 129, 0.14) !important;
+  color: #10b981 !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+}
+
+.cbt-table-action-btn.demo:hover {
+  background: #10b981 !important;
+  color: #ffffff !important;
+}
+
+.cbt-table-action-btn.unlock {
+  background: var(--bg-elevated) !important;
+  color: var(--text-secondary) !important;
+  border: 1px solid var(--border-light) !important;
+  font-weight: 600 !important;
+}
+
+.cbt-table-action-btn.unlock:hover {
+  background: var(--bg-glass-hover) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-glow) !important;
 }
 
 /* Syllabus Accordions */
@@ -1231,7 +1286,7 @@
   flex-wrap: wrap;
 }
 
-/* Student Auth Modal Styles */
+/* Student Auth Modal Styles (Compact & Modern) */
 .botany-modal-overlay {
   position: fixed;
   inset: 0;
@@ -1248,23 +1303,28 @@
 .botany-modal-card {
   background: var(--bg-secondary);
   border: 1px solid var(--border-light);
-  border-radius: 16px;
+  border-radius: 14px;
   width: 100%;
-  max-width: 440px;
-  padding: 2rem;
+  max-width: 420px;
+  padding: 1.5rem 1.6rem;
   box-shadow: var(--shadow-glass);
   position: relative;
 }
 
+.botany-modal-card.compact-auth-card {
+  max-width: 400px;
+  padding: 1.25rem 1.4rem;
+}
+
 .botany-modal-close {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 0.85rem;
+  right: 0.85rem;
   background: transparent;
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 0.35rem;
+  padding: 0.3rem;
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -1278,38 +1338,98 @@
 
 .botany-modal-header {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.15rem;
+}
+
+.botany-modal-header.compact {
+  margin-bottom: 0.85rem;
 }
 
 .botany-modal-logo {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.6rem;
+  margin-bottom: 0.35rem;
+}
+
+.botany-modal-logo-small {
+  margin-bottom: 0.4rem;
+}
+
+.auth-brand-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  letter-spacing: 0.03em;
 }
 
 .botany-modal-header h3 {
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: 1.15rem;
+  font-weight: 800;
   color: var(--text-primary);
-  margin: 0 0 0.35rem 0;
+  margin: 0 0 0.25rem 0;
+  letter-spacing: -0.01em;
 }
 
 .botany-modal-header p {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   color: var(--text-secondary);
   margin: 0;
-  line-height: 1.45;
+  line-height: 1.4;
+}
+
+/* Mode Switcher Tabs */
+.botany-auth-segmented-tabs {
+  display: flex;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: 9px;
+  padding: 0.2rem;
+  margin-bottom: 0.85rem;
+  gap: 0.25rem;
+}
+
+.auth-segment-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.38rem 0.5rem;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.auth-segment-btn:hover {
+  color: var(--text-primary);
+}
+
+.auth-segment-btn.active {
+  background: var(--bg-secondary);
+  color: var(--accent-primary);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
 }
 
 .botany-google-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.65rem;
+  gap: 0.55rem;
   width: 100%;
-  padding: 0.65rem 1rem;
+  padding: 0.55rem 0.9rem;
   font-weight: 600;
-  font-size: 0.88rem;
-  border-radius: 10px;
+  font-size: 0.82rem;
+  border-radius: 8px;
   background: var(--bg-elevated);
   border: 1px solid var(--border-light);
   color: var(--text-primary);
@@ -1327,9 +1447,9 @@
   display: flex;
   align-items: center;
   text-align: center;
-  margin: 1.25rem 0 1rem 0;
+  margin: 0.85rem 0 0.75rem 0;
   color: var(--text-muted);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.05em;
 }
@@ -1342,17 +1462,18 @@
 }
 
 .botany-modal-divider span {
-  padding: 0 0.65rem;
+  padding: 0 0.5rem;
 }
 
 .botany-modal-alert {
-  padding: 0.65rem 0.85rem;
+  padding: 0.55rem 0.75rem;
   border-radius: 8px;
-  font-size: 0.82rem;
-  margin-bottom: 1rem;
+  font-size: 0.78rem;
+  margin-bottom: 0.85rem;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  align-items: flex-start;
+  gap: 0.45rem;
+  line-height: 1.4;
 }
 
 .botany-modal-alert.error {
@@ -1367,12 +1488,33 @@
   color: #10b981;
 }
 
+.botany-alert-action-btn {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  margin-top: 0.2rem;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.18rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.botany-alert-action-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
 .botany-link-btn {
   background: none;
   border: none;
   color: var(--accent-primary);
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   padding: 0;
   text-decoration: underline;
 }
@@ -1383,27 +1525,63 @@
 
 .botany-modal-footer {
   text-align: center;
-  margin-top: 1.25rem;
-  font-size: 0.82rem;
+  margin-top: 1rem;
+  font-size: 0.78rem;
   color: var(--text-secondary);
+}
+
+.botany-modal-footer.compact {
+  margin-top: 0.75rem;
+  font-size: 0.76rem;
+}
+
+/* Scorecard Action Bar */
+.scorecard-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.15rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.submission-saved-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.74rem;
+  font-family: var(--font-mono);
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+}
+
+.scorecard-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
 }
 
 /* Student Modal Form & Global Inputs */
 .botany-modal-form {
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
+  gap: 0.75rem;
 }
 
 .botany-form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.25rem;
   text-align: left;
 }
 
 .botany-form-label {
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   font-weight: 700;
   color: var(--text-secondary);
   letter-spacing: 0.02em;

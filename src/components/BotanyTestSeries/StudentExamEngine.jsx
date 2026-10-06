@@ -1,17 +1,22 @@
 import { useState, useEffect } from 'react';
 import { 
   Clock, AlertTriangle, ArrowLeft, ArrowRight, Bookmark, 
-  RotateCcw, Award, Check, X, HelpCircle, BookOpen, LayoutGrid 
+  RotateCcw, Award, Check, X, HelpCircle, BookOpen, LayoutGrid, CheckCircle2 
 } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { saveCbtSubmission } from '../../utils/botanyFirestoreService';
 import './BotanySeries.css';
 
 export default function StudentExamEngine({ testData, questions = [], onClose }) {
+  const { currentUser, userProfile } = useAuth();
+
   // Test state
   const [currentIdx, setCurrentIdx] = useState(0);
   const [userAnswers, setUserAnswers] = useState({}); // { [qId]: 'A' | 'B' | 'C' | 'D' }
   const [markedForReview, setMarkedForReview] = useState({}); // { [qId]: true }
   const [secondsRemaining, setSecondsRemaining] = useState((testData?.durationMinutes || 60) * 60);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submissionId, setSubmissionId] = useState(null);
   const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
   const [showMobilePalette, setShowMobilePalette] = useState(false);
 
@@ -65,9 +70,61 @@ export default function StudentExamEngine({ testData, questions = [], onClose })
     }));
   }
 
-  function handleSubmitTest() {
+  async function handleSubmitTest() {
     setShowConfirmSubmit(false);
     setIsSubmitted(true);
+
+    // Compute evaluation results
+    let cCount = 0;
+    let iCount = 0;
+    let uCount = 0;
+
+    questions.forEach(q => {
+      const selected = userAnswers[q.id];
+      if (!selected) {
+        uCount++;
+      } else if (selected === q.correctOption) {
+        cCount++;
+      } else {
+        iCount++;
+      }
+    });
+
+    const calculatedScore = (cCount * 1) - (iCount * 0.25);
+    const calculatedAccuracy = (cCount + iCount) > 0 ? Math.round((cCount / (cCount + iCount)) * 100) : 0;
+
+    // Save submission to Firestore
+    try {
+      const saved = await saveCbtSubmission({
+        userId: currentUser?.uid || 'guest_candidate',
+        userEmail: currentUser?.email || 'guest@nexliftech.com',
+        userName: currentUser?.displayName || userProfile?.displayName || 'Candidate',
+        testId: testData?.id || testData?.testNumber || 'diagnostic_demo',
+        testTitle: testData?.title || 'Botany Diagnostic Test',
+        unitCovered: testData?.unitCovered || 'All Units',
+        totalQuestions: questions.length,
+        correctCount: cCount,
+        incorrectCount: iCount,
+        unattemptedCount: uCount,
+        score: calculatedScore,
+        accuracy: calculatedAccuracy,
+        timeTakenSeconds: ((testData?.durationMinutes || 60) * 60) - secondsRemaining
+      });
+      if (saved?.submissionId) {
+        setSubmissionId(saved.submissionId);
+      }
+    } catch (err) {
+      console.warn('Submission record error:', err);
+    }
+  }
+
+  function handleReattempt() {
+    setUserAnswers({});
+    setMarkedForReview({});
+    setCurrentIdx(0);
+    setSecondsRemaining((testData?.durationMinutes || 60) * 60);
+    setSubmissionId(null);
+    setIsSubmitted(false);
   }
 
   // Calculate score & statistics
@@ -318,6 +375,26 @@ export default function StudentExamEngine({ testData, questions = [], onClose })
                 <span className="metric-label">Unattempted</span>
                 <span className="metric-value">{unattemptedCount}</span>
                 <span className="metric-sub">0 marks</span>
+              </div>
+            </div>
+
+            {/* Scorecard Action Bar */}
+            <div className="scorecard-actions-bar">
+              {submissionId && (
+                <div className="submission-saved-tag">
+                  <CheckCircle2 size={14} />
+                  <span>Submission Recorded: <strong>{submissionId}</strong></span>
+                </div>
+              )}
+              <div className="scorecard-btn-group">
+                <button type="button" className="btn btn-secondary btn-sm" onClick={handleReattempt}>
+                  <RotateCcw size={13} />
+                  <span>Re-attempt Test</span>
+                </button>
+                <button type="button" className="btn btn-primary btn-sm" onClick={onClose}>
+                  <ArrowLeft size={13} />
+                  <span>Back to Portal</span>
+                </button>
               </div>
             </div>
           </div>

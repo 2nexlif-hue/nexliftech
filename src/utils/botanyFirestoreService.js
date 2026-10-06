@@ -6,6 +6,7 @@ import {
   getDocs, 
   query, 
   orderBy, 
+  where,
   deleteDoc 
 } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -532,4 +533,46 @@ export async function commitAllSeedBanksToFirestore(userEmail = 'admin') {
     results.push(res);
   }
   return results;
+}
+
+/**
+ * Fetch active subscriptions for a given student
+ */
+export async function getUserBotanySubscriptions(userId) {
+  if (!userId) return [];
+  try {
+    const q = query(collection(db, 'subscriptions'), where('userId', '==', userId));
+    const snap = await getDocs(q);
+    const subs = [];
+    snap.forEach((d) => {
+      const data = d.data();
+      if (data.status === 'active') {
+        subs.push(data);
+      }
+    });
+    return subs;
+  } catch (err) {
+    console.warn('Error fetching user subscriptions:', err?.message || err);
+    return [];
+  }
+}
+
+/**
+ * Saves completed CBT test submission and score to Firestore
+ */
+export async function saveCbtSubmission(submission) {
+  try {
+    const subId = `cbt_${submission.userId || 'anon'}_${Date.now()}`;
+    const payload = {
+      submissionId: subId,
+      ...submission,
+      savedAt: new Date().toISOString()
+    };
+    const docRef = doc(db, 'botany_cbt_submissions', subId);
+    await setDoc(docRef, payload);
+    return payload;
+  } catch (err) {
+    console.warn('Error saving CBT test submission:', err?.message || err);
+    return null;
+  }
 }
