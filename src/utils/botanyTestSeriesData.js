@@ -786,7 +786,6 @@ export const DEFAULT_SERIES_SETTINGS = {
   allowUnitWisePurchase: true,
   razorpayKey: 'rzp_live_TGUYt8AMIuHwLa',
   contactSupportEmail: 'admissions@nexliftech.space',
-  coupons: [
-    { code: 'EARLYBIRD', discountAmount: 300, validUntil: '2026-10-15', minOrder: 1000 }
-  ]
+  promoCodes: []
 };
+

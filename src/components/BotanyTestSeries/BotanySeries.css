@@ -1247,7 +1247,105 @@
   margin: 0;
 }
 
+/* --- BOTANY SEARCH HIGHLIGHT & STATUS --- */
+.botany-search-highlight {
+  background: rgba(245, 158, 11, 0.28);
+  color: inherit;
+  padding: 0.06em 0.2em;
+  border-radius: 3px;
+  font-weight: 700;
+  border-bottom: 2px solid #f59e0b;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.18);
+}
+
+[data-theme="cyber"] .botany-search-highlight {
+  background: rgba(0, 242, 254, 0.25);
+  border-bottom: 2px solid #00f2fe;
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.35);
+  color: #ffffff;
+}
+
+[data-theme="light"] .botany-search-highlight {
+  background: #fef08a;
+  border-bottom: 2px solid #ca8a04;
+  color: #0f172a;
+}
+
+.syllabus-search-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.65rem;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 6px;
+  font-size: 0.74rem;
+  color: var(--text-primary);
+  margin-top: 0.45rem;
+  width: fit-content;
+}
+
+.syllabus-search-status-badge .clear-search-btn {
+  background: transparent;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.syllabus-search-status-badge .clear-search-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.subunit-topic-box.is-matched {
+  border-color: rgba(245, 158, 11, 0.55);
+  background: rgba(245, 158, 11, 0.04);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.1);
+}
+
+[data-theme="cyber"] .subunit-topic-box.is-matched {
+  border-color: rgba(0, 242, 254, 0.55);
+  background: rgba(0, 242, 254, 0.05);
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.2);
+}
+
+.p-coupon-applied-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.65rem;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--success);
+  margin-bottom: 0.55rem;
+}
+
+.p-coupon-applied-pill .remove-coupon-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  transition: color var(--transition-fast);
+}
+
+.p-coupon-applied-pill .remove-coupon-btn:hover {
+  color: #ef4444;
+}
+
 /* --- 9. FEATURES & FAQ ----------------------------------------------- */
+
 
 .features-showcase-grid {
   display: grid;

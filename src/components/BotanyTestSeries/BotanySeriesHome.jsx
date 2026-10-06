@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   BookOpen, Calendar, CheckCircle2, Play, 
   ArrowRight, Tag, Sparkles, UserCheck, LogOut, ArrowLeft, Search, 
@@ -18,6 +18,7 @@ import {
 import { initiateRazorpayPayment } from '../../utils/razorpayService';
 import { printSubscriptionReceipt } from '../../utils/botanyEmailService';
 import { BOTANY_SEED_QUESTION_BANKS } from '../../utils/botanySeedQuestionBanks';
+import { searchSyllabusAdvanced, HighlightMatch } from '../../utils/botanySearch';
 import StudentAuthModal from './StudentAuthModal';
 import StudentExamEngine from './StudentExamEngine';
 import LogoSVG from '../Logo';
@@ -278,13 +279,63 @@ export default function BotanySeriesHome() {
   function applyCoupon() {
     const code = couponCode.trim().toUpperCase();
     if (!code) return;
-    if (code === 'EARLYBIRD') {
-      setDiscountApplied(300);
-      setCouponMessage('🎉 Coupon EARLYBIRD applied! ₹300 discount unlocked.');
-    } else {
-      setCouponMessage('❌ Invalid or expired coupon code.');
+
+    const availablePromos = settings?.promoCodes || [];
+    const found = availablePromos.find(p => (p.code || '').trim().toUpperCase() === code);
+
+    if (!found) {
+      setDiscountApplied(0);
+      setCouponMessage(`❌ Promo code "${code}" is invalid.`);
+      return;
     }
+
+    if (found.isActive === false) {
+      setDiscountApplied(0);
+      setCouponMessage(`❌ Promo code "${code}" is currently inactive.`);
+      return;
+    }
+
+    if (found.validUntil) {
+      const expiry = new Date(found.validUntil);
+      expiry.setHours(23, 59, 59, 999);
+      if (expiry < new Date()) {
+        setDiscountApplied(0);
+        setCouponMessage(`❌ Promo code "${code}" expired on ${found.validUntil}.`);
+        return;
+      }
+    }
+
+    const currentBase = settings?.fullSeriesPrice || 1499;
+    if (found.minOrder && currentBase < Number(found.minOrder)) {
+      setDiscountApplied(0);
+      setCouponMessage(`❌ Minimum order value of ₹${found.minOrder} required for code "${code}".`);
+      return;
+    }
+
+    let discount = 0;
+    if (found.discountType === 'percentage' || found.type === 'percentage') {
+      const pct = Math.min(100, Math.max(1, Number(found.discountValue || found.value || 10)));
+      discount = Math.round((currentBase * pct) / 100);
+    } else {
+      discount = Math.min(currentBase - 1, Number(found.discountValue || found.value || 0));
+    }
+
+    if (discount <= 0) {
+      setDiscountApplied(0);
+      setCouponMessage('❌ Could not calculate valid discount.');
+      return;
+    }
+
+    setDiscountApplied(discount);
+    setCouponMessage(`🎉 Promo code "${found.code.toUpperCase()}" applied! ₹${discount} discount unlocked.`);
   }
+
+  function removeCoupon() {
+    setDiscountApplied(0);
+    setCouponCode('');
+    setCouponMessage('');
+  }
+
 
   // Access validation: check if candidate has permission for a given test
   const hasFullAccess = Boolean(
@@ -446,6 +497,7 @@ export default function BotanySeriesHome() {
       amountInINR: finalAmount,
       user,
       razorpayKeyId: settings?.razorpayKey,
+      appliedCoupon: discountApplied > 0 ? { code: couponCode, discount: discountApplied } : null,
       onSuccess: async (subRecord) => {
         setLatestSubscriptionRecord(subRecord);
         setEnrollSuccessMessage(`Enrollment confirmed! Subscription ID: ${subRecord.subscriptionId}. Your official access credentials have been activated.`);
@@ -498,16 +550,20 @@ export default function BotanySeriesHome() {
     );
   });
 
-  // Filtered Syllabus
-  const filteredSyllabus = syllabus.filter(u => {
-    if (!syllabusSearch.trim()) return true;
-    const q = syllabusSearch.toLowerCase();
-    return (
-      u.title?.toLowerCase().includes(q) ||
-      u.shortTitle?.toLowerCase().includes(q) ||
-      u.subunits?.some(s => s.title.toLowerCase().includes(q) || s.description.toLowerCase().includes(q))
-    );
-  });
+  // Advanced Fuzzy & Semantic Syllabus Search
+  const { results: filteredSyllabus, matchingUnitIds, totalMatches: syllabusMatchCount } = useMemo(() => {
+    return searchSyllabusAdvanced(syllabus, syllabusSearch);
+  }, [syllabus, syllabusSearch]);
+
+  // Auto-expand units when searching
+  useEffect(() => {
+    if (syllabusSearch.trim() && matchingUnitIds && matchingUnitIds.size > 0) {
+      const openObj = {};
+      matchingUnitIds.forEach(id => { openObj[id] = true; });
+      setActiveUnitAccordion(openObj);
+    }
+  }, [syllabusSearch, matchingUnitIds]);
+
 
   if (loading) {
     return (
@@ -1043,19 +1099,29 @@ export default function BotanySeriesHome() {
                     <span className="p-validity-note">Valid until PSC Exam 2026 • Unlimited Re-attempts</span>
                   </div>
 
-                  {/* Coupon Applicator */}
-                  <div className="p-coupon-bar">
-                    <input 
-                      type="text" 
-                      className="p-coupon-input"
-                      placeholder="Coupon code (e.g. EARLYBIRD)"
-                      value={couponCode}
-                      onChange={(e) => setCouponCode(e.target.value)}
-                    />
-                    <button type="button" className="p-coupon-btn" onClick={applyCoupon}>
-                      Apply
-                    </button>
-                  </div>
+                  {/* Promo Code Applicator */}
+                  {discountApplied > 0 ? (
+                    <div className="p-coupon-applied-pill">
+                      <span>🏷️ Code <strong>{couponCode}</strong> applied (₹{discountApplied} OFF)</span>
+                      <button type="button" className="remove-coupon-btn" onClick={removeCoupon}>
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="p-coupon-bar">
+                      <input 
+                        type="text" 
+                        className="p-coupon-input"
+                        placeholder="Enter promo code..."
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && applyCoupon()}
+                      />
+                      <button type="button" className="p-coupon-btn" onClick={applyCoupon}>
+                        Apply
+                      </button>
+                    </div>
+                  )}
                   {couponMessage && (
                     <div className={`p-coupon-msg ${discountApplied > 0 ? 'success' : 'error'}`}>
                       {couponMessage}
@@ -1246,52 +1312,91 @@ export default function BotanySeriesHome() {
                     <Search size={14} className="search-icon" />
                     <input 
                       type="text" 
-                      placeholder="Search topics (e.g. TMV, Alexopolous, Bryophyta, APG-IV, Operon, CRISPR, ANOVA)..."
+                      placeholder="Search topics (e.g. sphae, TMV, Alexopolous, Bryophyta, APG-IV, Operon, CRISPR, ANOVA)..."
                       value={syllabusSearch}
                       onChange={(e) => setSyllabusSearch(e.target.value)}
                     />
+                    {syllabusSearch && (
+                      <button 
+                        type="button" 
+                        onClick={() => setSyllabusSearch('')}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex' }}
+                        title="Clear search"
+                      >
+                        <X size={14} />
+                      </button>
+                    )}
                   </div>
+                  {syllabusSearch.trim() && (
+                    <div className="syllabus-search-status-badge">
+                      <Sparkles size={12} style={{ color: '#f59e0b', flexShrink: 0 }} />
+                      <span>Matching <strong>{filteredSyllabus.length} Unit{filteredSyllabus.length !== 1 ? 's' : ''}</strong> (Fuzzy &amp; Semantic search active)</span>
+                      <button type="button" className="clear-search-btn" onClick={() => setSyllabusSearch('')}>
+                        Clear
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
               <div className="syllabus-accordions-list">
-                {filteredSyllabus.map(unit => {
-                  const isOpen = !!activeUnitAccordion[unit.unitId];
-                  const subunitCount = unit.subunits?.length || 0;
-                  return (
-                    <div key={unit.unitId} className={`syllabus-unit-accordion ${isOpen ? 'open' : ''}`}>
-                      <button 
-                        type="button" 
-                        className="unit-accordion-trigger"
-                        onClick={() => setActiveUnitAccordion(prev => ({ ...prev, [unit.unitId]: !prev[unit.unitId] }))}
-                      >
-                        <div className="unit-trigger-left">
-                          <span className="unit-number-pill">U{unit.unitNumber}</span>
-                          <span className="unit-title-text">{unit.title}</span>
-                        </div>
-                        <div className="unit-trigger-right">
-                          {subunitCount > 0 && (
-                            <span className="unit-subunit-count">{subunitCount} Subunits</span>
-                          )}
-                          {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                        </div>
-                      </button>
-
-                      {isOpen && (
-                        <div className="unit-accordion-body">
-                          <div className="subunits-grid">
-                            {unit.subunits?.map((sub, sIdx) => (
-                              <div key={sub.id || sIdx} className="subunit-topic-box">
-                                <h4>{sub.title}</h4>
-                                <p>{sub.description}</p>
-                              </div>
-                            ))}
+                {filteredSyllabus.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '2.5rem 1rem', color: 'var(--text-muted)' }}>
+                    <p style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.4rem', color: 'var(--text-primary)' }}>
+                      No syllabus topics found matching "{syllabusSearch}".
+                    </p>
+                    <p style={{ fontSize: '0.78rem' }}>
+                      Try broad botanical terms like <em>Algae, Bryophyta, Sphaerocarpales, CRISPR, TMV, Operon, Photosynthesis</em>.
+                    </p>
+                    <button type="button" className="btn btn-secondary btn-sm" style={{ marginTop: '0.75rem' }} onClick={() => setSyllabusSearch('')}>
+                      Reset Search
+                    </button>
+                  </div>
+                ) : (
+                  filteredSyllabus.map(unit => {
+                    const isOpen = !!activeUnitAccordion[unit.unitId];
+                    const subunitCount = unit.subunits?.length || 0;
+                    return (
+                      <div key={unit.unitId} className={`syllabus-unit-accordion ${isOpen ? 'open' : ''}`}>
+                        <button 
+                          type="button" 
+                          className="unit-accordion-trigger"
+                          onClick={() => setActiveUnitAccordion(prev => ({ ...prev, [unit.unitId]: !prev[unit.unitId] }))}
+                        >
+                          <div className="unit-trigger-left">
+                            <span className="unit-number-pill">U{unit.unitNumber}</span>
+                            <span className="unit-title-text">
+                              <HighlightMatch text={unit.title} query={syllabusSearch} matchedTerms={unit.matchedTerms} />
+                            </span>
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                          <div className="unit-trigger-right">
+                            {subunitCount > 0 && (
+                              <span className="unit-subunit-count">{subunitCount} Subunits</span>
+                            )}
+                            {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                          </div>
+                        </button>
+
+                        {isOpen && (
+                          <div className="unit-accordion-body">
+                            <div className="subunits-grid">
+                              {unit.subunits?.map((sub, sIdx) => (
+                                <div key={sub.id || sIdx} className={`subunit-topic-box ${sub.isMatched ? 'is-matched' : ''}`}>
+                                  <h4>
+                                    <HighlightMatch text={sub.title} query={syllabusSearch} matchedTerms={sub.matchedTerms} />
+                                  </h4>
+                                  <p>
+                                    <HighlightMatch text={sub.description} query={syllabusSearch} matchedTerms={sub.matchedTerms} />
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
           )}

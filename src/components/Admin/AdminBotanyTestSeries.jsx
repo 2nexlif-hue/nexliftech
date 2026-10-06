@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   GraduationCap, BookOpen, Calendar, FileSpreadsheet, Settings, Users, 
   Download, Upload, RefreshCw, CheckCircle, AlertCircle, Clock, Eye, 
-  RotateCcw, ChevronDown, ChevronUp, Save, ArrowRight, Sparkles, Layers, CheckCircle2 
+  RotateCcw, ChevronDown, ChevronUp, Save, ArrowRight, Sparkles, Layers, CheckCircle2,
+  Tag, Trash2, Plus, Edit3, X
 } from 'lucide-react';
 import { 
   getBotanySettings, 
@@ -25,6 +26,8 @@ import {
   parseExcelBuffer, 
   exportQuestionsToExcel 
 } from '../../utils/botanyExcelEngine';
+import { computeQuestionBankDiff } from '../../utils/botanyDiff';
+import { searchSyllabusAdvanced, HighlightMatch } from '../../utils/botanySearch';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase';
 import './AdminBotanyTestSeries.css';
@@ -60,6 +63,22 @@ export default function AdminBotanyTestSeries({ currentUser }) {
   const [isDragging, setIsDragging] = useState(false);
   const dragCounter = useRef(0);
   const fileInputRef = useRef(null);
+
+  // Question Diff state
+  const [diffTargetBank, setDiffTargetBank] = useState(null);
+  const [diffFilterTab, setDiffFilterTab] = useState('all'); // 'all' | 'modified' | 'added' | 'deleted' | 'unchanged'
+
+  // Promo Codes State
+  const [newPromo, setNewPromo] = useState({ 
+    code: '', 
+    discountType: 'fixed', 
+    discountValue: 300, 
+    description: '', 
+    validUntil: '', 
+    minOrder: 0, 
+    isActive: true 
+  });
+  const [isAddingPromo, setIsAddingPromo] = useState(false);
 
   // Syllabus UI
   const [expandedUnits, setExpandedUnits] = useState({ unit_1: true });
@@ -184,6 +203,129 @@ export default function AdminBotanyTestSeries({ currentUser }) {
       setSaving(false);
     }
   }
+
+  // Promo code management handlers
+  async function handleAddPromoCode(e) {
+    e.preventDefault();
+    const cleanCode = (newPromo.code || '').trim().toUpperCase();
+    if (!cleanCode) {
+      showToast('error', 'Promo code name cannot be empty.');
+      return;
+    }
+
+    const currentPromos = settings?.promoCodes || [];
+    if (currentPromos.some(p => (p.code || '').toUpperCase() === cleanCode)) {
+      showToast('error', `Promo code "${cleanCode}" already exists.`);
+      return;
+    }
+
+    const promoItem = {
+      code: cleanCode,
+      discountType: newPromo.discountType || 'fixed',
+      discountValue: Number(newPromo.discountValue) || 100,
+      description: newPromo.description || '',
+      validUntil: newPromo.validUntil || '',
+      minOrder: Number(newPromo.minOrder) || 0,
+      isActive: true,
+      createdAt: new Date().toISOString()
+    };
+
+    const updatedPromos = [...currentPromos, promoItem];
+    const updatedSettings = { ...settings, promoCodes: updatedPromos };
+    setSettings(updatedSettings);
+
+    try {
+      await saveBotanySettings(updatedSettings, currentUser?.email || 'admin');
+      showToast('success', `Promo code "${cleanCode}" created successfully.`);
+      setNewPromo({ code: '', discountType: 'fixed', discountValue: 300, description: '', validUntil: '', minOrder: 0, isActive: true });
+      setIsAddingPromo(false);
+    } catch (err) {
+      console.error('Error saving promo code:', err);
+      showToast('error', 'Failed to save promo code.');
+    }
+  }
+
+  async function handleTogglePromoActive(promoCode) {
+    const currentPromos = settings?.promoCodes || [];
+    const updatedPromos = currentPromos.map(p => {
+      if ((p.code || '').toUpperCase() === promoCode.toUpperCase()) {
+        return { ...p, isActive: !p.isActive };
+      }
+      return p;
+    });
+
+    const updatedSettings = { ...settings, promoCodes: updatedPromos };
+    setSettings(updatedSettings);
+
+    try {
+      await saveBotanySettings(updatedSettings, currentUser?.email || 'admin');
+      showToast('success', `Promo code "${promoCode}" updated.`);
+    } catch (err) {
+      console.error('Error toggling promo code:', err);
+      showToast('error', 'Failed to update promo code status.');
+    }
+  }
+
+  async function handleDeletePromoCode(promoCode) {
+    if (!window.confirm(`Delete promo code "${promoCode}"?`)) return;
+
+    const currentPromos = settings?.promoCodes || [];
+    const updatedPromos = currentPromos.filter(p => (p.code || '').toUpperCase() !== promoCode.toUpperCase());
+
+    const updatedSettings = { ...settings, promoCodes: updatedPromos };
+    setSettings(updatedSettings);
+
+    try {
+      await saveBotanySettings(updatedSettings, currentUser?.email || 'admin');
+      showToast('success', `Promo code "${promoCode}" deleted.`);
+    } catch (err) {
+      console.error('Error deleting promo code:', err);
+      showToast('error', 'Failed to delete promo code.');
+    }
+  }
+
+  // Fetch active bank for diff whenever preview unit changes
+  useEffect(() => {
+    let isCancelled = false;
+    async function fetchDiffBank() {
+      if (!uploadPreview) {
+        setDiffTargetBank(null);
+        return;
+      }
+      const targetUId = uploadPreview.detectedUnitId || selectedUnitId;
+      if (targetUId === selectedUnitId && unitActiveData) {
+        setDiffTargetBank(unitActiveData);
+        return;
+      }
+      try {
+        const bank = await getUnitQuestions(targetUId);
+        if (!isCancelled) setDiffTargetBank(bank);
+      } catch (e) {
+        if (!isCancelled) setDiffTargetBank(null);
+      }
+    }
+    fetchDiffBank();
+    return () => { isCancelled = true; };
+  }, [uploadPreview?.detectedUnitId, uploadPreview?.fileName, selectedUnitId, unitActiveData]);
+
+  // Compute question bank diff
+  const questionDiff = useMemo(() => {
+    if (!uploadPreview || !uploadPreview.validQuestions) return null;
+    return computeQuestionBankDiff(
+      diffTargetBank?.questions || [],
+      uploadPreview.validQuestions || [],
+      diffTargetBank?.version || 1
+    );
+  }, [uploadPreview, diffTargetBank]);
+
+  // When questionDiff changes, if there are modified questions, auto-focus to modified tab or all
+  useEffect(() => {
+    if (questionDiff?.modifiedCount > 0) {
+      setDiffFilterTab('modified');
+    } else {
+      setDiffFilterTab('all');
+    }
+  }, [questionDiff?.modifiedCount, uploadPreview?.fileName]);
 
   // Unified Excel File Processing (Single or Multi-file up to all 10 units)
   async function processFiles(rawFiles) {
@@ -536,15 +678,19 @@ export default function AdminBotanyTestSeries({ currentUser }) {
     setExpandedUnits(prev => ({ ...prev, [unitId]: !prev[unitId] }));
   }
 
-  // Filtered syllabus
-  const filteredSyllabus = syllabus.filter(u => {
-    if (!syllabusSearch.trim()) return true;
-    const query = syllabusSearch.toLowerCase();
-    return (
-      u.title.toLowerCase().includes(query) ||
-      u.subunits?.some(s => s.title.toLowerCase().includes(query) || s.description.toLowerCase().includes(query))
-    );
-  });
+  // Advanced Fuzzy & Semantic Syllabus Search in Admin
+  const { results: filteredSyllabus, matchingUnitIds: adminMatchingUnits } = useMemo(() => {
+    return searchSyllabusAdvanced(syllabus, syllabusSearch);
+  }, [syllabus, syllabusSearch]);
+
+  // Auto-expand matched units in admin syllabus
+  useEffect(() => {
+    if (syllabusSearch.trim() && adminMatchingUnits && adminMatchingUnits.size > 0) {
+      const openObj = {};
+      adminMatchingUnits.forEach(id => { openObj[id] = true; });
+      setExpandedUnits(openObj);
+    }
+  }, [syllabusSearch, adminMatchingUnits]);
 
   // Filtered schedule
   const filteredSchedule = schedule.filter(t => {
@@ -827,7 +973,9 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                   >
                     <div className="syllabus-unit-trigger-left">
                       <span className="unit-number-badge">U{unit.unitNumber}</span>
-                      <span>Unit-{unit.unitNumber}: {unit.title}</span>
+                      <span>
+                        Unit-{unit.unitNumber}: <HighlightMatch text={unit.title} query={syllabusSearch} matchedTerms={unit.matchedTerms} />
+                      </span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                       <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
@@ -841,9 +989,13 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                     <div className="syllabus-unit-body">
                       <div className="subunits-grid">
                         {unit.subunits?.map((sub) => (
-                          <div key={sub.id} className="subunit-card">
-                            <div className="subunit-title">{sub.title}</div>
-                            <p className="subunit-desc">{sub.description}</p>
+                          <div key={sub.id} className={`subunit-card ${sub.isMatched ? 'is-matched' : ''}`}>
+                            <div className="subunit-title">
+                              <HighlightMatch text={sub.title} query={syllabusSearch} matchedTerms={sub.matchedTerms} />
+                            </div>
+                            <p className="subunit-desc">
+                              <HighlightMatch text={sub.description} query={syllabusSearch} matchedTerms={sub.matchedTerms} />
+                            </p>
                           </div>
                         ))}
                       </div>
@@ -1368,108 +1520,275 @@ export default function AdminBotanyTestSeries({ currentUser }) {
 
       {/* SUBTAB 5: SETTINGS & PRICING */}
       {subTab === 'settings' && (
-        <form onSubmit={handleSaveSettings} className="botany-card">
-          <div className="botany-card-header">
-            <div>
-              <h3>Test Series Visibility, Pricing &amp; Razorpay</h3>
-              <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Configure homepage spotlight, countdown expiry, pricing tiers, and coupons.
-              </p>
-            </div>
-            <button type="submit" className="btn btn-primary btn-sm" disabled={saving}>
-              <Save size={14} /> <span>{saving ? 'Saving...' : 'Save Settings'}</span>
-            </button>
-          </div>
-
-          <div className="settings-form-grid">
-            <div className="toggle-switch-row">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <form onSubmit={handleSaveSettings} className="botany-card">
+            <div className="botany-card-header">
               <div>
-                <div className="toggle-switch-label">Prominent Placement</div>
-                <div className="toggle-switch-sub">Display spotlight card and top notification banner on site</div>
+                <h3>Test Series Visibility, Pricing &amp; Razorpay</h3>
+                <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                  Configure homepage spotlight, countdown expiry, pricing tiers, and Razorpay payment gateway credentials.
+                </p>
               </div>
-              <input 
-                type="checkbox"
-                checked={!!settings?.isProminent}
-                onChange={(e) => setSettings({ ...settings, isProminent: e.target.checked })}
-                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-              />
+              <button type="submit" className="btn btn-primary btn-sm" disabled={saving}>
+                <Save size={14} /> <span>{saving ? 'Saving...' : 'Save Settings'}</span>
+              </button>
             </div>
 
-            <div className="admin-form-group">
-              <label>Prominent Spotlight Until (Date)</label>
-              <input 
-                type="date"
-                value={settings?.prominentUntil || ''}
-                onChange={(e) => setSettings({ ...settings, prominentUntil: e.target.value })}
-              />
+            <div className="settings-form-grid">
+              <div className="toggle-switch-row">
+                <div>
+                  <div className="toggle-switch-label">Prominent Placement</div>
+                  <div className="toggle-switch-sub">Display spotlight card and top notification banner on site</div>
+                </div>
+                <input 
+                  type="checkbox"
+                  checked={!!settings?.isProminent}
+                  onChange={(e) => setSettings({ ...settings, isProminent: e.target.checked })}
+                  style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label>Prominent Spotlight Until (Date)</label>
+                <input 
+                  type="date"
+                  value={settings?.prominentUntil || ''}
+                  onChange={(e) => setSettings({ ...settings, prominentUntil: e.target.value })}
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label>Full Series Offer Price (₹ INR)</label>
+                <input 
+                  type="number"
+                  value={settings?.fullSeriesPrice || 1499}
+                  onChange={(e) => setSettings({ ...settings, fullSeriesPrice: Number(e.target.value) })}
+                  required
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label>Original MRP (₹ INR - for strikethrough)</label>
+                <input 
+                  type="number"
+                  value={settings?.originalPrice || 2499}
+                  onChange={(e) => setSettings({ ...settings, originalPrice: Number(e.target.value) })}
+                  required
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label>Unit-Wise Single Test Price (₹ INR)</label>
+                <input 
+                  type="number"
+                  value={settings?.unitWisePrice || 199}
+                  onChange={(e) => setSettings({ ...settings, unitWisePrice: Number(e.target.value) })}
+                  required
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label>Razorpay Key ID (Live / Test)</label>
+                <input 
+                  type="text"
+                  placeholder="rzp_live_TGUYt8AMIuHwLa"
+                  value={settings?.razorpayKey || ''}
+                  onChange={(e) => setSettings({ ...settings, razorpayKey: e.target.value })}
+                />
+                <span style={{ fontSize: '0.74rem', color: '#10b981' }}>
+                  ✓ Approved Domain: <strong>https://nexliftech.space/</strong> (Live Key: <code>rzp_live_TGUYt8AMIuHwLa</code>)
+                </span>
+              </div>
+
+              <div className="admin-form-group">
+                <label>Confirmation Email Dispatcher / Support Desk</label>
+                <input 
+                  type="email"
+                  placeholder="admissions@nexliftech.space"
+                  value={settings?.contactSupportEmail || 'admissions@nexliftech.space'}
+                  onChange={(e) => setSettings({ ...settings, contactSupportEmail: e.target.value })}
+                />
+                <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                  Official email address on tax receipts and transactional confirmation mailings.
+                </span>
+              </div>
+
+              <div className="admin-form-group" style={{ gridColumn: 'span 2' }}>
+                <label>Banner Highlight Message</label>
+                <input 
+                  type="text"
+                  value={settings?.subtitle || ''}
+                  onChange={(e) => setSettings({ ...settings, subtitle: e.target.value })}
+                />
+              </div>
+            </div>
+          </form>
+
+          {/* Dedicated Promo Codes & Discount Coupons Manager */}
+          <div className="botany-card">
+            <div className="botany-card-header">
+              <div>
+                <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Tag size={17} style={{ color: 'var(--accent-primary)' }} />
+                  <span>Discount &amp; Promo Codes Manager</span>
+                </h3>
+                <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                  Create and manage student discount codes saved directly in database. No hardcoded codes.
+                </p>
+              </div>
+              <button 
+                type="button" 
+                className="btn btn-secondary btn-sm"
+                onClick={() => setIsAddingPromo(!isAddingPromo)}
+              >
+                {isAddingPromo ? <X size={14} /> : <Plus size={14} />}
+                <span>{isAddingPromo ? 'Cancel' : 'Create Promo Code'}</span>
+              </button>
             </div>
 
-            <div className="admin-form-group">
-              <label>Full Series Offer Price (₹ INR)</label>
-              <input 
-                type="number"
-                value={settings?.fullSeriesPrice || 1499}
-                onChange={(e) => setSettings({ ...settings, fullSeriesPrice: Number(e.target.value) })}
-                required
-              />
-            </div>
+            {/* Create Promo Code Form Modal / Box */}
+            {isAddingPromo && (
+              <form onSubmit={handleAddPromoCode} className="promo-form-box">
+                <h4 style={{ margin: '0 0 0.85rem 0', fontSize: '0.9rem', color: 'var(--text-primary)' }}>
+                  Create New Discount Promo Code
+                </h4>
+                <div className="promo-form-grid">
+                  <div className="admin-form-group">
+                    <label>Code (Uppercase) *</label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. BOTANY20, PSC2026"
+                      value={newPromo.code}
+                      onChange={(e) => setNewPromo({ ...newPromo, code: e.target.value.toUpperCase() })}
+                      required
+                    />
+                  </div>
 
-            <div className="admin-form-group">
-              <label>Original MRP (₹ INR - for strikethrough)</label>
-              <input 
-                type="number"
-                value={settings?.originalPrice || 2499}
-                onChange={(e) => setSettings({ ...settings, originalPrice: Number(e.target.value) })}
-                required
-              />
-            </div>
+                  <div className="admin-form-group">
+                    <label>Discount Type *</label>
+                    <select
+                      value={newPromo.discountType}
+                      onChange={(e) => setNewPromo({ ...newPromo, discountType: e.target.value })}
+                    >
+                      <option value="fixed">Flat Rupee (₹ OFF)</option>
+                      <option value="percentage">Percentage (% OFF)</option>
+                    </select>
+                  </div>
 
-            <div className="admin-form-group">
-              <label>Unit-Wise Single Test Price (₹ INR)</label>
-              <input 
-                type="number"
-                value={settings?.unitWisePrice || 199}
-                onChange={(e) => setSettings({ ...settings, unitWisePrice: Number(e.target.value) })}
-                required
-              />
-            </div>
+                  <div className="admin-form-group">
+                    <label>Discount Value *</label>
+                    <input 
+                      type="number"
+                      placeholder={newPromo.discountType === 'percentage' ? 'e.g. 20' : 'e.g. 300'}
+                      value={newPromo.discountValue}
+                      onChange={(e) => setNewPromo({ ...newPromo, discountValue: Number(e.target.value) })}
+                      required
+                      min={1}
+                      max={newPromo.discountType === 'percentage' ? 100 : 5000}
+                    />
+                  </div>
 
-            <div className="admin-form-group">
-              <label>Razorpay Key ID (Live / Test)</label>
-              <input 
-                type="text"
-                placeholder="rzp_live_TGUYt8AMIuHwLa"
-                value={settings?.razorpayKey || ''}
-                onChange={(e) => setSettings({ ...settings, razorpayKey: e.target.value })}
-              />
-              <span style={{ fontSize: '0.74rem', color: '#10b981' }}>
-                ✓ Approved Domain: <strong>https://nexliftech.space/</strong> (Live Key: <code>rzp_live_TGUYt8AMIuHwLa</code>)
-              </span>
-            </div>
+                  <div className="admin-form-group">
+                    <label>Min. Order Value (₹ INR)</label>
+                    <input 
+                      type="number"
+                      placeholder="0 (no minimum)"
+                      value={newPromo.minOrder || ''}
+                      onChange={(e) => setNewPromo({ ...newPromo, minOrder: Number(e.target.value) })}
+                    />
+                  </div>
 
-            <div className="admin-form-group">
-              <label>Confirmation Email Dispatcher / Support Desk</label>
-              <input 
-                type="email"
-                placeholder="admissions@nexliftech.space"
-                value={settings?.contactSupportEmail || 'admissions@nexliftech.space'}
-                onChange={(e) => setSettings({ ...settings, contactSupportEmail: e.target.value })}
-              />
-              <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
-                Official email address on tax receipts and transactional confirmation mailings.
-              </span>
-            </div>
+                  <div className="admin-form-group">
+                    <label>Valid Until (Optional Expiry)</label>
+                    <input 
+                      type="date"
+                      value={newPromo.validUntil || ''}
+                      onChange={(e) => setNewPromo({ ...newPromo, validUntil: e.target.value })}
+                    />
+                  </div>
 
-            <div className="admin-form-group" style={{ gridColumn: 'span 2' }}>
-              <label>Banner Highlight Message</label>
-              <input 
-                type="text"
-                value={settings?.subtitle || ''}
-                onChange={(e) => setSettings({ ...settings, subtitle: e.target.value })}
-              />
-            </div>
+                  <div className="admin-form-group" style={{ gridColumn: 'span 2' }}>
+                    <label>Description / Internal Note</label>
+                    <input 
+                      type="text"
+                      placeholder="e.g. Early Aspirants Launch Discount (First 100 Students)"
+                      value={newPromo.description || ''}
+                      onChange={(e) => setNewPromo({ ...newPromo, description: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.5rem' }}>
+                  <button type="button" className="btn btn-secondary btn-sm" onClick={() => setIsAddingPromo(false)}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-primary btn-sm">
+                    <Save size={13} />
+                    <span>Save Promo Code</span>
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* Configured Promo Codes */}
+            {(!settings?.promoCodes || settings.promoCodes.length === 0) ? (
+              <div style={{ textAlign: 'center', padding: '1.75rem', background: 'var(--bg-elevated)', borderRadius: '8px', border: '1px dashed var(--border-light)', color: 'var(--text-muted)', fontSize: '0.82rem' }}>
+                No active promo codes created yet. Click <strong>"Create Promo Code"</strong> above to set up candidate discounts.
+              </div>
+            ) : (
+              <div className="promo-cards-grid">
+                {settings.promoCodes.map((p, pIdx) => {
+                  const isExpired = p.validUntil && new Date(p.validUntil) < new Date();
+                  return (
+                    <div key={p.code || pIdx} className={`promo-card ${p.isActive !== false && !isExpired ? 'is-active' : ''}`}>
+                      <div className="promo-card-top">
+                        <span className="promo-code-pill">{p.code}</span>
+                        <span className="promo-discount-badge">
+                          {p.discountType === 'percentage' ? `${p.discountValue}% OFF` : `₹${p.discountValue} OFF`}
+                        </span>
+                      </div>
+
+                      {p.description && (
+                        <div className="promo-card-desc">{p.description}</div>
+                      )}
+
+                      <div className="promo-card-meta">
+                        {p.minOrder > 0 && <span>Min Order: ₹{p.minOrder}</span>}
+                        {p.validUntil ? (
+                          <span style={{ color: isExpired ? '#ef4444' : 'inherit' }}>
+                            {isExpired ? '⚠️ Expired: ' : 'Expires: '}{p.validUntil}
+                          </span>
+                        ) : (
+                          <span>No expiration date</span>
+                        )}
+                      </div>
+
+                      <div className="promo-card-actions">
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer', fontSize: '0.74rem', color: p.isActive !== false ? '#10b981' : 'var(--text-muted)' }}>
+                          <input 
+                            type="checkbox"
+                            checked={p.isActive !== false}
+                            onChange={() => handleTogglePromoActive(p.code)}
+                            style={{ cursor: 'pointer' }}
+                          />
+                          <span>{p.isActive !== false ? 'Active' : 'Disabled'}</span>
+                        </label>
+                        <button 
+                          type="button" 
+                          onClick={() => handleDeletePromoCode(p.code)}
+                          style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '0.2rem' }}
+                          title="Delete promo code"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        </form>
+        </div>
       )}
 
       {/* SUBTAB 6: SUBSCRIBERS */}
@@ -1635,7 +1954,33 @@ export default function AdminBotanyTestSeries({ currentUser }) {
             )}
 
             <div className="preview-modal-body">
-              {/* Stat summary */}
+              {/* Diff Version Transition & Upgrade Banner */}
+              {questionDiff && (
+                <div className="preview-version-upgrade-banner">
+                  <div className="diff-version-info">
+                    <Sparkles size={16} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
+                    <span>
+                      {questionDiff.hasExistingBank
+                        ? `Version Upgrade: Active v${questionDiff.existingVersion} (${questionDiff.totalExisting} MCQs) ➔ Target v${questionDiff.targetVersion} (${questionDiff.totalNew} MCQs)`
+                        : `Initial Release: v1 (${questionDiff.totalNew} MCQs)`}
+                    </span>
+                  </div>
+                  <div className="diff-stat-chips">
+                    {questionDiff.addedCount > 0 && (
+                      <span className="diff-chip added">+{questionDiff.addedCount} Added</span>
+                    )}
+                    {questionDiff.modifiedCount > 0 && (
+                      <span className="diff-chip modified">~{questionDiff.modifiedCount} Modified</span>
+                    )}
+                    {questionDiff.deletedCount > 0 && (
+                      <span className="diff-chip deleted">-{questionDiff.deletedCount} Deleted</span>
+                    )}
+                    <span className="diff-chip unchanged">={questionDiff.unchangedCount} Unchanged</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Stat summary bar */}
               <div className="preview-stat-bar">
                 <div className="preview-stat-item">
                   <span>Total Rows Detected:</span>
@@ -1655,65 +2000,195 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                 )}
               </div>
 
+              {/* Diff Filter Tabs */}
+              {questionDiff && questionDiff.hasExistingBank && (
+                <div className="diff-filter-tabs">
+                  <button
+                    type="button"
+                    className={`diff-filter-btn ${diffFilterTab === 'all' ? 'active' : ''}`}
+                    onClick={() => setDiffFilterTab('all')}
+                  >
+                    All Uploaded ({questionDiff.diffQuestions.length})
+                  </button>
+                  {questionDiff.modifiedCount > 0 && (
+                    <button
+                      type="button"
+                      className={`diff-filter-btn tab-modified ${diffFilterTab === 'modified' ? 'active' : ''}`}
+                      onClick={() => setDiffFilterTab('modified')}
+                    >
+                      ✏️ Modified ({questionDiff.modifiedCount})
+                    </button>
+                  )}
+                  {questionDiff.addedCount > 0 && (
+                    <button
+                      type="button"
+                      className={`diff-filter-btn tab-added ${diffFilterTab === 'added' ? 'active' : ''}`}
+                      onClick={() => setDiffFilterTab('added')}
+                    >
+                      ➕ Added ({questionDiff.addedCount})
+                    </button>
+                  )}
+                  {questionDiff.deletedCount > 0 && (
+                    <button
+                      type="button"
+                      className={`diff-filter-btn tab-deleted ${diffFilterTab === 'deleted' ? 'active' : ''}`}
+                      onClick={() => setDiffFilterTab('deleted')}
+                    >
+                      ➖ Deleted ({questionDiff.deletedCount})
+                    </button>
+                  )}
+                  {questionDiff.unchangedCount > 0 && (
+                    <button
+                      type="button"
+                      className={`diff-filter-btn ${diffFilterTab === 'unchanged' ? 'active' : ''}`}
+                      onClick={() => setDiffFilterTab('unchanged')}
+                    >
+                      = Unchanged ({questionDiff.unchangedCount})
+                    </button>
+                  )}
+                </div>
+              )}
+
               {/* Questions list */}
               <div className="preview-questions-list">
-                {uploadPreview.questions.map((q, idx) => (
-                  <div key={q.id || idx} className={`preview-q-card ${!q.isValid ? 'has-error' : ''}`}>
-                    <div className="preview-q-header">
-                      <span>Row {q.rowNumber} (Excel)</span>
-                      <span>Correct: <strong>Option {q.correctOption || 'None'}</strong></span>
-                    </div>
-
-                    <div className="preview-q-text">
-                      <strong>Q{idx + 1}.</strong> {q.question || <em style={{ color: '#ef4444' }}>Empty question statement</em>}
-                    </div>
-
-                    <div className="preview-options-grid">
-                      <div className={`preview-opt-item ${q.correctOption === 'A' ? 'is-correct' : ''}`}>
-                        <strong>A:</strong> <span>{q.optionA || '—'}</span>
+                {diffFilterTab === 'deleted' ? (
+                  questionDiff?.deletedQuestions?.map((dq, idx) => (
+                    <div key={dq.id || idx} className="preview-q-card is-deleted">
+                      <div className="preview-q-header">
+                        <span className="diff-badge badge-deleted">➖ Removed / Deleted</span>
+                        <span>Previous Slot: Q{dq.sNo || idx + 1} (in v{questionDiff.existingVersion})</span>
                       </div>
-                      <div className={`preview-opt-item ${q.correctOption === 'B' ? 'is-correct' : ''}`}>
-                        <strong>B:</strong> <span>{q.optionB || '—'}</span>
+                      <div className="preview-q-text" style={{ textDecoration: 'line-through', color: 'var(--text-muted)' }}>
+                        <strong>Q{dq.sNo || idx + 1}.</strong> {dq.question}
                       </div>
-                      <div className={`preview-opt-item ${q.correctOption === 'C' ? 'is-correct' : ''}`}>
-                        <strong>C:</strong> <span>{q.optionC || '—'}</span>
-                      </div>
-                      <div className={`preview-opt-item ${q.correctOption === 'D' ? 'is-correct' : ''}`}>
-                        <strong>D:</strong> <span>{q.optionD || '—'}</span>
-                      </div>
-                    </div>
-
-                    {/* Option analyses preview */}
-                    <div className="preview-analyses-box">
-                      <div style={{ marginBottom: '0.2rem' }}>
-                        <strong style={{ color: q.correctOption === 'A' ? '#10b981' : 'var(--text-secondary)' }}>Analysis A:</strong> {q.analysisA || '—'}
-                      </div>
-                      <div style={{ marginBottom: '0.2rem' }}>
-                        <strong style={{ color: q.correctOption === 'B' ? '#10b981' : 'var(--text-secondary)' }}>Analysis B:</strong> {q.analysisB || '—'}
-                      </div>
-                      <div style={{ marginBottom: '0.2rem' }}>
-                        <strong style={{ color: q.correctOption === 'C' ? '#10b981' : 'var(--text-secondary)' }}>Analysis C:</strong> {q.analysisC || '—'}
-                      </div>
-                      <div style={{ marginBottom: '0.2rem' }}>
-                        <strong style={{ color: q.correctOption === 'D' ? '#10b981' : 'var(--text-secondary)' }}>Analysis D:</strong> {q.analysisD || '—'}
-                      </div>
-                      {q.referenceNote && (
-                        <div style={{ color: 'var(--accent-primary)', fontWeight: 600, marginTop: '0.4rem', borderTop: '1px dashed var(--border-light)', paddingTop: '0.4rem', fontSize: '0.8rem' }}>
-                          <strong>💡 Context Note:</strong> {q.referenceNote}
+                      <div className="preview-options-grid" style={{ opacity: 0.7 }}>
+                        <div className={`preview-opt-item ${dq.correctOption === 'A' ? 'is-correct' : ''}`}>
+                          <strong>A:</strong> <span>{dq.optionA}</span>
                         </div>
-                      )}
-                    </div>
-
-                    {q.errors?.length > 0 && (
-                      <div className="preview-error-box">
-                        <strong>Validation issues in this row:</strong>
-                        <ul style={{ margin: '4px 0 0 1rem', padding: 0 }}>
-                          {q.errors.map((err, eIdx) => <li key={eIdx}>{err}</li>)}
-                        </ul>
+                        <div className={`preview-opt-item ${dq.correctOption === 'B' ? 'is-correct' : ''}`}>
+                          <strong>B:</strong> <span>{dq.optionB}</span>
+                        </div>
+                        <div className={`preview-opt-item ${dq.correctOption === 'C' ? 'is-correct' : ''}`}>
+                          <strong>C:</strong> <span>{dq.optionC}</span>
+                        </div>
+                        <div className={`preview-opt-item ${dq.correctOption === 'D' ? 'is-correct' : ''}`}>
+                          <strong>D:</strong> <span>{dq.optionD}</span>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                ))}
+                      <div style={{ fontSize: '0.74rem', color: '#ef4444', fontStyle: 'italic', marginTop: '0.35rem' }}>
+                        Notice: This question will be deleted from the active bank when committing this release. (It remains archived in Version {questionDiff.existingVersion} history).
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  (questionDiff?.diffQuestions || uploadPreview.questions)
+                    .filter(q => {
+                      if (diffFilterTab === 'all') return true;
+                      return q.diffStatus === diffFilterTab;
+                    })
+                    .map((q, idx) => {
+                      const isModified = q.diffStatus === 'modified';
+                      const isAdded = q.diffStatus === 'added';
+                      const isUnchanged = q.diffStatus === 'unchanged';
+
+                      return (
+                        <div 
+                          key={q.id || idx} 
+                          className={`preview-q-card ${!q.isValid ? 'has-error' : ''} ${isModified ? 'is-modified' : ''} ${isAdded ? 'is-added' : ''}`}
+                        >
+                          <div className="preview-q-header">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                              <span>Row {q.rowNumber} (Excel)</span>
+                              {isModified && (
+                                <span className="diff-badge badge-modified">✏️ Modified / Updated</span>
+                              )}
+                              {isAdded && (
+                                <span className="diff-badge badge-added">➕ New Question</span>
+                              )}
+                              {isUnchanged && (
+                                <span className="diff-chip unchanged" style={{ padding: '0.1rem 0.35rem', fontSize: '0.68rem' }}>
+                                  = Unchanged
+                                </span>
+                              )}
+                            </div>
+                            <span>Correct: <strong>Option {q.correctOption || 'None'}</strong></span>
+                          </div>
+
+                          <div className="preview-q-text">
+                            <strong>Q{idx + 1}.</strong> {q.question || <em style={{ color: '#ef4444' }}>Empty question statement</em>}
+                          </div>
+
+                          {/* Field changes inspector */}
+                          {isModified && q.diffChanges?.length > 0 && (
+                            <div className="diff-changes-inspector">
+                              <div style={{ fontSize: '0.74rem', fontWeight: 700, color: '#d97706', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                <AlertCircle size={13} />
+                                <span>Changes detected from current active Version {questionDiff.existingVersion}:</span>
+                              </div>
+                              {q.diffChanges.map((change, cIdx) => (
+                                <div key={cIdx} className="diff-change-item">
+                                  <span className="diff-change-field">• {change.field}:</span>
+                                  <div className="diff-change-row">
+                                    <span className="diff-old-tag">Previous</span>
+                                    <span className="diff-old-val">{change.oldVal || '(Empty)'}</span>
+                                  </div>
+                                  <div className="diff-change-row">
+                                    <span className="diff-new-tag">New</span>
+                                    <span className="diff-new-val">{change.newVal || '(Empty)'}</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          <div className="preview-options-grid" style={{ marginTop: isModified ? '0.6rem' : '0' }}>
+                            <div className={`preview-opt-item ${q.correctOption === 'A' ? 'is-correct' : ''}`}>
+                              <strong>A:</strong> <span>{q.optionA || '—'}</span>
+                            </div>
+                            <div className={`preview-opt-item ${q.correctOption === 'B' ? 'is-correct' : ''}`}>
+                              <strong>B:</strong> <span>{q.optionB || '—'}</span>
+                            </div>
+                            <div className={`preview-opt-item ${q.correctOption === 'C' ? 'is-correct' : ''}`}>
+                              <strong>C:</strong> <span>{q.optionC || '—'}</span>
+                            </div>
+                            <div className={`preview-opt-item ${q.correctOption === 'D' ? 'is-correct' : ''}`}>
+                              <strong>D:</strong> <span>{q.optionD || '—'}</span>
+                            </div>
+                          </div>
+
+                          {/* Option analyses preview */}
+                          <div className="preview-analyses-box">
+                            <div style={{ marginBottom: '0.2rem' }}>
+                              <strong style={{ color: q.correctOption === 'A' ? '#10b981' : 'var(--text-secondary)' }}>Analysis A:</strong> {q.analysisA || '—'}
+                            </div>
+                            <div style={{ marginBottom: '0.2rem' }}>
+                              <strong style={{ color: q.correctOption === 'B' ? '#10b981' : 'var(--text-secondary)' }}>Analysis B:</strong> {q.analysisB || '—'}
+                            </div>
+                            <div style={{ marginBottom: '0.2rem' }}>
+                              <strong style={{ color: q.correctOption === 'C' ? '#10b981' : 'var(--text-secondary)' }}>Analysis C:</strong> {q.analysisC || '—'}
+                            </div>
+                            <div style={{ marginBottom: '0.2rem' }}>
+                              <strong style={{ color: q.correctOption === 'D' ? '#10b981' : 'var(--text-secondary)' }}>Analysis D:</strong> {q.analysisD || '—'}
+                            </div>
+                            {q.referenceNote && (
+                              <div style={{ color: 'var(--accent-primary)', fontWeight: 600, marginTop: '0.4rem', borderTop: '1px dashed var(--border-light)', paddingTop: '0.4rem', fontSize: '0.8rem' }}>
+                                <strong>💡 Context Note:</strong> {q.referenceNote}
+                              </div>
+                            )}
+                          </div>
+
+                          {q.errors?.length > 0 && (
+                            <div className="preview-error-box">
+                              <strong>Validation issues in this row:</strong>
+                              <ul style={{ margin: '4px 0 0 1rem', padding: 0 }}>
+                                {q.errors.map((err, eIdx) => <li key={eIdx}>{err}</li>)}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                )}
               </div>
             </div>
 
