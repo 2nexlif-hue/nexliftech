@@ -39,8 +39,7 @@ export function AuthProvider({ children }) {
       const emailLower = user.email ? user.email.toLowerCase().trim() : '';
       const isBotanyAdmin = emailLower === 'e.educational.24@gmail.com';
       const isSuperAdmin = (
-        emailLower === '2nexlif@gmail.com' ||
-        emailLower === 'admin@nexliftech.com'
+        emailLower === '2nexlif@gmail.com'
       );
 
       if (snap.exists()) {

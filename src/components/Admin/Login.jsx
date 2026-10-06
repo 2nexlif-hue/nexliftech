@@ -31,8 +31,7 @@ export default function Login() {
 
     // 2. Super admin accounts (Website CMS and Govt portals)
     if (
-      emailClean === '2nexlif@gmail.com' ||
-      emailClean === 'admin@nexliftech.com'
+      emailClean === '2nexlif@gmail.com'
     ) {
       navigate('/admin/dashboard?workspace=cms', { replace: true });
       return;
