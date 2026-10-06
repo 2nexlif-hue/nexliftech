@@ -514,8 +514,8 @@ export default function BotanySeriesHome() {
   if (loading) {
     return (
       <div className="botany-loading-screen">
-        <div className="admin-spinner" style={{ width: 36, height: 36 }}></div>
-        <p style={{ marginTop: '1rem', color: 'var(--text-muted)' }}>Loading Botany Examination Suite...</p>
+        <div className="admin-spinner"></div>
+        <p>Loading Botany Examination Suite...</p>
       </div>
     );
   }
@@ -523,7 +523,7 @@ export default function BotanySeriesHome() {
   return (
     <div className="botany-portal-page">
       {/* Top Navbar */}
-      <header className="cbt-topbar" style={{ position: 'sticky', top: 0, zIndex: 100 }}>
+      <header className="cbt-topbar">
         <div className="cbt-topbar-left">
           <a href="/" className="cbt-brand-back">
             <LogoSVG size={22} />
@@ -597,91 +597,50 @@ export default function BotanySeriesHome() {
 
       <main className="botany-container">
         {(latestSubscriptionRecord || enrollSuccessMessage) && (
-          <div className="botany-enrollment-success-card" style={{
-            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 95, 70, 0.08) 100%)',
-            border: '1px solid rgba(16, 185, 129, 0.35)',
-            borderRadius: '14px',
-            padding: '1.25rem 1.5rem',
-            marginBottom: '1.5rem',
-            position: 'relative',
-            boxShadow: '0 4px 20px rgba(16, 185, 129, 0.12)'
-          }}>
+          <div className="botany-enrollment-success-card">
             <button 
               type="button" 
+              className="enrollment-dismiss-btn"
               onClick={() => { setEnrollSuccessMessage(''); setLatestSubscriptionRecord(null); }}
-              style={{ position: 'absolute', top: '12px', right: '14px', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px' }}
               aria-label="Dismiss banner"
             >
               <X size={18} />
             </button>
 
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
-              <div style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '12px',
-                background: '#10b981',
-                color: '#ffffff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                boxShadow: '0 2px 10px rgba(16, 185, 129, 0.4)'
-              }}>
+            <div className="enrollment-layout">
+              <div className="enrollment-icon-box">
                 <CheckCircle2 size={24} />
               </div>
 
-              <div style={{ flex: 1, minWidth: '260px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '4px' }}>
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
+              <div className="enrollment-body">
+                <div className="enrollment-header-row">
+                  <h3 className="enrollment-title">
                     Payment Verified & Subscription Active
                   </h3>
-                  <span style={{
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    padding: '2px 8px',
-                    borderRadius: '999px',
-                    background: 'rgba(16, 185, 129, 0.2)',
-                    color: '#059669',
-                    border: '1px solid rgba(16, 185, 129, 0.3)'
-                  }}>
+                  <span className="enrollment-verified-tag">
                     Verified Candidate
                   </span>
                 </div>
 
-                <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', margin: '0 0 0.75rem', lineHeight: 1.5 }}>
+                <p className="enrollment-message">
                   {enrollSuccessMessage || 'Your candidate credentials are live. All scheduled computer-based tests, timed exams, and option analysis rationales are unlocked.'}
                 </p>
 
                 {/* Email Delivery Notice */}
-                <div style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid var(--border-light)',
-                  borderRadius: '8px',
-                  padding: '0.6rem 0.85rem',
-                  fontSize: '0.8rem',
-                  color: 'var(--text-secondary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  marginBottom: '1rem'
-                }}>
-                  <ShieldCheck size={16} color="#10b981" style={{ flexShrink: 0 }} />
+                <div className="enrollment-email-notice">
+                  <ShieldCheck size={16} className="enrollment-email-icon" />
                   <span>
                     <strong>Confirmation Email Sent:</strong> An authentic transactional receipt with access credentials was queued for delivery to your registered email from <code>admissions@nexliftech.space</code>. Please check your <em>Primary Inbox</em> or <em>Updates</em> tab.
                   </span>
                 </div>
 
                 {/* Action buttons */}
-                <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <div className="enrollment-actions">
                   {(latestSubscriptionRecord || userSubscriptions[0]) && (
                     <button
                       type="button"
                       className="btn btn-primary btn-sm"
                       onClick={() => printSubscriptionReceipt(latestSubscriptionRecord || userSubscriptions[0])}
-                      style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}
                     >
                       <Printer size={14} />
                       <span>Print / Download Tax Receipt (PDF)</span>
@@ -953,7 +912,7 @@ export default function BotanySeriesHome() {
                             </div>
                           </td>
                           <td>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem', alignItems: 'flex-start' }}>
+                            <div className="table-test-info">
                               <span className="t-badge-mcq">{t.questionCount || 50} MCQs</span>
                               {testBankStats?.uploadedCount > 0 && (
                                 <span 
@@ -1325,7 +1284,7 @@ export default function BotanySeriesHome() {
               </div>
 
               {/* Blueprint Feature Cards */}
-              <div className="features-showcase-grid" style={{ marginBottom: '2rem' }}>
+              <div className="features-showcase-grid">
                 <div className="feature-highlight-card">
                   <div className="f-icon-box"><Clock size={20} /></div>
                   <h4>Authentic PSC CBT Engine</h4>
@@ -1351,7 +1310,7 @@ export default function BotanySeriesHome() {
                 </div>
               </div>
 
-              <h4 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '0.75rem', color: 'var(--text-primary)' }}>
+              <h4 className="faq-section-heading">
                 Frequently Asked Questions
               </h4>
 
