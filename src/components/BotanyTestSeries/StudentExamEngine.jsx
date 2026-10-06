@@ -258,7 +258,7 @@ export default function StudentExamEngine({
       {/* Top CBT Header Bar */}
       <header className="cbt-topbar">
         <div className="cbt-topbar-left">
-          <button type="button" className="btn btn-secondary btn-sm" onClick={onClose}>
+          <button type="button" className="btn btn-secondary btn-sm" onClick={onClose} aria-label="Exit CBT exam">
             <ArrowLeft size={14} /> <span>Exit CBT</span>
           </button>
           <div className="cbt-test-info">
@@ -269,7 +269,7 @@ export default function StudentExamEngine({
 
         <div className="cbt-topbar-right">
           {!isSubmitted && (
-            <div className={`cbt-timer ${secondsRemaining < 300 ? 'urgent' : ''}`}>
+            <div className={`cbt-timer ${secondsRemaining < 300 ? 'urgent' : ''}`} role="timer" aria-label={`Time remaining ${formatTime(secondsRemaining)}`}>
               <Clock size={16} />
               <span>{formatTime(secondsRemaining)}</span>
             </div>
@@ -313,6 +313,7 @@ export default function StudentExamEngine({
                           key={opt}
                           type="button"
                           className={`cbt-option-item ${isSelected ? 'selected' : ''}`}
+                          aria-pressed={isSelected}
                           onClick={() => selectOption(opt)}
                         >
                           <span className="cbt-opt-char">{opt}</span>
@@ -328,6 +329,7 @@ export default function StudentExamEngine({
                     <button 
                       type="button" 
                       className={`btn btn-secondary btn-sm cbt-footer-btn ${markedForReview[currentQ.id] ? 'is-marked' : ''}`}
+                      aria-pressed={!!markedForReview[currentQ.id]}
                       onClick={toggleMarkForReview}
                     >
                       <Bookmark size={13} />
@@ -351,6 +353,7 @@ export default function StudentExamEngine({
                       className="btn btn-secondary btn-sm cbt-footer-btn cbt-mobile-palette-toggle"
                       onClick={() => setShowMobilePalette(!showMobilePalette)}
                       aria-label="Toggle Question Palette"
+                      aria-expanded={showMobilePalette}
                     >
                       <LayoutGrid size={13} />
                       <span>Q-Palette ({currentIdx + 1}/{questions.length})</span>
@@ -419,6 +422,8 @@ export default function StudentExamEngine({
                     key={q.id || idx}
                     type="button"
                     className={`cbt-palette-btn ${statusClass} ${isCurrent ? 'current' : ''}`}
+                    aria-label={`Question ${idx + 1}, ${isAnswered ? 'answered' : isMarked ? 'marked for review' : 'unattempted'}`}
+                    aria-current={isCurrent ? 'step' : undefined}
                     onClick={() => {
                       setCurrentIdx(idx);
                       setShowMobilePalette(false);
@@ -575,17 +580,17 @@ export default function StudentExamEngine({
       {/* Confirmation Dialog before submitting test */}
       {showConfirmSubmit && (
         <div className="botany-modal-overlay">
-          <div className="botany-modal-card" style={{ maxWidth: '420px', textAlign: 'center' }}>
+          <div className="botany-modal-card" role="dialog" aria-modal="true" aria-labelledby="submit-test-title" style={{ maxWidth: '420px', textAlign: 'center' }}>
             <div style={{ color: '#f59e0b', margin: '0 auto 0.75rem auto' }}>
               <AlertTriangle size={36} />
             </div>
-            <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }}>Submit Test Confirmation</h3>
+            <h3 id="submit-test-title" style={{ margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }}>Submit Test Confirmation</h3>
             <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', margin: '0 0 1.25rem 0', lineHeight: 1.5 }}>
               You have answered <strong>{Object.keys(userAnswers).length}</strong> of <strong>{questions.length}</strong> questions.
               <br />
               Are you sure you want to finish and submit your test?
             </p>
-            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+            <div className="cbt-submit-confirm-actions">
               <button 
                 type="button" 
                 className="btn btn-secondary"

@@ -922,6 +922,7 @@ export default function BotanySeriesHome() {
                   <Search size={14} className="search-icon" />
                   <input 
                     type="text" 
+                    aria-label="Search tests by title or topic"
                     placeholder="Search test by title or topic..."
                     value={scheduleSearch}
                     onChange={(e) => setScheduleSearch(e.target.value)}
@@ -957,16 +958,16 @@ export default function BotanySeriesHome() {
 
                       return (
                         <tr key={t.testId || idx}>
-                          <td>
+                          <td data-label="Test">
                             <span className="test-code-badge">{t.testNumber || `T-${idx + 1}`}</span>
                           </td>
-                          <td>
+                          <td data-label="Title and coverage">
                             <div className="table-test-info">
                               <span className="t-name">{t.title}</span>
                               <span className="t-coverage">{t.unitCovered}</span>
                             </div>
                           </td>
-                          <td>
+                          <td data-label="Questions">
                             <div className="table-test-info">
                               <span className="t-badge-mcq">{t.questionCount || 50} MCQs</span>
                               {testBankStats?.uploadedCount > 0 && (
@@ -979,13 +980,13 @@ export default function BotanySeriesHome() {
                               )}
                             </div>
                           </td>
-                          <td>
+                          <td data-label="Duration">
                             <span className="t-badge-time">{t.durationMinutes || 60} Mins</span>
                           </td>
-                          <td>
+                          <td data-label="Schedule">
                             <span className="t-date-text">{t.scheduledDate || 'Flexible'}</span>
                           </td>
-                          <td style={{ textAlign: 'right' }}>
+                          <td data-label="Access" className="schedule-action-cell">
                             {isAccessible ? (
                               <button
                                 type="button"
@@ -1014,6 +1015,14 @@ export default function BotanySeriesHome() {
                     })}
                   </tbody>
                 </table>
+                {filteredSchedule.length === 0 && (
+                  <div className="schedule-empty-state">
+                    <Search size={20} />
+                    <strong>No matching tests</strong>
+                    <span>Try a different topic or select another test category.</span>
+                    <button type="button" className="btn btn-secondary btn-sm" onClick={() => { setScheduleSearch(''); setScheduleFilter('all'); }}>Clear filters</button>
+                  </div>
+                )}
               </div>
             </div>
           )}

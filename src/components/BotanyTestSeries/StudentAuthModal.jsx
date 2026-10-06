@@ -133,7 +133,7 @@ export default function StudentAuthModal({ isOpen, onClose, onSuccess, initialMo
 
   return (
     <div className="botany-modal-overlay">
-      <div className="botany-modal-card compact-auth-card">
+      <div className="botany-modal-card compact-auth-card" role="dialog" aria-modal="true" aria-labelledby="student-auth-title">
         <button type="button" className="botany-modal-close" onClick={onClose} aria-label="Close modal">
           <X size={16} />
         </button>
@@ -143,7 +143,7 @@ export default function StudentAuthModal({ isOpen, onClose, onSuccess, initialMo
           <div className="botany-modal-logo-small">
             <span className="auth-brand-badge">🌿 NexLifTech CBT</span>
           </div>
-          <h3>
+          <h3 id="student-auth-title">
             {mode === 'signin' && 'Student Sign In'}
             {mode === 'signup' && 'Create Student Account'}
             {mode === 'reset' && 'Reset Password'}
@@ -229,11 +229,12 @@ export default function StudentAuthModal({ isOpen, onClose, onSuccess, initialMo
         <form onSubmit={handleSubmit} className="botany-modal-form">
           {mode === 'signup' && (
             <div className="botany-form-group">
-              <label className="botany-form-label">Full Name</label>
+              <label className="botany-form-label" htmlFor="student-name">Full Name</label>
               <div className="botany-input-wrapper">
                 <User size={15} className="botany-input-icon" />
                 <input 
                   type="text" 
+                  id="student-name"
                   className="botany-auth-input"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
@@ -245,11 +246,12 @@ export default function StudentAuthModal({ isOpen, onClose, onSuccess, initialMo
           )}
 
           <div className="botany-form-group">
-            <label className="botany-form-label">Email Address</label>
+            <label className="botany-form-label" htmlFor="student-email">Email Address</label>
             <div className="botany-input-wrapper">
               <Mail size={15} className="botany-input-icon" />
               <input 
                 type="email" 
+                id="student-email"
                 className="botany-auth-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -263,7 +265,7 @@ export default function StudentAuthModal({ isOpen, onClose, onSuccess, initialMo
             <>
               <div className="botany-form-group">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
-                  <label className="botany-form-label" style={{ margin: 0 }}>Password</label>
+                  <label className="botany-form-label" htmlFor="student-password" style={{ margin: 0 }}>Password</label>
                   {mode === 'signin' && (
                     <button 
                       type="button" 
@@ -278,6 +280,7 @@ export default function StudentAuthModal({ isOpen, onClose, onSuccess, initialMo
                   <Lock size={15} className="botany-input-icon" />
                   <input 
                     type={showPassword ? 'text' : 'password'} 
+                    id="student-password"
                     className="botany-auth-input"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -298,11 +301,12 @@ export default function StudentAuthModal({ isOpen, onClose, onSuccess, initialMo
 
               {mode === 'signup' && (
                 <div className="botany-form-group">
-                  <label className="botany-form-label">Confirm Password</label>
+                  <label className="botany-form-label" htmlFor="student-confirm-password">Confirm Password</label>
                   <div className="botany-input-wrapper">
                     <Lock size={15} className="botany-input-icon" />
                     <input 
                       type={showConfirmPassword ? 'text' : 'password'} 
+                      id="student-confirm-password"
                       className="botany-auth-input"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}

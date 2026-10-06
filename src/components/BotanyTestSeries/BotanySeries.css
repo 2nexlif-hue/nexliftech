@@ -3002,3 +3002,212 @@
     animation: none;
   }
 }
+
+/* Student journey refinements: overview, discovery, enrollment and CBT */
+.botany-portal-page section { padding: 0; overflow: visible; }
+.botany-portal-page {
+  --botany-accent: var(--accent-green);
+  background: radial-gradient(circle at 90% 4%, var(--gradient-subtle), transparent 35%), var(--bg-primary);
+}
+
+.botany-portal-page > .cbt-topbar {
+  padding: 0.75rem clamp(1rem, 3vw, 2.5rem);
+  min-height: 68px;
+}
+
+.botany-container {
+  max-width: 1280px;
+  padding: clamp(1.25rem, 2.5vw, 2.25rem) clamp(1rem, 3vw, 2.5rem) 5rem;
+}
+
+.botany-hero-compact {
+  border-radius: 22px;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-glass);
+}
+
+.hero-compact-top {
+  padding: 0.9rem clamp(1.25rem, 2.5vw, 2.25rem);
+  gap: 0.85rem;
+}
+
+.hero-academic-meta { gap: 0.5rem 0.75rem; font-size: 0.8rem; }
+.academic-badge { padding: 0.35rem 0.65rem; font-size: 0.7rem; }
+.hero-compact-actions { flex-wrap: wrap; gap: 0.55rem; }
+.hero-btn-demo, .hero-btn-enroll { min-height: 44px; padding: 0.6rem 0.9rem; font-size: 0.8rem; border-radius: 9px; }
+.hero-btn-enroll, .hero-btn-enroll:hover { background: var(--accent-green); border-color: var(--accent-green); color: var(--text-inverse) !important; }
+.hero-compact-body { padding: clamp(1.5rem, 3vw, 2.75rem); }
+.hero-compact-title { font-size: clamp(1.8rem, 3.4vw, 3.25rem); line-height: 1.12; letter-spacing: -0.04em; max-width: 800px; margin-bottom: 0.85rem; }
+.hero-compact-subtitle { font-size: clamp(0.95rem, 1.35vw, 1.08rem); line-height: 1.65; max-width: 880px; margin-bottom: 1.6rem; }
+.hero-compact-chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.7rem; padding-top: 1.4rem; }
+.hero-chip { align-items: flex-start; flex-direction: column; gap: 0.1rem; padding: 0.9rem 1rem; background: var(--bg-elevated); border: 1px solid var(--border-light); border-radius: 11px; }
+.chip-val { font-size: clamp(1.15rem, 2vw, 1.5rem); line-height: 1.2; color: var(--accent-green); }
+.chip-lbl { font-size: 0.76rem; line-height: 1.35; }
+.hero-chip + .chip-dot, .chip-dot { display: none; }
+
+.botany-main-explorer { scroll-margin-top: 90px; }
+.botany-subnav-tabs { gap: 0.4rem; padding: 0.45rem; margin-bottom: 1rem; border-radius: 14px; box-shadow: var(--shadow-sm); }
+.subnav-tab-btn { min-height: 46px; padding: 0.65rem 0.9rem; font-size: 0.84rem; border-radius: 10px; }
+.subnav-tab-btn.active { background: var(--gradient-subtle); border-color: var(--border-glow); color: var(--text-primary); }
+.explorer-content-card { padding: clamp(1.25rem, 2.3vw, 2rem); border-radius: 18px; box-shadow: var(--shadow-glass); }
+.content-card-header { margin-bottom: 1.25rem; padding-bottom: 1.1rem; gap: 1rem; }
+.content-card-header h3 { font-size: clamp(1.2rem, 2vw, 1.55rem); line-height: 1.25; margin-bottom: 0.4rem; }
+.content-card-header p { font-size: 0.89rem; line-height: 1.55; max-width: 780px; }
+.content-card-header .btn { min-height: 44px; }
+.public-bank-stats-banner { gap: 0.8rem; padding: 0.9rem 1rem; margin-bottom: 1.25rem; border-radius: 11px; }
+.public-stats-badge { font-size: 0.84rem; line-height: 1.45; }
+.public-stats-breakdown { gap: 0.4rem; }
+.stats-tag-item { font-size: 0.72rem; padding: 0.3rem 0.5rem; border-radius: 6px; }
+.schedule-filter-controls { gap: 0.85rem; margin-bottom: 1.15rem; }
+.schedule-pill-filters { gap: 0.45rem; }
+.filter-pill-btn { min-height: 44px; padding: 0.55rem 0.85rem; font-size: 0.78rem; }
+.filter-pill-btn.active { background: var(--accent-green); border-color: var(--accent-green); color: var(--text-inverse); }
+.schedule-search-box { min-height: 44px; background: var(--bg-secondary); }
+.schedule-search-box input { font-size: 0.85rem; min-width: 0; }
+.schedule-table-wrapper { border-radius: 12px; }
+.schedule-data-table th { padding: 0.8rem 0.75rem; font-size: 0.68rem; }
+.schedule-data-table td { padding: 0.8rem 0.75rem; }
+.schedule-data-table tbody tr:nth-child(even) td { background: var(--gradient-subtle); }
+.schedule-data-table tr:hover td { background: var(--bg-elevated); }
+.t-name { font-size: 0.86rem; line-height: 1.4; }
+.t-coverage { font-size: 0.75rem; line-height: 1.4; }
+.cbt-table-action-btn { min-height: 42px; padding: 0.55rem 0.7rem; font-size: 0.75rem; }
+.schedule-action-cell { text-align: right; }
+.schedule-empty-state { display: grid; justify-items: center; gap: 0.55rem; padding: 2.5rem 1rem; text-align: center; color: var(--text-secondary); }
+.schedule-empty-state svg { color: var(--accent-primary); }
+.schedule-empty-state strong { color: var(--text-primary); font-size: 1rem; }
+
+.pricing-mobile-tab-btn, .p-coupon-btn, .p-enroll-action-btn, .p-unit-dropdown,
+.unit-accordion-trigger, .faq-trigger, .auth-segment-btn, .botany-google-btn,
+.botany-modal-close, .botany-input-toggle, .enrollment-dismiss-btn { min-height: 44px; }
+.pricing-card-box { border-radius: 16px; box-shadow: var(--shadow-sm); }
+.botany-modal-card { border-radius: 18px; max-height: min(90dvh, 760px); overflow-y: auto; }
+.botany-auth-input { min-height: 48px; font-size: 1rem; }
+.botany-modal-alert { line-height: 1.5; overflow-wrap: anywhere; }
+
+/* The exam canvas lets long questions and answers scroll without hiding controls. */
+.cbt-modal-fullscreen { height: 100dvh; }
+.cbt-modal-fullscreen .cbt-topbar { flex: 0 0 auto; min-height: 62px; padding: 0.65rem clamp(0.75rem, 2vw, 1.5rem); }
+.cbt-modal-fullscreen .cbt-topbar-left { flex: 1; min-width: 0; }
+.cbt-modal-fullscreen .cbt-test-info { min-width: 0; }
+.cbt-modal-fullscreen .cbt-test-info h2 { max-width: min(45vw, 420px); }
+.cbt-modal-fullscreen .cbt-topbar-left button,
+.cbt-modal-fullscreen .cbt-submit-btn { min-height: 44px; height: auto; padding: 0.6rem 0.75rem; }
+.cbt-timer { min-height: 44px; height: auto; padding: 0.5rem 0.75rem; font-size: 0.9rem; }
+.cbt-body-layout { height: auto; min-height: 0; }
+.cbt-question-pane { justify-content: flex-start; padding: clamp(0.85rem, 2vw, 1.5rem); }
+.cbt-question-header { margin-bottom: 0; padding-bottom: 0.8rem; }
+.cbt-q-badge { font-size: 0.9rem; }
+.cbt-question-body { justify-content: flex-start; overflow-y: auto; overscroll-behavior: contain; padding: 1.25rem 0; margin: 0; scrollbar-width: thin; }
+.cbt-question-text { max-height: none; overflow: visible; font-size: clamp(1.05rem, 2vw, 1.3rem); line-height: 1.55; margin-bottom: 1.25rem; }
+.cbt-options-list { flex: 0 0 auto; gap: 0.7rem; justify-content: flex-start; max-width: 900px; }
+.cbt-option-item { align-items: flex-start; min-height: 54px; max-height: none; padding: 0.85rem 1rem; gap: 0.8rem; border-radius: 12px; }
+.cbt-opt-char { width: 28px; height: 28px; min-width: 28px; font-size: 0.8rem; }
+.cbt-opt-text { font-size: clamp(0.92rem, 1.35vw, 1.05rem); line-height: 1.5; overflow-wrap: anywhere; }
+.cbt-question-footer { margin-top: auto; padding-top: 0.8rem; gap: 0.55rem; flex-wrap: wrap; background: var(--bg-primary); }
+.cbt-footer-left, .cbt-footer-center, .cbt-footer-right { gap: 0.4rem; }
+.cbt-footer-btn { min-height: 44px; height: auto; padding: 0.55rem 0.75rem; font-size: 0.78rem; }
+.cbt-palette-pane.mobile-open { max-height: 75dvh; padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+.cbt-palette-drawer-header .cbt-palette-close-btn { min-width: 44px; min-height: 44px; }
+.cbt-palette-btn { min-height: 44px; height: 44px; }
+.cbt-results-container { max-width: 1080px; padding-bottom: max(2rem, env(safe-area-inset-bottom)); }
+.cbt-scorecard { border-radius: 18px; padding: clamp(1.25rem, 3vw, 2.5rem); }
+.scorecard-header h2 { font-size: clamp(1.4rem, 2.6vw, 2rem); }
+.metric-box { padding: 1rem; border-radius: 12px; }
+.metric-value { font-size: clamp(1.5rem, 3vw, 2rem); }
+.scorecard-btn-group .btn { min-height: 44px; }
+.analysis-card { padding: clamp(1rem, 2vw, 1.5rem); border-radius: 14px; }
+.opt-row-main { flex-wrap: wrap; line-height: 1.45; }
+.opt-text-val { flex: 1 1 160px; overflow-wrap: anywhere; }
+.tag-correct, .tag-user-wrong { margin-left: 0; }
+.opt-analysis-text { padding-left: 0; line-height: 1.55; }
+
+@media (min-width: 1024px) {
+  .cbt-body-layout { grid-template-columns: minmax(0, 1fr) 300px; }
+  .cbt-question-pane { min-width: 0; }
+  .cbt-palette-pane { padding: 1.25rem; }
+  .cbt-palette-btn { min-height: 44px; height: 44px; }
+}
+
+@media (max-width: 767px) {
+  .botany-portal-page > .cbt-topbar { gap: 0.5rem; }
+  .botany-container { padding-top: 1rem; }
+  .hero-compact-top { padding: 0.9rem 1rem; }
+  .hero-compact-actions { width: 100%; }
+  .hero-compact-actions .btn { flex: 1 1 170px; }
+  .hero-compact-body { padding: 1.4rem 1rem; }
+  .hero-compact-chips { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+  .hero-chip { padding: 0.75rem; }
+  .botany-subnav-tabs { position: sticky; top: 68px; z-index: 20; }
+  .subnav-tab-btn { flex-shrink: 0; }
+  .content-card-header .btn { width: 100%; }
+  .schedule-pill-filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.25rem; scrollbar-width: thin; }
+  .filter-pill-btn { flex-shrink: 0; }
+  .schedule-table-wrapper { overflow: visible; border: 0; }
+  .schedule-data-table, .schedule-data-table tbody { display: block; }
+  .schedule-data-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+  .schedule-data-table tr { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem 1rem; padding: 1rem; margin-bottom: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 13px; box-shadow: var(--shadow-sm); }
+  .schedule-data-table td, .schedule-data-table tbody tr:nth-child(even) td { display: block; padding: 0; border: 0; background: transparent; min-width: 0; }
+  .schedule-data-table tr:hover td { background: transparent; }
+  .schedule-data-table td::before { content: attr(data-label); display: block; margin-bottom: 0.3rem; color: var(--text-muted); font-size: 0.65rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; }
+  .schedule-data-table td:nth-child(1) { grid-column: 1; }
+  .schedule-data-table td:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
+  .schedule-data-table td:nth-child(3) { grid-column: 1; }
+  .schedule-data-table td:nth-child(4) { grid-column: 2; }
+  .schedule-data-table td:nth-child(5) { grid-column: 1; }
+  .schedule-data-table td:nth-child(6) { grid-column: 2; text-align: right; }
+  .t-name { font-size: 0.94rem; }
+  .t-coverage { font-size: 0.8rem; }
+  .cbt-table-action-btn { width: 100%; max-width: 150px; }
+  .cbt-modal-fullscreen .cbt-topbar { min-height: 60px; }
+  .cbt-modal-fullscreen .cbt-test-info h2 { max-width: 34vw; }
+  .cbt-question-footer { justify-content: space-between; }
+  .cbt-footer-center { order: 3; width: 100%; }
+  .cbt-mobile-palette-toggle { width: 100%; }
+  .scorecard-btn-group { width: 100%; flex-wrap: wrap; }
+  .scorecard-btn-group .btn { flex: 1 1 150px; }
+}
+
+@media (max-width: 480px) {
+  .botany-portal-page > .cbt-topbar { padding: 0.6rem 0.75rem; }
+  .botany-portal-page .cbt-brand-text { font-size: 0.95rem; }
+  .botany-portal-page .cbt-brand-back svg { width: 19px; }
+  .cbt-guest-actions-bar .cbt-admin-btn { min-width: 44px; padding-inline: 0.5rem; }
+  .cbt-guest-actions-bar .cbt-admin-btn span { display: none; }
+  .cbt-user-actions-bar { gap: 0.25rem; }
+  .cbt-user-actions-bar .btn { min-width: 44px; min-height: 44px; padding: 0.5rem; }
+  .cbt-user-actions-bar .cbt-receipt-btn { display: inline-flex !important; }
+  .hero-compact-title { font-size: 1.8rem; }
+  .hero-compact-chips { gap: 0.4rem; }
+  .chip-val { font-size: 1.1rem; }
+  .chip-lbl { font-size: 0.68rem; }
+  .explorer-content-card { padding: 1rem; }
+  .cbt-modal-fullscreen .cbt-brand-text, .cbt-modal-fullscreen .cbt-brand-dot, .cbt-modal-fullscreen .cbt-test-info span { display: none; }
+  .cbt-modal-fullscreen .cbt-test-info h2 { max-width: 30vw; font-size: 0.72rem; }
+  .cbt-modal-fullscreen .cbt-topbar-left button span { display: none; }
+  .cbt-modal-fullscreen .cbt-topbar-right { gap: 0.25rem; }
+  .cbt-timer { padding: 0.5rem; font-size: 0.74rem; }
+  .cbt-modal-fullscreen .cbt-submit-btn { padding: 0.5rem; font-size: 0.72rem; }
+  .cbt-question-pane { padding: 0.75rem; }
+  .cbt-question-body { padding: 1rem 0; }
+  .cbt-question-footer { gap: 0.4rem; }
+  .cbt-footer-btn { padding: 0.5rem 0.55rem; font-size: 0.72rem; }
+  .cbt-footer-left, .cbt-footer-right { width: 100%; justify-content: space-between; }
+  .cbt-footer-left .btn, .cbt-footer-right .btn { flex: 1; }
+  .cbt-footer-center { order: 0; }
+  .cbt-results-container { padding: 0.85rem; }
+  .scorecard-metrics { gap: 0.5rem; }
+  .metric-box { padding: 0.75rem; }
+}
+
+.cbt-submit-confirm-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; }
+.cbt-submit-confirm-actions .btn { flex: 1 1 145px; min-height: 44px; }
+@media (max-width: 380px) {
+  .botany-portal-page > .cbt-topbar .cbt-brand-text,
+  .botany-portal-page > .cbt-topbar .cbt-brand-dot { display: none; }
+  .botany-portal-page .cbt-signin-btn { padding-inline: 0.5rem; font-size: 0.72rem; }
+  .botany-portal-page .cbt-signin-btn span { white-space: nowrap; }
+  .hero-compact-actions .btn { flex-basis: 100%; }
+  .botany-modal-overlay { padding: 0.5rem; }
+  .botany-modal-card { padding: 1rem; }
+}
