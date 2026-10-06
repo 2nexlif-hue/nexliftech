@@ -717,7 +717,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
             <div>
               <h3>Official Public Service Commission Syllabus (10 Units)</h3>
               <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Complete syllabus curated by Dr. Aubid Ahmad, Assistant Professor (Botany).
+                Compiled by Sheikh Gulfam (1 July 2023) • Curated by Dr. Aubid Ahmad, Assistant Professor (Botany).
               </p>
             </div>
             <div className="botany-card-actions">

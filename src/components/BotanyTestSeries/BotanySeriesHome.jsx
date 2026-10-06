@@ -1036,7 +1036,7 @@ export default function BotanySeriesHome() {
               <div className="content-card-header">
                 <div>
                   <h3>Official 10-Unit PSC Entrance Syllabus</h3>
-                  <p>Curated and cross-referenced with recent Assistant Professor PSC exams.</p>
+                  <p>Compiled by Sheikh Gulfam (1 July 2023) • Curated by Dr. Aubid Ahmad, Assistant Professor (Botany).</p>
                 </div>
                 <div className="syllabus-search-box">
                   <Search size={15} className="search-icon" />

@@ -1,5 +1,13 @@
 // Official Botany Assistant Professor Syllabus & Test Series Calendar
-// Curated by Dr. Aubid Ahmad, Assistant Professor (Botany)
+// Syllabus of Botany (Assistant Professor) for Entrance Examination
+// Compiled by Sheikh Gulfam_1 July 2023
+
+export const SYLLABUS_METADATA = {
+  title: 'Syllabus of Botany (Assistant Professor) for Entrance Examination',
+  compiledBy: 'Sheikh Gulfam',
+  compilationDate: '1 July 2023',
+  totalUnits: 10
+};
 
 export const BOTANY_SYLLABUS = [
   {
@@ -18,7 +26,7 @@ export const BOTANY_SYLLABUS = [
       {
         id: 'u1_s2',
         title: 'Bacteria',
-        description: 'General account of Eubacteria (size, shape and arrangement) and Archaebacteria (Methanogenic, halophilic and thermo-acidophilic); classification (Haeckel\'s three kingdom concept and Three Domain Concept of Carl Woese); Ultrastructure of cell wall and cell membrane, modes of reproduction in bacteria; salient features and importance of cyanobacteria; role of microbes in nanotechnology and bioremediation.'
+        description: "General account of Eubacteria (size, shape and arrangement) and Archaebacteria (Methanogenic, halophilic and thermo-acidophilic); classification (Haeckel's three kingdom concept and Three Domain Concept of Carl Woese); Ultrastructure of cell wall and cell membrane, modes of reproduction in bacteria; salient features and importance of cyanobacteria; role of microbes in nanotechnology and bioremediation."
       },
       {
         id: 'u1_s3',
@@ -43,7 +51,7 @@ export const BOTANY_SYLLABUS = [
       {
         id: 'u2_s1',
         title: 'Algae',
-        description: 'Range of thallus structure in algae; evolutionary trends; modes of reproduction (vegetative, asexual and sexual); major patterns of life cycles (mono-, di- and trigenetic types); salient features of Cyanophyta, Chlorophyta, Bacillariophyta, Chrysophyta, Dinophyta, Euglenophyta, Cryptophyta, Xanthophyta, Phaeophyta and Rhodophyta; modern trends in classification of algae; structure and diversity of chloroplasts, pyrenoids and reserve storage products; algal blooms, biofertilizers and biofuels.'
+        description: 'Range of thallus structure in algae; evolutionary trends; modes of reproduction (vegetative, asexual and sexual); major patterns of life cycles (mono-, di- and trigenetic types); salient features of Cyanophyta, Chlorophyta, Bacillariophyta, Chrysophyta, Dinophyta, Euglenophyta, Cryptophyta, Xanthophyta, Phaeophyta and Rhodophyta; modem trends in classification of algae; structure and diversity of chloroplasts, pyrenoids and reserve storage products; algal blooms, biofertilizers and biofuels.'
       },
       {
         id: 'u2_s2',
@@ -58,7 +66,7 @@ export const BOTANY_SYLLABUS = [
       {
         id: 'u2_s4',
         title: 'Gymnosperms',
-        description: 'Distribution of living gymnosperms in J&K; origin, evolution and classification (Sporne 1965) of gymnosperms; morphology, anatomy and reproduction in Cycadeoida, Cordaites, Cycas, Ginkgo, Pinus, Ephedra, Welwitschia and Gnetum.'
+        description: 'Distribution of living gymnosperms in J&K; origin, evolution and classification (Sporne 1965) of gymnosperms; morphology, anatomy and reproduction in Cycadeoida, Cordaites, Cycas, Ginkgo, Pinus, Ephedera, Welwitschia and Gnetum.'
       }
     ]
   },
@@ -72,8 +80,8 @@ export const BOTANY_SYLLABUS = [
     subunits: [
       {
         id: 'u3_s1',
-        title: 'Systems of Classification',
-        description: 'Systems of Classification—Artificial (Carl Linnaeus), Natural (Bentham and Hooker) and Phylogenetic (Takhtajan) systems; concept and principles of phenetics and cladistics.'
+        title: 'Classification',
+        description: 'Systems of Classification-Artificial (Carl Linnaeus), Natural (Bentham and Hooker) and Phylogenetic (Takhtajan) systems; concept and principles of phenetics and cladistics.'
       },
       {
         id: 'u3_s2',
@@ -88,12 +96,7 @@ export const BOTANY_SYLLABUS = [
       {
         id: 'u3_s4',
         title: 'Family Description',
-        description: 'Taxonomic description of Ranunculaceae, Fabaceae, Malvaceae, Asteraceae, Solanaceae, Poaceae, Liliaceae, Orchidaceae, Zingiberaceae.'
-      },
-      {
-        id: 'u3_s5',
-        title: 'Phylogenetics & APG',
-        description: 'Concept and utility of APG-IV classification; Parsimony, Maximum likelihood, and DNA barcoding in phylogenetic analysis.'
+        description: 'Taxonomic description of Ranunculaceae, Fabaceae, Malvaceae, Asteraceae, Solanaceae, Poaceae, Liliaceae. Orchidaceae, Zingiberaceae. Concept and utility of APG-IV classification; Parsimony, Maximum likelihood, and DNA barcoding in phylogenetic analysis.'
       }
     ]
   },
@@ -108,7 +111,7 @@ export const BOTANY_SYLLABUS = [
       {
         id: 'u4_s1',
         title: 'Chromatin Organization and Gene Structure',
-        description: 'Organization of chromosomes—nucleosome, centromere and telomere; euchromatin and heterochromatin; Operon, unique and repetitive DNA, Concept of gene, allele, multiple alleles, pseudoalleles, interrupted genes, gene families; complementation tests; mitochondrial and chloroplast genomes.'
+        description: 'Organization of chromosomes-nucleosome, centromere and telomere; euchromatin and heterochromatin; Operon, unique and repetitive DNA, Concept of gene, allele, multiple alleles, pseudoalleles, interrupted genes, gene families; complementation tests; mitochondrial and chloroplast genomes.'
       },
       {
         id: 'u4_s2',
@@ -117,12 +120,12 @@ export const BOTANY_SYLLABUS = [
       },
       {
         id: 'u4_s3',
-        title: 'Mutations and Transposable Elements',
-        description: 'Spontaneous and induced mutations; Types, causes and detection; mutant types - lethal, conditional, biochemical, loss of function, gain of function; germinal versus somatic mutants; insertional mutagenesis; transposable elements in eukaryotes (Ac-Ds, P and Ty elements) and prokaryotes (IS, Tn3 and Tn10).'
+        title: 'Mutations',
+        description: 'Spontaneous and induced mutations; Types, causes and detection; mutant types - lethal, conditional, biochemical, loss of function, gain of function; germinal versus somatic mutants; insertional mutagenesis; transposable elements in eukaryotes (Ac-Ds, P and Ty elements) and prokaryotes (IS, Tn3 and Tn1O).'
       },
       {
         id: 'u4_s4',
-        title: 'Structural and Numerical Alterations',
+        title: 'Structural and Numerical Alterations of Chromosomes',
         description: 'Deletion, duplication, inversion, translocation; Euploidy (auto and allo-polyploidy) and aneuploidy (monosomics and trisomics) and their genetic implications.'
       }
     ]
@@ -138,27 +141,32 @@ export const BOTANY_SYLLABUS = [
       {
         id: 'u5_s1',
         title: 'Plant Cell Envelope, Structure and Function',
-        description: 'Structure, function and biogenesis of primary and secondary cell wall in plants; plasma membrane—chemical composition, organization of various components, fluid-mosaic model, lipid rafts; cellular details of transport—carriers, pumps and channels; intracellular transport, electrical properties; cell division (Mitosis and meiosis) and cell cycle regulation.'
+        description: 'Structure, function and biogenesis of primary and secondary cell wall in plants; plasma membrane-chemical composition, organization of various components, fluidmosaic model, lipid rafts; plasma membrane and cellular details of transport-carriers, pumps and channels; mechanism of sorting and regulation of intracellular transport, electrical properties of membranes; a general concept of cell division (Mitosis and meiosis) and cell cycle regulation.'
       },
       {
         id: 'u5_s2',
-        title: 'Intracellular Organelles & Cytoskeleton',
+        title: 'Structural Organization and Function of Intracellular Organelles',
         description: 'Structure and functions of Nucleus, Mitochondria, Golgi bodies, Lysosomes, Endoplasmic reticulum, Peroxisomes, Plastids, Vacuoles; structure & function of Cytoskeleton and its role in motility.'
       },
       {
         id: 'u5_s3',
         title: 'DNA Structure, Replication and Repair',
-        description: 'DNA structure—A, B, Z Types; mechanism of replication in prokaryotes and eukaryotes, enzymology and fidelity of replication; DNA damage and repair mechanisms.'
+        description: 'DNA structure-A, B, Z Types; mechanism of replication in prokaryotes and eukaryotes, enzymology and fidelity of replication; DNA damage and repair mechanisms.'
       },
       {
         id: 'u5_s4',
         title: 'RNA Synthesis and Processing',
-        description: 'Transcription factors, machinery and mechanism in prokaryotes and eukaryotes; formation of initiation complex, activators/repressors, RNA capping, polyadenylation, splicing and editing; different RNA types, mRNA transport.'
+        description: 'Transcription factors, machinery and mechanism in prokaryotes and eukaryotes; formation of initiation complex, transcription activators and repressors, RNA capping, polyadenylation, splicing and editing; structure and function of different types of RNA, mRNA transport.'
       },
       {
         id: 'u5_s5',
-        title: 'Protein Synthesis & Gene Regulation',
-        description: 'Ribosome, charging of tRNA, Mechanism of translation, genetic code, translational proof-reading, inhibitors, post-translational modifications; Regulation of Gene Expression (lac and trp operons, eukaryotic hormonal control and methylation).'
+        title: 'Protein Synthesis and Processing',
+        description: 'Ribosome, charging of tRNA, Mechanism of translation in prokaryotes and eukaryotes, factors involved there in; genetic code, translational proof-reading, translational inhibitors, post-translational modification of proteins.'
+      },
+      {
+        id: 'u5_s6',
+        title: 'Regulation of Gene Expression',
+        description: 'Control at transcription and translation level in prokaryotes (lac and trp operons) and eukaryotes (hormonal control and methylation).'
       }
     ]
   },
@@ -173,22 +181,22 @@ export const BOTANY_SYLLABUS = [
       {
         id: 'u6_s1',
         title: 'Biomolecules, Enzymes and Bioenergetics',
-        description: 'Composition, structure and function of biomolecules (carbohydrates, lipids, proteins, nucleic acids, vitamins); Enzymes and enzyme kinetics, enzyme regulation, mechanism of catalysis, isozymes; Glycolysis, oxidative phosphorylation.'
+        description: 'Composition, structure and function of biomolecules (carbohydrates, lipids, proteins, nucleic acids and vitamins); Enzymes and enzyme kinetics, enzyme regulation, mechanism of enzyme catalysis, isozymes; Glycolysis, oxidative phosphorylation.'
       },
       {
         id: 'u6_s2',
         title: 'Photosynthesis and Respiration',
-        description: 'Light harvesting complexes; mechanisms of electron transport; photoprotective mechanisms; CO2 fixation—C3, C4 and CAM pathways; Citric acid cycle; plant mitochondrial electron transport and ATP synthesis; alternate oxidase; photorespiration.'
+        description: 'Light harvesting complexes; mechanisms of electron transport; photoprotective mechanisms; CO2 fixation- C3, C4 and CAM pathways; Citric acid cycle; plant mitochondrial electron transport and ATP synthesis; alternate oxidase; photorespiration.'
       },
       {
         id: 'u6_s3',
         title: 'Nitrogen Metabolism and Plant Hormones',
-        description: 'Nitrate and ammonium assimilation; amino acid biosynthesis; Plant Hormones—Biosynthesis, storage, breakdown and transport; physiological effects and mechanisms of action.'
+        description: 'Nitrate and ammonium assimilation; amino acid biosynthesis; Plant Hormones-Biosynthesis, storage, breakdown and transport; physiological effects and mechanisms of action.'
       },
       {
         id: 'u6_s4',
         title: 'Transport, Photobiology and Stress Physiology',
-        description: 'Uptake, transport and translocation of water, ions, solutes across xylem and phloem; transpiration; phloem loading/unloading; phytochromes, cryptochromes; stomatal movement; photoperiodism, biological clocks; biotic and abiotic stress responses.'
+        description: 'Uptake, transport and translocation of water, ions, solutes and macromolecules from soil, through cells, across membranes, through xylem and phloem; transpiration; mechanisms of loading and unloading of photo-assimilates; Structure, function and mechanisms of action of phytochromes, cryptochromes; stomatal movement; photoperiodism and biological clocks; Responses of plants to biotic (pathogen and insects) and abiotic (water, temperature and salt) stresses.'
       }
     ]
   },
@@ -203,22 +211,22 @@ export const BOTANY_SYLLABUS = [
       {
         id: 'u7_s1',
         title: 'Plant Tissues & Organs',
-        description: 'Primary structure and basic vasculature of Root, Leaf and Shoot; epidermis, stomata, trichomes; Meristems (RAM and SAM); vascular cambium; primary and secondary Xylem and Phloem; Monocot and dicot anatomy.'
+        description: 'Primary structure and basic vasculature of Root, Leaf and Shoot: Origin and diversity of epidermis, stomata and trichomes; Meristems-types, composition and structure; function of RAM and SAM; organization and function of vascular cambium, Structure and function of primary and secondary Xylem and Phloem, Anatomy of root, stem and leaf in monocots and dicots.'
       },
       {
         id: 'u7_s2',
         title: 'Plant Reproduction',
-        description: 'Types of reproduction, transition to flowering (Autonomous, photoperiodic and vernalization); microsporogenesis and microgametogenesis; megasporogenesis and megagametogenesis; pollination syndromes, pollen-pistil interaction, male sterility and self-incompatibility; fruit/seed dispersal; Embryo & Endosperm development.'
+        description: 'Types of reproduction, transition to flowering (Autonomous, photoperiodic and vernalization pathways); flower development, microsporogenesis and micro-gametogenesis; megasporogenesis and mega-gametogenesis; pollination types and syndromes, pollen-pistil interaction, male sterility and self-incompatibility, fruit and seed dispersal mechanisms; Embryo & Endosperm development (brief account).'
       },
       {
         id: 'u7_s3',
         title: 'Plant Resource Utilization',
-        description: 'Origin of Crop Plants (primary and secondary centres); gene pool and germplasm concept; Origin and uses of Food (maize, buckwheat), Fibre (cotton, jute), Spices (saffron, ginger), Oil (groundnut, mustard), Sugar (beetroot), beverage (tea), bamboos and rubber.'
+        description: 'Origin of Crop Plants (primary and secondary centres); gene pool and germplasm concept; Origin and uses of Food (maize, buckwheat), Fibre (cotton, jute), Spices (saffron, ginger), Oil (groundnut, mustard), Sugar (beetroot), beverage (tea) yielding plants, bamboos and rubber.'
       },
       {
         id: 'u7_s4',
         title: 'Plant Resource Conservation',
-        description: 'Biodiversity extinction types and causes; IUCN categories of plants; In-situ and ex-situ conservation; Legislation and enactments on conservation; concept of IPR.'
+        description: 'Biodiversity extinction, types and causes; IUCN categories of plants; objectives and principles of conservation and resource management – In-situ and ex-situ conservation strategies; Legislation and enactments on conservation; concept of IPR.'
       }
     ]
   },
@@ -233,27 +241,27 @@ export const BOTANY_SYLLABUS = [
       {
         id: 'u8_s1',
         title: 'Environment, Habitat and Niche',
-        description: 'Physical and biotic environment; biotic and abiotic interactions; Concept of habitat and niche; niche width and overlap; fundamental and realized niche; resource partitioning; character displacement.'
+        description: 'Physical environment; biotic environment; biotic and abiotic interactions; Concept of habitat and niche; niche width and overlap; fundamental and realized niche; resource partitioning; character displacement.'
       },
       {
         id: 'u8_s2',
         title: 'Ecosystem Ecology',
-        description: 'Ecosystem structure and function; energy flow and mineral cycling (C, N, P); primary production and decomposition; Indian terrestrial (forest, grassland) and aquatic (fresh water, marine, estuarine) ecosystems.'
+        description: 'Ecosystem structure; ecosystem function; energy flow and mineral cycling (C, N, P); primary production and decomposition; structure and function of some Indian ecosystems: terrestrial (forest, grassland) and aquatic (fresh water, marine, estuarine).'
       },
       {
         id: 'u8_s3',
         title: 'Species and Population Ecology',
-        description: 'Population characteristics, growth curves, population regulation; r and K selection; metapopulations (demes, dispersal, interdemic extinctions); species interactions (competition, herbivory, carnivory, pollination, symbiosis).'
+        description: 'Characteristics of a population; population growth curves; population regulation; life history strategies (r and K selection); concept of metapopulation - demes and dispersal, interdemic extinctions; Types of species interactions, interspecific competition, herbivory, carnivory, pollination, symbiosis.'
       },
       {
         id: 'u8_s4',
-        title: 'Community Ecology & Succession',
-        description: 'Community structure and attributes; levels of species diversity and measurement; edges and ecotones; Ecological succession mechanisms and climax concept.'
+        title: 'Community Ecology',
+        description: 'Nature of communities; community structure and attributes; levels of species diversity and its measurement; edges and ecotones; Ecological succession - types; mechanisms; changes involved in succession; concept of climax.'
       },
       {
         id: 'u8_s5',
-        title: 'Applied Ecology & Conservation Tools',
-        description: 'Environmental pollution; global environmental change; drivers of biodiversity change; Ecological Niche Modeling (ENM), Remote Sensing (RS) and GIS applications.'
+        title: 'Applied Ecology',
+        description: 'Environmental pollution; global environmental change; biodiversity: status, monitoring and documentation; major drivers of biodiversity change (Climate change, greenhouse gases, carbon dioxide fertilization and sequestration); biodiversity management approaches; Concepts and utility of Ecological Niche Modeling, RS and GIS.'
       }
     ]
   },
@@ -268,22 +276,22 @@ export const BOTANY_SYLLABUS = [
       {
         id: 'u9_s1',
         title: 'Plant Tissue Culture and Organogenesis',
-        description: 'Cell differentiation and totipotency; single cell culture isolation; processes and factors affecting organogenesis, somatic embryogenesis.'
+        description: 'Concept of cell differentiation and totipotency, single cell culture, techniques involved in and factors affecting single cell isolation; processes and factors affecting organogenesis, somatic embryogenesis.'
       },
       {
         id: 'u9_s2',
         title: 'Micropropagation and Somatic Hybridization',
-        description: 'Micropropagation techniques, factors, applications; Protoplast isolation, culture and regeneration; somatic hybridization, cybrids and haploids.'
+        description: 'Concept and techniques of micropropagation-factors involved, applications and limitations; Protoplast isolation, culture and regeneration, somatic hybridization and selection; Utility of hybrids, cybrids and haploids.'
       },
       {
         id: 'u9_s3',
         title: 'Recombinant DNA Technology',
-        description: 'Gene cloning principles; restriction enzymes; Vectors (plasmids, phages, phagemids, cosmids, YAC); genomic and cDNA libraries; PCR principles and applications.'
+        description: 'Principles and techniques of gene cloning, restriction enzymescharacteristics and utility; Use of Vectors (plasmids. phages, phagemids and cosmids), artificial chromosomes (YAC); genomic and cDNA libraries, polymerase chain reaction (PCR) - principle, techniques and applications.'
       },
       {
         id: 'u9_s4',
-        title: 'Genetic Engineering & Functional Genomics',
-        description: 'Agrobacterium-mediated and direct gene transfer (electroporation, biolistic); transgenic plant applications; biosafety and ethical concerns; DNA microarrays, RNAi gene silencing, CRISPR-Cas genome editing.'
+        title: 'Genetic Engineering of Plants',
+        description: 'Agrobacterium mediated and direct methods of gene transfer (electroporation and biolistic); applications of transgenic plants; biosafety - possible ecological risks and ethical concerns of GM crops; Genomics and proteomics-concept and applications, DNA microarrays, gene silencing mechanisms (RNAi), genome editing (CRISPR-Cas).'
       }
     ]
   },
@@ -298,22 +306,22 @@ export const BOTANY_SYLLABUS = [
       {
         id: 'u10_s1',
         title: 'Microscopic Techniques',
-        description: 'Light microscopy of cells; Fluorescence and Phase Contrast microscopy; Scanning Electron Microscopy (SEM) and Transmission Electron Microscopy (TEM).'
+        description: 'Visualization of cells and sub-cellular components by light microscopy; Microscopy of living cells. Principles and applications of Fluorescence and phase contrast microscopy; Scanning and Transmission Electron Microscopy.'
       },
       {
         id: 'u10_s2',
-        title: 'Isolation, Detection & Molecular Markers',
-        description: 'Macromolecule isolation and separation (DNA, RNA, Proteins); Gel Electrophoresis (AGE, PAGE, SDS-PAGE); DNA/protein sequencing; Molecular markers (RFLP, RAPD, AFLP, FISH and GISH).'
+        title: 'Isolation, Detection and Sequencing of Macromolecules',
+        description: 'Isolation, separation and analysis of RNA, DNA, Proteins, carbohydrate and lipid molecules; Gel Electrophoresis (AGE & PAGE and SDS-PAGE); DNA and protein sequencing methods, techniques and applications of RFLP, RAPD, AFLP, FISH and GISH.'
       },
       {
         id: 'u10_s3',
         title: 'Spectroscopy and Chromatography',
-        description: 'UV/visible, fluorescence, NMR, ESR, Atomic Absorption and Emission spectroscopy; Thin Layer Chromatography (TLC), Gas Chromatography (GC), HPLC and Mass Spectrometry.'
+        description: 'Molecular analysis using UV/visible, fluorescence, NMR and ESR, Atomic Absorption and Atomic Emission spectroscopy; Chromatography techniques; Gas chromatography. Thin Layer Chromatography, HPLC and Mass Spectroscopy.'
       },
       {
         id: 'u10_s4',
         title: 'Biostatistics',
-        description: 'Measures of central tendency and dispersion; Skewness, Kurtosis; Sampling methods; Binomial, Poisson, Normal distributions; Parametric vs non-parametric; Confidence Interval, Errors, Significance levels; Regression, Correlation; t-test, ANOVA, Chi-square (χ2) test, Multivariate statistics.'
+        description: 'Measures of central tendency and dispersion; Skewness, Kurtosis; methods of sampling (random and non-random); probability distributions (Binomial. Poisson and normal); Sampling distribution; Difference between parametric and nonparametric statistics; Confidence Interval; Errors; Levels of significance; Regression and Correlation; t-test; Analysis of variance; χ2 test; Basic introduction to Multivariate statistics'
       }
     ]
   }
