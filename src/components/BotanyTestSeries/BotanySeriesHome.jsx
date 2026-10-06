@@ -1218,23 +1218,46 @@ export default function BotanySeriesHome() {
             <div className="explorer-content-card">
               <div className="content-card-header">
                 <div>
-                  <h3>Official 10-Unit PSC Entrance Syllabus</h3>
+                  <h3>Official Public Service Commission Syllabus (10 Units)</h3>
                   <p>Compiled by Sheikh Gulfam (1 July 2023) • Curated by Dr. Aubid Ahmad, Assistant Professor (Botany).</p>
                 </div>
-                <div className="syllabus-search-box">
-                  <Search size={14} className="search-icon" />
-                  <input 
-                    type="text" 
-                    placeholder="Search topics (e.g. CaMV, Sporne, APG, CRISPR)..."
-                    value={syllabusSearch}
-                    onChange={(e) => setSyllabusSearch(e.target.value)}
-                  />
+                <div className="syllabus-header-actions">
+                  <div className="syllabus-expand-controls">
+                    <button 
+                      type="button" 
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => {
+                        const allOpen = {};
+                        filteredSyllabus.forEach(u => { allOpen[u.unitId] = true; });
+                        setActiveUnitAccordion(allOpen);
+                      }}
+                    >
+                      Expand All
+                    </button>
+                    <button 
+                      type="button" 
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => setActiveUnitAccordion({})}
+                    >
+                      Collapse All
+                    </button>
+                  </div>
+                  <div className="syllabus-search-box">
+                    <Search size={14} className="search-icon" />
+                    <input 
+                      type="text" 
+                      placeholder="Search topics (e.g. TMV, Alexopolous, Bryophyta, APG-IV, Operon, CRISPR, ANOVA)..."
+                      value={syllabusSearch}
+                      onChange={(e) => setSyllabusSearch(e.target.value)}
+                    />
+                  </div>
                 </div>
               </div>
 
               <div className="syllabus-accordions-list">
                 {filteredSyllabus.map(unit => {
                   const isOpen = !!activeUnitAccordion[unit.unitId];
+                  const subunitCount = unit.subunits?.length || 0;
                   return (
                     <div key={unit.unitId} className={`syllabus-unit-accordion ${isOpen ? 'open' : ''}`}>
                       <button 
@@ -1243,11 +1266,13 @@ export default function BotanySeriesHome() {
                         onClick={() => setActiveUnitAccordion(prev => ({ ...prev, [unit.unitId]: !prev[unit.unitId] }))}
                       >
                         <div className="unit-trigger-left">
-                          <span className="unit-number-pill">Unit {unit.unitNumber}</span>
+                          <span className="unit-number-pill">U{unit.unitNumber}</span>
                           <span className="unit-title-text">{unit.title}</span>
                         </div>
                         <div className="unit-trigger-right">
-                          <span className="unit-q-weight">{unit.estimatedQuestions || 50} MCQs</span>
+                          {subunitCount > 0 && (
+                            <span className="unit-subunit-count">{subunitCount} Subunits</span>
+                          )}
                           {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                         </div>
                       </button>

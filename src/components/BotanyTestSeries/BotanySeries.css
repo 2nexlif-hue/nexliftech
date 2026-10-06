@@ -1125,6 +1125,30 @@
   width: 100%;
 }
 
+.syllabus-header-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  width: 100%;
+}
+
+.syllabus-expand-controls {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.syllabus-expand-controls .btn {
+  font-size: 0.74rem;
+  padding: 0.28rem 0.65rem;
+}
+
+.unit-subunit-count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
 .syllabus-accordions-list {
   display: flex;
   flex-direction: column;
