@@ -3,13 +3,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import { X, Mail, Lock, User, AlertCircle, ArrowRight, Eye, EyeOff, CheckCircle2, UserPlus, LogIn, Sparkles } from 'lucide-react';
 import './BotanySeries.css';
 
-const ADMIN_RESERVED_EMAILS = [
-  '2nexlif@gmail.com',
-  'e.educational.24@gmail.com',
-  'admin@nexliftech.com',
-  'sheikhgulfam91@gmail.com'
-];
-
 export default function StudentAuthModal({ isOpen, onClose, onSuccess, initialMode = 'signin' }) {
   const [mode, setMode] = useState(initialMode); // 'signin' | 'signup' | 'reset'
   const [email, setEmail] = useState('');
@@ -70,11 +63,6 @@ export default function StudentAuthModal({ isOpen, onClose, onSuccess, initialMo
         onSuccess?.(cred.user);
         onClose();
       } else if (mode === 'signup') {
-        if (ADMIN_RESERVED_EMAILS.includes(emailTrimmed)) {
-          setError('This email address is reserved for administrative portals. Please sign in via the Admin Portal instead of creating a student account.');
-          setLoading(false);
-          return;
-        }
         if (password.length < 6) {
           setError('Password should be at least 6 characters long.');
           setLoading(false);
