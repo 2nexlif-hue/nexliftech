@@ -15,6 +15,10 @@
    - **Theme Consistency**: Support all 3 themes (**Light Executive Default**, **Dark Aurora**, and **Cyber Neon**). Always use CSS design tokens (`var(--bg-*)`, `var(--text-*)`, `var(--border-*)`) rather than hardcoded background or text colors.
    - **Performance**: Retain zero-lag rendering, clean component breakdown, and accessibility touch targets (minimum 44px on mobile).
 
+4. **Firebase Rules Auto-Deployment**:
+   - **Automatically Upload Firebase Rules**: Whenever `firestore.rules` or Firebase security rules are modified or updated, automatically deploy them to Firebase using `firebase deploy --only firestore:rules` (or `npx -y firebase-tools deploy --only firestore:rules`).
+   - Preserve open read access for student-facing collections (`botany_question_banks`, `botany_settings`, `botany_syllabus`, `botany_schedule`) so candidates and CBT engines never experience permission errors.
+
 ---
 
 ## Tech Stack & Commands

@@ -7,3 +7,4 @@ Refer to [agent.md](file:///d:/Shk_Gulfam/Projects/nexliftech/agent.md) for full
 - **Never push to remote**: Do NOT run `git push`. The user pushes to remote manually.
 - **Keep `agent.md`**: Do not delete or rename `agent.md`.
 - **Maintain design excellence**: Follow responsive design across mobile, tablet, and desktop viewports, with support for all 3 themes (Light, Dark, Cyber).
+- **Auto-deploy Firebase rules**: Whenever `firestore.rules` are updated, upload/deploy them to Firebase automatically (`firebase deploy --only firestore:rules`).
