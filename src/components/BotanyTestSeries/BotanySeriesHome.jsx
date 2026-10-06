@@ -130,6 +130,7 @@ export default function BotanySeriesHome() {
 
   const emailLower = currentUser?.email?.toLowerCase().trim() || '';
   const isFacultyAdmin = (
+    emailLower === 'aubidmalik00@gmail.com' ||
     emailLower === 'e.educational.24@gmail.com' ||
     emailLower === '2nexlif@gmail.com' ||
     userProfile?.role === 'botany_admin' ||
@@ -229,7 +230,7 @@ export default function BotanySeriesHome() {
     async function fetchSubs() {
       if (currentUser?.uid) {
         try {
-          const subs = await getUserBotanySubscriptions(currentUser.uid);
+          const subs = await getUserBotanySubscriptions(currentUser.uid, currentUser.email);
           setUserSubscriptions(subs);
         } catch (err) {
           console.warn('Could not fetch user subscriptions:', err);

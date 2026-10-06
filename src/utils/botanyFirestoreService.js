@@ -538,23 +538,66 @@ export async function commitAllSeedBanksToFirestore(userEmail = 'admin') {
 /**
  * Fetch active subscriptions for a given student
  */
-export async function getUserBotanySubscriptions(userId) {
-  if (!userId) return [];
+export async function getUserBotanySubscriptions(userId, userEmail) {
+  if (!userId && !userEmail) return [];
   try {
-    const q = query(collection(db, 'subscriptions'), where('userId', '==', userId));
-    const snap = await getDocs(q);
     const subs = [];
-    snap.forEach((d) => {
-      const data = d.data();
-      if (data.status === 'active') {
-        subs.push(data);
-      }
-    });
+    const seenIds = new Set();
+
+    if (userId) {
+      const q = query(collection(db, 'subscriptions'), where('userId', '==', userId));
+      const snap = await getDocs(q);
+      snap.forEach((d) => {
+        const data = d.data();
+        if (data.status === 'active') {
+          subs.push({ id: d.id, ...data });
+          seenIds.add(d.id);
+        }
+      });
+    }
+
+    if (userEmail) {
+      const emailLower = userEmail.toLowerCase().trim();
+      const qEmail = query(collection(db, 'subscriptions'), where('userEmail', '==', emailLower));
+      const snapEmail = await getDocs(qEmail);
+      snapEmail.forEach((d) => {
+        const data = d.data();
+        if (data.status === 'active' && !seenIds.has(d.id)) {
+          subs.push({ id: d.id, ...data });
+          seenIds.add(d.id);
+        }
+      });
+    }
+
     return subs;
   } catch (err) {
     console.warn('Error fetching user subscriptions:', err?.message || err);
     return [];
   }
+}
+
+/**
+ * Super Admin tool to grant manual subscription to any candidate / staff email
+ */
+export async function grantManualSubscription({ userEmail, userName, planType, allowedUnits, note, grantedBy }) {
+  const emailClean = (userEmail || '').toLowerCase().trim();
+  if (!emailClean) throw new Error('Email is required');
+  const subId = `sub_manual_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+  const subDoc = {
+    subscriptionId: subId,
+    userEmail: emailClean,
+    userName: userName || emailClean.split('@')[0],
+    planType: planType || 'full_series',
+    allowedUnits: allowedUnits || (planType === 'full_series' ? ['all'] : ['unit_1']),
+    amountPaid: 0,
+    razorpayPaymentId: `MANUAL_GRANT_${Date.now()}`,
+    status: 'active',
+    activatedAt: new Date().toISOString(),
+    grantedBy: grantedBy || 'Super Admin',
+    note: note || 'Manually granted access by administrator'
+  };
+  await setDoc(doc(db, 'subscriptions', subId), subDoc);
+  return { id: subId, ...subDoc };
 }
 
 /**

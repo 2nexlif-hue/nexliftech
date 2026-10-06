@@ -37,7 +37,10 @@ export function AuthProvider({ children }) {
       const userRef = doc(db, 'users', user.uid);
       const snap = await getDoc(userRef);
       const emailLower = user.email ? user.email.toLowerCase().trim() : '';
-      const isBotanyAdmin = emailLower === 'e.educational.24@gmail.com';
+      const isBotanyAdmin = (
+        emailLower === 'aubidmalik00@gmail.com' ||
+        emailLower === 'e.educational.24@gmail.com'
+      );
       const isSuperAdmin = (
         emailLower === '2nexlif@gmail.com'
       );

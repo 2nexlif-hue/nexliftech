@@ -220,6 +220,7 @@ export default function Dashboard() {
 
   const emailLower = currentUser?.email?.toLowerCase().trim() || '';
   const isBotanyAdminOnly = (
+    emailLower === 'aubidmalik00@gmail.com' ||
     emailLower === 'e.educational.24@gmail.com' || 
     userProfile?.role === 'botany_admin'
   );

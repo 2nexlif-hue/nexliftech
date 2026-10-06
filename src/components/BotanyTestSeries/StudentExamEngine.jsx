@@ -26,6 +26,7 @@ export default function StudentExamEngine({
 
   const emailLower = currentUser?.email?.toLowerCase().trim() || '';
   const isFacultyAdmin = (
+    emailLower === 'aubidmalik00@gmail.com' ||
     emailLower === 'e.educational.24@gmail.com' ||
     emailLower === '2nexlif@gmail.com' ||
     userProfile?.role === 'botany_admin' ||

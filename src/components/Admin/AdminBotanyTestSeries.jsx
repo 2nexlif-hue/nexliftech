@@ -3,7 +3,7 @@ import {
   GraduationCap, BookOpen, Calendar, FileSpreadsheet, Settings, Users, 
   Download, Upload, RefreshCw, CheckCircle, AlertCircle, Clock, Eye, 
   RotateCcw, ChevronDown, ChevronUp, Save, ArrowRight, Sparkles, Layers, CheckCircle2,
-  Tag, Trash2, Plus, Edit3, X
+  Tag, Trash2, Plus, Edit3, X, UserPlus
 } from 'lucide-react';
 import { 
   getBotanySettings, 
@@ -17,7 +17,8 @@ import {
   rollbackUnitToVersion,
   getAllUnitsQuestionStats,
   getTestQuestionStats,
-  commitAllSeedBanksToFirestore
+  commitAllSeedBanksToFirestore,
+  grantManualSubscription
 } from '../../utils/botanyFirestoreService';
 import QuestionBankStatsMatrix from './QuestionBankStatsMatrix';
 import { 
@@ -79,6 +80,52 @@ export default function AdminBotanyTestSeries({ currentUser }) {
     isActive: true 
   });
   const [isAddingPromo, setIsAddingPromo] = useState(false);
+
+  // Manual Access & Subscriber Enrollment
+  const [showEnrollModal, setShowEnrollModal] = useState(false);
+  const [enrollForm, setEnrollForm] = useState({
+    email: '',
+    name: '',
+    planType: 'full_series',
+    selectedUnit: 'unit_1',
+    note: 'VIP Access granted by Admin'
+  });
+  const [enrolling, setEnrolling] = useState(false);
+
+  async function handleGrantManualAccess(e) {
+    e.preventDefault();
+    const emailClean = (enrollForm.email || '').trim().toLowerCase();
+    if (!emailClean || !emailClean.includes('@')) {
+      showToast('error', 'Please enter a valid candidate or student email address.');
+      return;
+    }
+    setEnrolling(true);
+    try {
+      const newSub = await grantManualSubscription({
+        userEmail: emailClean,
+        userName: enrollForm.name.trim() || emailClean.split('@')[0],
+        planType: enrollForm.planType,
+        allowedUnits: enrollForm.planType === 'full_series' ? ['all'] : [enrollForm.selectedUnit],
+        note: enrollForm.note || 'Manually enrolled by Administrator',
+        grantedBy: currentUser?.email || 'Super Admin'
+      });
+      setSubscribers(prev => [newSub, ...prev]);
+      showToast('success', `Active subscription granted to ${emailClean}!`);
+      setShowEnrollModal(false);
+      setEnrollForm({
+        email: '',
+        name: '',
+        planType: 'full_series',
+        selectedUnit: 'unit_1',
+        note: 'VIP Access granted by Admin'
+      });
+    } catch (err) {
+      console.error('Error granting manual subscription:', err);
+      showToast('error', err.message || 'Failed to grant access');
+    } finally {
+      setEnrolling(false);
+    }
+  }
 
   // Syllabus UI
   const [expandedUnits, setExpandedUnits] = useState({ unit_1: true });
@@ -1794,14 +1841,29 @@ export default function AdminBotanyTestSeries({ currentUser }) {
       {/* SUBTAB 6: SUBSCRIBERS */}
       {subTab === 'subscribers' && (
         <div className="botany-card">
-          <div className="botany-card-header">
-            <h3>Registered &amp; Enrolled Subscribers</h3>
-            <span className="botany-header-badge">{subscribers.length} Active Subscriptions</span>
+          <div className="botany-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <div>
+              <h3>Registered &amp; Enrolled Subscribers</h3>
+              <span className="botany-header-badge">{subscribers.length} Active Subscriptions</span>
+            </div>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={() => setShowEnrollModal(true)}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.82rem' }}
+            >
+              <UserPlus size={15} />
+              <span>Grant Manual Access / Enroll</span>
+            </button>
           </div>
 
           {subscribers.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-              No subscriptions recorded yet. As students enroll via Razorpay or Google sign-in, their access tokens will show here in real-time.
+            <div style={{ textAlign: 'center', padding: '2.5rem', color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+              <div style={{ marginBottom: '0.75rem', fontSize: '1.75rem' }}>👥</div>
+              <p style={{ margin: 0 }}>No active subscriptions recorded yet.</p>
+              <p style={{ margin: '0.4rem 0 0', fontSize: '0.78rem' }}>
+                As students enroll via Razorpay or sign in, or when Super Admin clicks <strong>"Grant Manual Access / Enroll"</strong> above, active records will appear here in real-time.
+              </p>
             </div>
           ) : (
             <div className="schedule-table-wrapper">
@@ -1811,36 +1873,57 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                     <th>Student Name</th>
                     <th>Email</th>
                     <th>Plan</th>
-                    <th>Amount</th>
-                    <th>Razorpay ID</th>
+                    <th>Amount / Type</th>
+                    <th>Payment ID / Grant</th>
                     <th>Enrolled Date</th>
                     <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {subscribers.map((sub) => (
-                    <tr key={sub.id}>
-                      <td style={{ fontWeight: 600 }}>{sub.userName || 'Student'}</td>
-                      <td>{sub.userEmail}</td>
-                      <td>
-                        <span className="schedule-badge badge-unit">
-                          {sub.planType === 'full_series' ? 'Full 35-Test Series' : 'Unit Pack'}
-                        </span>
-                      </td>
-                      <td style={{ fontWeight: 700, color: '#10b981' }}>₹{sub.amountPaid}</td>
-                      <td style={{ fontSize: '0.74rem', fontFamily: 'var(--font-mono)' }}>
-                        {sub.razorpayPaymentId || 'Direct / Free'}
-                      </td>
-                      <td style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                        {sub.activatedAt ? new Date(sub.activatedAt).toLocaleDateString() : 'Active'}
-                      </td>
-                      <td>
-                        <span className="schedule-badge badge-cluster">
-                          {sub.status || 'Active'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                  {subscribers.map((sub) => {
+                    const isManual = sub.razorpayPaymentId?.startsWith('MANUAL') || sub.amountPaid === 0 || sub.grantedBy;
+                    return (
+                      <tr key={sub.id}>
+                        <td style={{ fontWeight: 600 }}>{sub.userName || 'Student'}</td>
+                        <td>
+                          <code>{sub.userEmail}</code>
+                        </td>
+                        <td>
+                          <span className="schedule-badge badge-unit">
+                            {sub.planType === 'full_series' 
+                              ? 'Full 35-Test Series' 
+                              : `Unit Pass (${sub.allowedUnits?.join(', ') || 'Unit 1'})`}
+                          </span>
+                        </td>
+                        <td>
+                          {isManual ? (
+                            <span style={{ fontWeight: 700, color: 'var(--accent-primary)', fontSize: '0.76rem', background: 'rgba(59, 130, 246, 0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
+                              Free / Admin Grant
+                            </span>
+                          ) : (
+                            <span style={{ fontWeight: 700, color: '#10b981' }}>₹{sub.amountPaid}</span>
+                          )}
+                        </td>
+                        <td style={{ fontSize: '0.74rem', fontFamily: 'var(--font-mono)' }}>
+                          {isManual ? (
+                            <span title={`Granted by ${sub.grantedBy || 'Super Admin'}: ${sub.note || ''}`}>
+                              🏷️ {sub.note || 'Manual Access'}
+                            </span>
+                          ) : (
+                            sub.razorpayPaymentId || 'Direct'
+                          )}
+                        </td>
+                        <td style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                          {sub.activatedAt ? new Date(sub.activatedAt).toLocaleDateString() : 'Active'}
+                        </td>
+                        <td>
+                          <span className="schedule-badge badge-cluster">
+                            {sub.status || 'Active'}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -2237,6 +2320,171 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MANUAL ENROLLMENT & ACCESS GRANT MODAL */}
+      {showEnrollModal && (
+        <div className="preview-modal-overlay">
+          <div className="preview-modal-content" style={{ maxWidth: '540px' }}>
+            <div className="preview-modal-header">
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <UserPlus size={18} style={{ color: 'var(--accent-primary)' }} />
+                  <span>Grant Test Series Access Manually</span>
+                </h3>
+                <p style={{ margin: '0.3rem 0 0 0', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                  Super Admin tool to grant instant VIP or offline access to candidate or faculty accounts (e.g. <code>aubidmalik00@gmail.com</code>).
+                </p>
+              </div>
+              <button 
+                type="button" 
+                className="btn-icon"
+                onClick={() => setShowEnrollModal(false)}
+                disabled={enrolling}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleGrantManualAccess}>
+              <div className="preview-modal-body" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="admin-form-group">
+                  <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                    User / Student Email Address <span style={{ color: '#ef4444' }}>*</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={enrollForm.email}
+                    onChange={(e) => setEnrollForm({ ...enrollForm, email: e.target.value })}
+                    placeholder="e.g. aubidmalik00@gmail.com or aspirant@gmail.com"
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '0.65rem 0.85rem',
+                      borderRadius: '8px',
+                      background: 'var(--bg-elevated)',
+                      border: '1px solid var(--border-light)',
+                      color: 'var(--text-primary)',
+                      fontSize: '0.88rem'
+                    }}
+                  />
+                  <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                    Access binds directly to this email upon Google or password login.
+                  </span>
+                </div>
+
+                <div className="admin-form-group">
+                  <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                    Candidate / Faculty Name (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={enrollForm.name}
+                    onChange={(e) => setEnrollForm({ ...enrollForm, name: e.target.value })}
+                    placeholder="e.g. Dr. Aubid Ahmad or Candidate Name"
+                    style={{
+                      width: '100%',
+                      padding: '0.65rem 0.85rem',
+                      borderRadius: '8px',
+                      background: 'var(--bg-elevated)',
+                      border: '1px solid var(--border-light)',
+                      color: 'var(--text-primary)',
+                      fontSize: '0.88rem'
+                    }}
+                  />
+                </div>
+
+                <div className="admin-form-group">
+                  <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                    Access Plan
+                  </label>
+                  <select
+                    value={enrollForm.planType}
+                    onChange={(e) => setEnrollForm({ ...enrollForm, planType: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '0.65rem 0.85rem',
+                      borderRadius: '8px',
+                      background: 'var(--bg-elevated)',
+                      border: '1px solid var(--border-light)',
+                      color: 'var(--text-primary)',
+                      fontSize: '0.88rem'
+                    }}
+                  >
+                    <option value="full_series">🌟 Full 35-Test Series (All Units + Mocks + Special)</option>
+                    <option value="unit_pass">📦 Single Unit-Wise Pass</option>
+                  </select>
+                </div>
+
+                {enrollForm.planType === 'unit_pass' && (
+                  <div className="admin-form-group">
+                    <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                      Select Unit Covered
+                    </label>
+                    <select
+                      value={enrollForm.selectedUnit}
+                      onChange={(e) => setEnrollForm({ ...enrollForm, selectedUnit: e.target.value })}
+                      style={{
+                        width: '100%',
+                        padding: '0.65rem 0.85rem',
+                        borderRadius: '8px',
+                        background: 'var(--bg-elevated)',
+                        border: '1px solid var(--border-light)',
+                        color: 'var(--text-primary)',
+                        fontSize: '0.88rem'
+                      }}
+                    >
+                      {syllabus.map(u => (
+                        <option key={u.id} value={u.id}>{u.unitNumber}: {u.title}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                <div className="admin-form-group">
+                  <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                    Administrative Remark / Note
+                  </label>
+                  <input
+                    type="text"
+                    value={enrollForm.note}
+                    onChange={(e) => setEnrollForm({ ...enrollForm, note: e.target.value })}
+                    placeholder="e.g. VIP Faculty Account, Offline Cash, Scholarship"
+                    style={{
+                      width: '100%',
+                      padding: '0.65rem 0.85rem',
+                      borderRadius: '8px',
+                      background: 'var(--bg-elevated)',
+                      border: '1px solid var(--border-light)',
+                      color: 'var(--text-primary)',
+                      fontSize: '0.88rem'
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="preview-modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.65rem', padding: '1rem 1.25rem', borderTop: '1px solid var(--border-light)' }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowEnrollModal(false)}
+                  disabled={enrolling}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={enrolling || !enrollForm.email}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                >
+                  {enrolling ? <span className="btn-spinner"></span> : <CheckCircle2 size={15} />}
+                  <span>{enrolling ? 'Granting Access...' : 'Activate Subscription'}</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

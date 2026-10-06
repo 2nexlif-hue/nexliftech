@@ -65,7 +65,10 @@ export default function Login() {
     setLoading(true);
 
     const emailTrimmed = email.trim().toLowerCase();
-    const isBotanyAdminEmail = (emailTrimmed === 'e.educational.24@gmail.com');
+    const isBotanyAdminEmail = (
+      emailTrimmed === 'aubidmalik00@gmail.com' ||
+      emailTrimmed === 'e.educational.24@gmail.com'
+    );
 
     try {
       let cred;
