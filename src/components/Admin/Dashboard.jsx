@@ -1101,7 +1101,7 @@ export default function Dashboard() {
               fontWeight: 700
             }}>
               <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }}></span>
-              <span>Botany Examination Suite • Faculty Portal</span>
+              <span>Botany Exam Suite • Faculty Portal</span>
             </div>
           ) : (
             <div style={{
@@ -1160,8 +1160,8 @@ export default function Dashboard() {
             <div className="faculty-workspace-info">
               <div className="faculty-badge-icon">🌿</div>
               <div>
-                <h2>Botany Assistant Professor Examination Suite</h2>
-                <p>Dedicated Examination &amp; Question Bank Workspace • Curated by Dr. Aubid Ahmad</p>
+                <h2>Botany Examination Suite</h2>
+                <p>Dedicated Exam & Question Bank Workspace • Dr. Aubid Ahmad</p>
               </div>
             </div>
             <div className="faculty-account-pill">
@@ -1179,7 +1179,7 @@ export default function Dashboard() {
               className={`workspace-bar-btn ${workspace === 'cms' ? 'active-cms' : ''}`}
             >
               <Globe size={16} />
-              <span>Website CMS Account</span>
+              <span>Website CMS</span>
             </button>
 
             <button
@@ -1191,7 +1191,7 @@ export default function Dashboard() {
               className={`workspace-bar-btn ${workspace === 'botany' ? 'active-botany' : ''}`}
             >
               <GraduationCap size={16} />
-              <span>Botany Assistant Professor Suite</span>
+              <span>Botany Exam Suite</span>
             </button>
 
             <button
@@ -1203,7 +1203,7 @@ export default function Dashboard() {
               className={`workspace-bar-btn ${workspace === 'personal' ? 'active-personal' : ''}`}
             >
               <Building2 size={16} />
-              <span>Personal & Govt Projects Account</span>
+              <span>Govt & Personal Projects</span>
             </button>
           </div>
         )}
@@ -1213,17 +1213,17 @@ export default function Dashboard() {
           <div className="dashboard-header">
             <h1>
               {workspace === 'cms'
-                ? 'Website Content Portal'
+                ? 'Website Content Management'
                 : workspace === 'botany'
-                ? 'Botany Assistant Professor Examination Suite'
-                : 'Personal & Official Projects Suite'}
+                ? 'Botany Examination Suite'
+                : 'Govt & Personal Projects'}
             </h1>
             <p className="dashboard-subtitle">
               {workspace === 'cms' 
-                ? 'Manage site content, portfolio, pricing plans, and view incoming customer messages.'
+                ? 'Manage site content, portfolio, pricing, and incoming messages.'
                 : workspace === 'botany'
-                ? 'Curated by Dr. Aubid Ahmad, Asst. Professor. Manage 10-unit syllabus, 35-test calendar, Excel question banks, versioning, and subscriptions.'
-                : 'Access & manage official government inspection checklists, personal apps, and Firestore records.'}
+                ? 'Curated by Dr. Aubid Ahmad. Manage syllabus, test calendar, Excel question banks, versioning, and subscriptions.'
+                : 'Official government inspection checklists, personal apps, and Firestore records.'}
             </p>
           </div>
           

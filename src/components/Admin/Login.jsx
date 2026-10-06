@@ -29,7 +29,7 @@ export default function Login() {
       return;
     }
 
-    // 2. Super admin accounts (Website CMS and Govt portals)
+    // 2. Super admin (sole website owner)
     if (
       emailClean === '2nexlif@gmail.com'
     ) {
