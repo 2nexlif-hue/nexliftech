@@ -2,9 +2,9 @@
 
 ## Critical Operational Rules
 
-1. **Local Git Commits Only**:
-   - Always commit work locally with clear, descriptive commit messages after completing tasks.
-   - **NEVER execute `git push`**. The user will push to the remote repository manually.
+1. **Automated Add, Build, and Local Commit (Never Push)**:
+   - **Automated Workflow**: Whenever completing tasks or modifying code, automatically stage files (`git add`), verify correctness via `npm run build`, and create a descriptive local commit (`git commit`).
+   - **NEVER execute `git push`**: Do NOT run `git push` under any circumstances. Pushing to remote is ALWAYS done manually by the user.
 
 2. **File & System Integrity**:
    - Retain this file (`agent.md` / `AGENTS.md`) at all times.
