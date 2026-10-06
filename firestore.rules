@@ -43,6 +43,9 @@ service cloud.firestore {
     match /botany_cbt_submissions/{subId} {
       allow read, write: if true;
     }
+    match /mail/{mailId} {
+      allow read, write: if true;
+    }
 
     // 5. User Profiles
     match /users/{userId} {

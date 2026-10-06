@@ -1,14 +1,53 @@
 import { useState, useEffect } from 'react';
 import { 
   Clock, AlertTriangle, ArrowLeft, ArrowRight, Bookmark, 
-  RotateCcw, Award, Check, X, HelpCircle, BookOpen, LayoutGrid, CheckCircle2 
+  RotateCcw, Award, Check, X, HelpCircle, BookOpen, LayoutGrid, CheckCircle2, Lock 
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { saveCbtSubmission } from '../../utils/botanyFirestoreService';
 import './BotanySeries.css';
 
-export default function StudentExamEngine({ testData, questions = [], onClose }) {
+export default function StudentExamEngine({ 
+  testData, 
+  questions = [], 
+  onClose, 
+  onUnlockNeeded, 
+  userSubscriptions = [] 
+}) {
   const { currentUser, userProfile } = useAuth();
+
+  // Guardrail check: Only Test 1 (Diagnostic Demo) is free; Tests 2-35 require active subscription
+  const isFreeDemo = (
+    testData?.testNumber === 'T-1' || 
+    testData?.id === 'diagnostic_demo' || 
+    testData?.id === 'test_01' || 
+    testData?.category === 'Diagnostic Test'
+  );
+
+  const emailLower = currentUser?.email?.toLowerCase().trim() || '';
+  const isFacultyAdmin = (
+    emailLower === 'e.educational.24@gmail.com' ||
+    emailLower === 'admin@nexliftech.com' ||
+    emailLower === 'sheikhgulfam91@gmail.com' ||
+    emailLower === '2nexlif@gmail.com' ||
+    userProfile?.role === 'botany_admin' ||
+    userProfile?.role === 'admin'
+  );
+
+  const hasFullAccess = Boolean(
+    isFacultyAdmin ||
+    userProfile?.hasActiveBotanySeries ||
+    userSubscriptions.some(s => s.allowedUnits?.includes('all') || s.planType === 'full_series')
+  );
+
+  let hasAccess = isFreeDemo || hasFullAccess;
+  if (!hasAccess) {
+    const unitMatch = testData?.unitCovered?.match(/Unit\s*(\d+)/i);
+    if (unitMatch) {
+      const unitId = `unit_${unitMatch[1]}`;
+      hasAccess = userSubscriptions.some(s => s.allowedUnits?.includes(unitId));
+    }
+  }
 
   // Test state
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -149,6 +188,71 @@ export default function StudentExamEngine({ testData, questions = [], onClose })
   const accuracy = (correctCount + incorrectCount) > 0 
     ? Math.round((correctCount / (correctCount + incorrectCount)) * 100) 
     : 0;
+
+  if (!hasAccess) {
+    return (
+      <div className="cbt-modal-fullscreen" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+        <div className="auth-modal-card" style={{ maxWidth: '520px', width: '100%', textAlign: 'center', padding: '2rem' }}>
+          <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.25)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
+            <Lock size={28} />
+          </div>
+
+          <span className="unit-badge" style={{ marginBottom: '0.75rem', display: 'inline-block' }}>
+            Premium Examination Content
+          </span>
+
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0 0 0.5rem', color: 'var(--text-primary)' }}>
+            Subscription Pass Required
+          </h2>
+
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6, margin: '0 0 1.25rem' }}>
+            <strong>{testData?.title || 'This Test'}</strong> ({testData?.unitCovered || 'PSC Syllabus'}) is restricted under official examination guardrails. To attempt this test with timed simulation, rank scoring, and option-by-option rationale, please unlock your Candidate Pass.
+          </p>
+
+          <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-light)', borderRadius: '12px', padding: '1rem', textAlign: 'left', marginBottom: '1.5rem', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)' }}>
+              <CheckCircle2 size={16} color="#10b981" />
+              <span>Full 10 Units PSC Syllabus Coverage (35 Tests, 9 Grand Mocks)</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)' }}>
+              <CheckCircle2 size={16} color="#10b981" />
+              <span>Option-by-option scientific explanation curated by Dr. Aubid Ahmad</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)' }}>
+              <CheckCircle2 size={16} color="#10b981" />
+              <span>Official tax invoice & email confirmation delivered instantly</span>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.75rem', flexDirection: 'column' }}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              style={{ width: '100%', justifyContent: 'center', padding: '0.75rem 1rem' }}
+              onClick={() => {
+                if (onUnlockNeeded) {
+                  onUnlockNeeded(testData);
+                } else {
+                  onClose();
+                }
+              }}
+            >
+              <span>Unlock Pass & Subscribe via Razorpay</span>
+              <ArrowRight size={16} />
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ width: '100%', justifyContent: 'center' }}
+              onClick={onClose}
+            >
+              Back to Test Calendar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="cbt-modal-fullscreen">

@@ -784,8 +784,8 @@ export const DEFAULT_SERIES_SETTINGS = {
   originalPrice: 2499,
   unitWisePrice: 199,
   allowUnitWisePurchase: true,
-  razorpayKey: '',
-  contactSupportEmail: 'contact@nexliftech.com',
+  razorpayKey: 'rzp_live_TGUYt8AMIuHwLa',
+  contactSupportEmail: 'admissions@nexliftech.space',
   coupons: [
     { code: 'EARLYBIRD', discountAmount: 300, validUntil: '2026-10-15', minOrder: 1000 }
   ]

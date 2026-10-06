@@ -1435,15 +1435,28 @@ export default function AdminBotanyTestSeries({ currentUser }) {
             </div>
 
             <div className="admin-form-group">
-              <label>Razorpay Key ID</label>
+              <label>Razorpay Key ID (Live / Test)</label>
               <input 
                 type="text"
-                placeholder="rzp_live_xxxxxxxxxxxxxx or rzp_test_xxxxxxx"
+                placeholder="rzp_live_TGUYt8AMIuHwLa"
                 value={settings?.razorpayKey || ''}
                 onChange={(e) => setSettings({ ...settings, razorpayKey: e.target.value })}
               />
+              <span style={{ fontSize: '0.74rem', color: '#10b981' }}>
+                ✓ Approved Domain: <strong>https://nexliftech.space/</strong> (Live Key: <code>rzp_live_TGUYt8AMIuHwLa</code>)
+              </span>
+            </div>
+
+            <div className="admin-form-group">
+              <label>Confirmation Email Dispatcher / Support Desk</label>
+              <input 
+                type="email"
+                placeholder="admissions@nexliftech.space"
+                value={settings?.contactSupportEmail || 'admissions@nexliftech.space'}
+                onChange={(e) => setSettings({ ...settings, contactSupportEmail: e.target.value })}
+              />
               <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
-                Leave empty in local development to run in simulation checkout mode.
+                Official email address on tax receipts and transactional confirmation mailings.
               </span>
             </div>
 

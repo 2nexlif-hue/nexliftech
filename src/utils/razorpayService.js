@@ -1,5 +1,6 @@
 import { doc, setDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '../firebase';
+import { sendSubscriptionConfirmationEmail } from './botanyEmailService';
 
 /**
  * Dynamically loads the Razorpay checkout script if not already loaded
@@ -38,11 +39,11 @@ export async function initiateRazorpayPayment({
     return;
   }
 
-  // Use configured key or environment fallback or test key
-  const activeKey = razorpayKeyId || import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_placeholder';
+  // Use configured key from admin settings, environment, or registered live key
+  const activeKey = razorpayKeyId || import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_TGUYt8AMIuHwLa';
 
-  // If running in development with placeholder key and key is not set, allow simulated payment for testing
-  const isSimulation = activeKey === 'rzp_test_placeholder' || activeKey === '';
+  // If in local development without a valid live key format, allow simulated payment verification
+  const isSimulation = (activeKey === 'rzp_test_placeholder' || !activeKey) && import.meta.env.DEV;
 
   if (isSimulation) {
     console.warn('Razorpay Live Key ID is not configured yet. Providing simulated checkout verification.');
@@ -80,14 +81,14 @@ export async function initiateRazorpayPayment({
     currency: 'INR',
     name: 'NexLifTech Education',
     description: planTitle,
-    image: '/assets/logo.png', // or brand logo
+    image: '/assets/logo.png',
     prefill: {
       name: user.displayName || '',
       email: user.email || '',
       contact: user.phoneNumber || ''
     },
     theme: {
-      color: '#7c3aed'
+      color: '#047857' // Official Emerald Botany Theme
     },
     handler: async function (response) {
       try {
@@ -120,7 +121,7 @@ export async function initiateRazorpayPayment({
 }
 
 /**
- * Records verified subscription in Firestore and grants access
+ * Records verified subscription in Firestore, grants access, and dispatches confirmation email
  */
 async function recordSuccessfulSubscription({ paymentId, orderId, amount, planType, planTitle, unitId, user }) {
   const subId = `sub_${user.uid}_${Date.now()}`;
@@ -157,6 +158,13 @@ async function recordSuccessfulSubscription({ paymentId, orderId, amount, planTy
     });
   } catch (err) {
     console.warn('Could not update user doc subscriptions array:', err);
+  }
+
+  // 3. Dispatch anti-spam transactional confirmation email
+  try {
+    await sendSubscriptionConfirmationEmail(subData);
+  } catch (emailErr) {
+    console.warn('Could not dispatch confirmation email:', emailErr);
   }
 
   return subData;

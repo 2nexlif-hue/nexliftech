@@ -3,7 +3,7 @@ import {
   BookOpen, Calendar, CheckCircle2, Play, 
   ArrowRight, Tag, Sparkles, UserCheck, LogOut, ArrowLeft, Search, 
   GraduationCap, Lock, Clock, ShieldCheck, Award, HelpCircle, 
-  ChevronDown, ChevronUp, Zap, Check, AlertCircle, FileText, X, Star, User
+  ChevronDown, ChevronUp, Zap, Check, AlertCircle, FileText, X, Star, User, Printer
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { 
@@ -16,6 +16,7 @@ import {
   getUserBotanySubscriptions
 } from '../../utils/botanyFirestoreService';
 import { initiateRazorpayPayment } from '../../utils/razorpayService';
+import { printSubscriptionReceipt } from '../../utils/botanyEmailService';
 import { BOTANY_SEED_QUESTION_BANKS } from '../../utils/botanySeedQuestionBanks';
 import StudentAuthModal from './StudentAuthModal';
 import StudentExamEngine from './StudentExamEngine';
@@ -131,6 +132,7 @@ export default function BotanySeriesHome() {
     emailLower === 'e.educational.24@gmail.com' ||
     emailLower === 'admin@nexliftech.com' ||
     emailLower === 'sheikhgulfam91@gmail.com' ||
+    emailLower === '2nexlif@gmail.com' ||
     userProfile?.role === 'botany_admin' ||
     userProfile?.role === 'admin'
   );
@@ -186,6 +188,7 @@ export default function BotanySeriesHome() {
   const [testLaunchLoading, setTestLaunchLoading] = useState(false);
   const [testNotification, setTestNotification] = useState('');
   const [enrollSuccessMessage, setEnrollSuccessMessage] = useState('');
+  const [latestSubscriptionRecord, setLatestSubscriptionRecord] = useState(null);
 
   // Active pricing plan tab for mobile view: 'full' | 'unit' | 'demo'
   const [activePricingTab, setActivePricingTab] = useState('full');
@@ -443,6 +446,7 @@ export default function BotanySeriesHome() {
       user,
       razorpayKeyId: settings?.razorpayKey,
       onSuccess: async (subRecord) => {
+        setLatestSubscriptionRecord(subRecord);
         setEnrollSuccessMessage(`Enrollment confirmed! Subscription ID: ${subRecord.subscriptionId}. Your official access credentials have been activated.`);
         // Refresh subscriptions immediately
         if (user?.uid) {
@@ -547,6 +551,17 @@ export default function BotanySeriesHome() {
                   {currentUser.displayName || currentUser.email}
                 </span>
               </div>
+              {(latestSubscriptionRecord || userSubscriptions.length > 0) && (
+                <button 
+                  type="button" 
+                  className="btn btn-secondary btn-sm cbt-receipt-btn" 
+                  onClick={() => printSubscriptionReceipt(latestSubscriptionRecord || userSubscriptions[0])}
+                  title="Print / Save Official Tax Invoice & Subscription Receipt"
+                  style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+                >
+                  <Printer size={13} /> <span className="cbt-btn-text">My Receipt</span>
+                </button>
+              )}
               <button 
                 type="button" 
                 className="btn btn-secondary btn-sm cbt-logout-btn" 
@@ -578,14 +593,111 @@ export default function BotanySeriesHome() {
       </header>
 
       <main className="botany-container">
-        {enrollSuccessMessage && (
-          <div className="botany-modal-alert success" style={{ padding: '1rem', marginBottom: '1rem', borderRadius: '10px' }}>
-            <CheckCircle2 size={20} style={{ color: '#10b981', flexShrink: 0 }} />
-            <div>
-              <strong style={{ fontSize: '0.95rem', display: 'block' }}>
-                🎉 Congratulations! You are successfully enrolled.
-              </strong>
-              <span style={{ fontSize: '0.84rem' }}>{enrollSuccessMessage}</span>
+        {(latestSubscriptionRecord || enrollSuccessMessage) && (
+          <div className="botany-enrollment-success-card" style={{
+            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 95, 70, 0.08) 100%)',
+            border: '1px solid rgba(16, 185, 129, 0.35)',
+            borderRadius: '14px',
+            padding: '1.25rem 1.5rem',
+            marginBottom: '1.5rem',
+            position: 'relative',
+            boxShadow: '0 4px 20px rgba(16, 185, 129, 0.12)'
+          }}>
+            <button 
+              type="button" 
+              onClick={() => { setEnrollSuccessMessage(''); setLatestSubscriptionRecord(null); }}
+              style={{ position: 'absolute', top: '12px', right: '14px', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px' }}
+              aria-label="Dismiss banner"
+            >
+              <X size={18} />
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
+              <div style={{
+                width: '42px',
+                height: '42px',
+                borderRadius: '12px',
+                background: '#10b981',
+                color: '#ffffff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                boxShadow: '0 2px 10px rgba(16, 185, 129, 0.4)'
+              }}>
+                <CheckCircle2 size={24} />
+              </div>
+
+              <div style={{ flex: 1, minWidth: '260px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '4px' }}>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
+                    Payment Verified & Subscription Active
+                  </h3>
+                  <span style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    padding: '2px 8px',
+                    borderRadius: '999px',
+                    background: 'rgba(16, 185, 129, 0.2)',
+                    color: '#059669',
+                    border: '1px solid rgba(16, 185, 129, 0.3)'
+                  }}>
+                    Verified Candidate
+                  </span>
+                </div>
+
+                <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', margin: '0 0 0.75rem', lineHeight: 1.5 }}>
+                  {enrollSuccessMessage || 'Your candidate credentials are live. All scheduled computer-based tests, timed exams, and option analysis rationales are unlocked.'}
+                </p>
+
+                {/* Email Delivery Notice */}
+                <div style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid var(--border-light)',
+                  borderRadius: '8px',
+                  padding: '0.6rem 0.85rem',
+                  fontSize: '0.8rem',
+                  color: 'var(--text-secondary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  marginBottom: '1rem'
+                }}>
+                  <ShieldCheck size={16} color="#10b981" style={{ flexShrink: 0 }} />
+                  <span>
+                    <strong>Confirmation Email Sent:</strong> An authentic transactional receipt with access credentials was queued for delivery to your registered email from <code>admissions@nexliftech.space</code>. Please check your <em>Primary Inbox</em> or <em>Updates</em> tab.
+                  </span>
+                </div>
+
+                {/* Action buttons */}
+                <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                  {(latestSubscriptionRecord || userSubscriptions[0]) && (
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-sm"
+                      onClick={() => printSubscriptionReceipt(latestSubscriptionRecord || userSubscriptions[0])}
+                      style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}
+                    >
+                      <Printer size={14} />
+                      <span>Print / Download Tax Receipt (PDF)</span>
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => {
+                      setExplorerTab('schedule');
+                      const schedEl = document.querySelector('.botany-tab-navigation-bar');
+                      if (schedEl) schedEl.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                  >
+                    <span>Go to Test Calendar</span>
+                    <ArrowRight size={13} />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -1378,6 +1490,12 @@ export default function BotanySeriesHome() {
             setShowCbtEngine(false);
             setActiveTestForCbt(null);
           }}
+          onUnlockNeeded={(test) => {
+            setShowCbtEngine(false);
+            setActiveTestForCbt(null);
+            handleUnlockTest(test);
+          }}
+          userSubscriptions={userSubscriptions}
         />
       )}
     </div>
