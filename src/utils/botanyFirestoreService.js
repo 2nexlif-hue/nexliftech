@@ -125,29 +125,48 @@ export async function syncBotanyDataToFirestore(userEmail = 'admin') {
  * Fetch active questions for a specific unit (with fallback to preloaded seed bank)
  */
 export async function getUnitQuestions(unitId) {
+  // 1. Try Firestore first
   try {
     const docRef = doc(db, 'botany_question_banks', unitId);
     const snap = await getDoc(docRef);
     if (snap.exists() && snap.data()?.questions?.length) {
-      return snap.data();
+      const data = snap.data();
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          window.localStorage.setItem(`botany_bank_${unitId}`, JSON.stringify(data));
+        }
+      } catch (e) {}
+      return data;
     }
-    if (BOTANY_SEED_QUESTION_BANKS && BOTANY_SEED_QUESTION_BANKS[unitId]) {
-      return BOTANY_SEED_QUESTION_BANKS[unitId];
-    }
-    return {
-      unitId,
-      version: 0,
-      totalQuestions: 0,
-      questions: [],
-      lastUpdated: null
-    };
   } catch (err) {
-    console.error(`Error loading questions for ${unitId}, using seed fallback:`, err);
-    if (BOTANY_SEED_QUESTION_BANKS && BOTANY_SEED_QUESTION_BANKS[unitId]) {
-      return BOTANY_SEED_QUESTION_BANKS[unitId];
-    }
-    return { unitId, version: 0, totalQuestions: 0, questions: [], lastUpdated: null };
+    console.warn(`Firestore read for ${unitId} (will check cache/seed):`, err?.message || err);
   }
+
+  // 2. Try client-side localStorage cache (for instantaneous sync across tabs)
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const cached = window.localStorage.getItem(`botany_bank_${unitId}`);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed?.questions?.length > 0) {
+          return parsed;
+        }
+      }
+    }
+  } catch (e) {}
+
+  // 3. Fallback to pre-loaded seed question banks (including diagnostic_demo with 30 MCQs)
+  if (BOTANY_SEED_QUESTION_BANKS && BOTANY_SEED_QUESTION_BANKS[unitId]) {
+    return BOTANY_SEED_QUESTION_BANKS[unitId];
+  }
+
+  return {
+    unitId,
+    version: 0,
+    totalQuestions: 0,
+    questions: [],
+    lastUpdated: null
+  };
 }
 
 /**
@@ -222,7 +241,23 @@ export async function commitUnitQuestions({ unitId, unitTitle, questions, fileNa
     updatedBy: userEmail
   };
 
-  await setDoc(unitDocRef, newActiveData);
+  try {
+    await setDoc(unitDocRef, newActiveData);
+  } catch (err) {
+    console.warn(`Firestore setDoc for ${unitId} failed, will ensure client storage:`, err);
+  }
+
+  // Immediately mirror to client-side localStorage and dispatch broadcast event for 0ms multi-tab sync
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem(`botany_bank_${unitId}`, JSON.stringify(newActiveData));
+      window.localStorage.setItem('botany_last_sync', Date.now().toString());
+      window.dispatchEvent(new CustomEvent('botany_bank_updated', { detail: { unitId, newActiveData } }));
+    }
+  } catch (e) {
+    console.warn('localStorage sync warning:', e);
+  }
+
   return newActiveData;
 }
 

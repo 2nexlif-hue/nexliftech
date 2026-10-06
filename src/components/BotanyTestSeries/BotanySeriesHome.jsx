@@ -15,6 +15,7 @@ import {
   getUnitQuestions
 } from '../../utils/botanyFirestoreService';
 import { initiateRazorpayPayment } from '../../utils/razorpayService';
+import { BOTANY_SEED_QUESTION_BANKS } from '../../utils/botanySeedQuestionBanks';
 import StudentAuthModal from './StudentAuthModal';
 import StudentExamEngine from './StudentExamEngine';
 import LogoSVG from '../Logo';
@@ -138,7 +139,21 @@ export default function BotanySeriesHome() {
   const [syllabus, setSyllabus] = useState([]);
   const [schedule, setSchedule] = useState([]);
   const [questionStats, setQuestionStats] = useState(null);
-  const [demoQuestions, setDemoQuestions] = useState(DEMO_QUESTIONS);
+  const [demoQuestions, setDemoQuestions] = useState(() => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const cached = window.localStorage.getItem('botany_bank_diagnostic_demo');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed?.questions?.length > 0) return parsed.questions;
+        }
+      }
+    } catch (e) {}
+    if (BOTANY_SEED_QUESTION_BANKS && BOTANY_SEED_QUESTION_BANKS['diagnostic_demo']?.questions?.length) {
+      return BOTANY_SEED_QUESTION_BANKS['diagnostic_demo'].questions;
+    }
+    return DEMO_QUESTIONS;
+  });
   const [loading, setLoading] = useState(true);
 
   // Active Explorer Tab: 'schedule' | 'syllabus' | 'features' | 'faq'
@@ -200,6 +215,31 @@ export default function BotanySeriesHome() {
     loadData();
   }, []);
 
+  // Real-time synchronization listener across tabs & admin uploads
+  useEffect(() => {
+    function handleBankUpdate(e) {
+      if (!e?.detail?.unitId || e.detail.unitId === 'diagnostic_demo') {
+        if (e?.detail?.newActiveData?.questions?.length) {
+          setDemoQuestions(e.detail.newActiveData.questions);
+        }
+      }
+    }
+    function handleStorage(e) {
+      if (e.key === 'botany_bank_diagnostic_demo' && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (parsed?.questions?.length) setDemoQuestions(parsed.questions);
+        } catch (err) {}
+      }
+    }
+    window.addEventListener('botany_bank_updated', handleBankUpdate);
+    window.addEventListener('storage', handleStorage);
+    return () => {
+      window.removeEventListener('botany_bank_updated', handleBankUpdate);
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, []);
+
   function scrollToPricing(tab = 'full') {
     if (tab) setActivePricingTab(tab);
     if (pricingSectionRef.current) {
@@ -227,7 +267,15 @@ export default function BotanySeriesHome() {
     executeCheckout(currentUser, planType);
   }
 
-  function handleDemoCbtClick() {
+  async function handleDemoCbtClick() {
+    // Refresh demo bank immediately to ensure freshest uploaded questions
+    try {
+      const fresh = await getUnitQuestions('diagnostic_demo');
+      if (fresh?.questions?.length > 0) {
+        setDemoQuestions(fresh.questions);
+      }
+    } catch (e) {}
+
     if (!currentUser) {
       setAuthPendingAction('cbt_demo');
       setShowAuthModal(true);
