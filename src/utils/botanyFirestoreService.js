@@ -478,6 +478,9 @@ export async function getAllUnitsQuestionStats(syllabus = BOTANY_SYLLABUS) {
   });
 
   const totalTargetQuestions = syllabus.length * 50; // 500
+  const overallCoveragePct = totalTargetQuestions > 0 
+    ? Math.min(100, Math.round((totalUploadedQuestions / totalTargetQuestions) * 100)) 
+    : 0;
   const overallAnalysisPct = totalUploadedQuestions > 0 ? Math.round((totalWithAll4Analysis / totalUploadedQuestions) * 100) : 0;
   const overallContextPct = totalUploadedQuestions > 0 ? Math.round((totalWithContextNote / totalUploadedQuestions) * 100) : 0;
   const demoBank = firestoreUnits['diagnostic_demo'] || BOTANY_SEED_QUESTION_BANKS?.['diagnostic_demo'];
@@ -487,9 +490,11 @@ export async function getAllUnitsQuestionStats(syllabus = BOTANY_SYLLABUS) {
     fileName: demoBank.fileName || 'Botany_Entrance_30_MCQ_Mixed.xlsx',
     lastUpdated: demoBank.lastUpdated
   } : null;
+  const totalBankQuestions = totalUploadedQuestions + (demoStats?.questionCount || 0);
 
   return {
     totalUploadedQuestions,
+    totalBankQuestions,
     totalTargetQuestions,
     seriesTotalTarget: 2700,
     unitsLoadedCount: unitsWithQuestions,
