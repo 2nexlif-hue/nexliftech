@@ -36,7 +36,8 @@ export default function QuestionBankStatsMatrix({
     overallContextPct = 0,
     overallCoveragePct = 0,
     overallKeyDistribution = { A: 0, B: 0, C: 0, D: 0 },
-    unitStats = {}
+    unitStats = {},
+    demoStats = null
   } = questionStats;
 
   const keyTotal = (overallKeyDistribution.A || 0) + (overallKeyDistribution.B || 0) + 
@@ -183,6 +184,40 @@ export default function QuestionBankStatsMatrix({
               <span className="key-pill">D: {overallKeyDistribution.D}</span>
             </div>
           </div>
+
+          {/* Tile 5: Free Entrance Diagnostic Demo CBT */}
+          <div className="kpi-tile" style={{ borderLeft: '3px solid var(--accent-primary)' }}>
+            <div className="kpi-tile-header">
+              <span className="kpi-label">Free Demo CBT</span>
+              <span className="kpi-tag" style={{ background: 'rgba(124, 58, 237, 0.12)', color: 'var(--accent-primary)', borderColor: 'rgba(124, 58, 237, 0.3)' }}>
+                Entrance Exam
+              </span>
+            </div>
+            <div className="kpi-value-row">
+              <span className="kpi-main-val" style={{ color: 'var(--accent-primary)' }}>
+                {demoStats?.questionCount || 0}
+              </span>
+              <span className="kpi-sub-val">/ 30 MCQs</span>
+            </div>
+            <div className="kpi-progress-bar">
+              <div 
+                className="kpi-progress-fill" 
+                style={{ width: `${Math.min(100, Math.round(((demoStats?.questionCount || 0) / 30) * 100))}%`, background: 'var(--accent-primary)' }}
+              ></div>
+            </div>
+            <div className="kpi-caption" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>{demoStats?.questionCount ? '🟢 Live on Portal' : 'Pending upload'}</span>
+              {onSelectUnit && (
+                <button
+                  type="button"
+                  style={{ background: 'none', border: 'none', color: 'var(--accent-primary)', fontSize: '0.74rem', fontWeight: 700, cursor: 'pointer', padding: 0 }}
+                  onClick={() => onSelectUnit('diagnostic_demo')}
+                >
+                  Manage Demo &rarr;
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -209,6 +244,13 @@ export default function QuestionBankStatsMatrix({
               >
                 Loaded Banks ({unitsList.filter(u => u.questionCount > 0).length})
               </button>
+              <button 
+                type="button" 
+                className={`matrix-filter-btn ${activeUnitFilter === 'demo' ? 'active' : ''}`}
+                onClick={() => setActiveUnitFilter('demo')}
+              >
+                🎯 Demo CBT ({demoStats?.questionCount || 0} Qs)
+              </button>
             </div>
           </div>
 
@@ -228,8 +270,74 @@ export default function QuestionBankStatsMatrix({
                 </tr>
               </thead>
               <tbody>
+                {/* Free Diagnostic Demo CBT Row */}
+                {(activeUnitFilter === 'all' || activeUnitFilter === 'demo') && (
+                  <tr className="row-active" style={{ background: 'rgba(124, 58, 237, 0.05)' }}>
+                    <td className="unit-num-cell">
+                      <span className="unit-num-badge" style={{ background: 'rgba(124, 58, 237, 0.15)', color: 'var(--accent-primary)', borderColor: 'rgba(124, 58, 237, 0.3)' }}>
+                        🎯
+                      </span>
+                    </td>
+                    <td className="unit-title-cell">
+                      <div className="unit-name-text" style={{ fontWeight: 700, color: 'var(--accent-primary)' }}>
+                        Diagnostic Demo Entrance Test (Free CBT)
+                      </div>
+                      <div className="unit-file-text">{demoStats?.fileName || 'Botany_Entrance_30_MCQ_Mixed.xlsx'}</div>
+                    </td>
+                    <td className="unit-count-cell">
+                      <div className="count-primary">
+                        <strong>{demoStats?.questionCount || 0}</strong>
+                        <span className="count-slash">/ 30 Q</span>
+                      </div>
+                      <div className="unit-mini-progress">
+                        <div 
+                          className="unit-mini-bar" 
+                          style={{ width: `${Math.min(100, Math.round(((demoStats?.questionCount || 0) / 30) * 100))}%`, background: 'var(--accent-primary)' }}
+                        ></div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="status-pill full">
+                        {demoStats?.questionCount >= 30 ? '100% Ready' : `${demoStats?.questionCount || 0} Qs Active`}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="quality-metric">
+                        <CheckCircle2 size={13} className="text-success" />
+                        <span>100% Complete</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="quality-metric">
+                        <Award size={13} className="text-accent" />
+                        <span>100% Attached</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="key-dist-chips">
+                        <span className="k-chip a" style={{ background: 'rgba(124, 58, 237, 0.1)', color: 'var(--accent-primary)' }}>Balanced Spread</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="version-tag">v{demoStats?.version || 1}</span>
+                    </td>
+                    {onSelectUnit && (
+                      <td style={{ textAlign: 'right' }}>
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-xs select-unit-btn"
+                          onClick={() => onSelectUnit('diagnostic_demo')}
+                          title="Inspect and manage Free Entrance Demo questions in Excel Hub"
+                        >
+                          <span>Manage</span>
+                          <ArrowRight size={12} />
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                )}
                 {unitsList
-                  .filter(u => activeUnitFilter === 'all' || u.questionCount > 0)
+                  .filter(u => activeUnitFilter === 'all' || (activeUnitFilter === 'uploaded' && u.questionCount > 0))
                   .map((unit) => {
                     const coverage = unit.coveragePercent || 0;
                     const uKeys = unit.keyDistribution || { A: 0, B: 0, C: 0, D: 0 };

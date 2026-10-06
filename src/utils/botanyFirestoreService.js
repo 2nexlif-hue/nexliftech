@@ -480,11 +480,11 @@ export async function getAllUnitsQuestionStats(syllabus = BOTANY_SYLLABUS) {
   const totalTargetQuestions = syllabus.length * 50; // 500
   const overallAnalysisPct = totalUploadedQuestions > 0 ? Math.round((totalWithAll4Analysis / totalUploadedQuestions) * 100) : 0;
   const overallContextPct = totalUploadedQuestions > 0 ? Math.round((totalWithContextNote / totalUploadedQuestions) * 100) : 0;
-  const demoBank = firestoreUnits['diagnostic_demo'];
+  const demoBank = firestoreUnits['diagnostic_demo'] || BOTANY_SEED_QUESTION_BANKS?.['diagnostic_demo'];
   const demoStats = demoBank ? {
-    questionCount: demoBank.questions?.length || 0,
+    questionCount: demoBank.questions?.length || demoBank.totalQuestions || 0,
     version: demoBank.version || 1,
-    fileName: demoBank.fileName || 'Diagnostic_Demo.xlsx',
+    fileName: demoBank.fileName || 'Botany_Entrance_30_MCQ_Mixed.xlsx',
     lastUpdated: demoBank.lastUpdated
   } : null;
 
@@ -514,7 +514,9 @@ export async function commitAllSeedBanksToFirestore(userEmail = 'admin') {
   const results = [];
   for (const unitId of Object.keys(BOTANY_SEED_QUESTION_BANKS)) {
     const bank = BOTANY_SEED_QUESTION_BANKS[unitId];
-    const unitTitle = `Unit ${bank.unitNumber}: ${BOTANY_SYLLABUS.find(u => u.unitId === bank.unitId)?.title || bank.unitId}`;
+    const unitTitle = bank.unitId === 'diagnostic_demo'
+      ? 'Diagnostic Entrance Assessment Demo (30 MCQs)'
+      : `Unit ${bank.unitNumber}: ${BOTANY_SYLLABUS.find(u => u.unitId === bank.unitId)?.title || bank.unitId}`;
     const res = await commitUnitQuestions({
       unitId: bank.unitId,
       unitTitle,
