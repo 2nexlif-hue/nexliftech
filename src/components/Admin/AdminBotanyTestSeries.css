@@ -360,10 +360,16 @@
   transition: all var(--transition-fast);
 }
 
-.excel-drop-zone:hover,
-.excel-drop-zone.dragover {
+.excel-drop-zone:hover {
   border-color: var(--accent-primary);
   background: rgba(124, 58, 237, 0.05);
+}
+
+.excel-drop-zone.dragover {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.08);
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.25);
+  transform: scale(1.01);
 }
 
 .excel-drop-icon {

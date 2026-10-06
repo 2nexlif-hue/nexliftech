@@ -55,6 +55,9 @@ export default function AdminBotanyTestSeries({ currentUser }) {
   const [batchUploadList, setBatchUploadList] = useState([]);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [committing, setCommitting] = useState(false);
+  const [commitProgress, setCommitProgress] = useState({ current: 0, total: 0, unitTitle: '' });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragCounter = useRef(0);
   const fileInputRef = useRef(null);
 
   // Syllabus UI
@@ -181,12 +184,25 @@ export default function AdminBotanyTestSeries({ currentUser }) {
     }
   }
 
-  // Handle Excel Upload (Single or Multi-file)
-  async function handleFileSelect(e) {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
+  // Unified Excel File Processing (Single or Multi-file up to all 10 units)
+  async function processFiles(rawFiles) {
+    if (!rawFiles || !rawFiles.length) return;
+
+    // Filter to valid Excel files and exclude temporary lock files (~$...)
+    const files = rawFiles.filter(f => {
+      const name = f.name || '';
+      if (name.startsWith('~$')) return false;
+      return name.endsWith('.xlsx') || name.endsWith('.xls');
+    });
+
+    if (!files.length) {
+      showToast('error', 'No valid Excel (.xlsx / .xls) files found. Please choose or drop Excel workbooks.');
+      return;
+    }
 
     setSaving(true);
+    showToast('info', `Reading and analyzing ${files.length} Excel file${files.length > 1 ? 's' : ''}...`);
+
     try {
       const parsedList = await Promise.all(files.map(f => parseExcelFile(f)));
       if (parsedList.length === 1) {
@@ -197,8 +213,9 @@ export default function AdminBotanyTestSeries({ currentUser }) {
         setUploadPreview(single);
         setBatchUploadList([]);
         setShowPreviewModal(true);
+        showToast('success', `Parsed "${single.fileName}": ${single.validCount} valid questions ready.`);
       } else {
-        // Multi-file batch (e.g. all 10 files)
+        // Multi-file batch (e.g. all 10 unit files)
         parsedList.sort((a, b) => {
           const numA = parseInt((a.detectedUnitId || '').replace('unit_', ''), 10) || 0;
           const numB = parseInt((b.detectedUnitId || '').replace('unit_', ''), 10) || 0;
@@ -210,7 +227,8 @@ export default function AdminBotanyTestSeries({ currentUser }) {
           setSelectedUnitId(parsedList[0].detectedUnitId);
         }
         setShowPreviewModal(true);
-        showToast('success', `Parsed ${parsedList.length} Excel files. You can preview and commit each unit.`);
+        const totalValid = parsedList.reduce((acc, b) => acc + b.validCount, 0);
+        showToast('success', `🎉 Parsed all ${parsedList.length} files successfully (${totalValid} questions across units ready for 1-click commit)!`);
       }
     } catch (err) {
       console.error('Excel parse error:', err);
@@ -218,6 +236,47 @@ export default function AdminBotanyTestSeries({ currentUser }) {
     } finally {
       setSaving(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  }
+
+  function handleFileSelect(e) {
+    const files = Array.from(e.target.files || []);
+    if (files.length) processFiles(files);
+  }
+
+  function handleDragEnter(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current += 1;
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setIsDragging(true);
+    }
+  }
+
+  function handleDragOver(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isDragging) setIsDragging(true);
+  }
+
+  function handleDragLeave(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current -= 1;
+    if (dragCounter.current <= 0) {
+      dragCounter.current = 0;
+      setIsDragging(false);
+    }
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current = 0;
+    setIsDragging(false);
+    const files = Array.from(e.dataTransfer.files || []);
+    if (files.length > 0) {
+      processFiles(files);
     }
   }
 
@@ -335,10 +394,16 @@ export default function AdminBotanyTestSeries({ currentUser }) {
     let committedCount = 0;
     let totalQuestionsCount = 0;
     try {
-      for (const batchItem of batchUploadList) {
-        const unitId = batchItem.detectedUnitId || selectedUnitId;
+      const totalUnits = batchUploadList.length;
+      for (let i = 0; i < batchUploadList.length; i++) {
+        const batchItem = batchUploadList[i];
+        if (!batchItem.validQuestions?.length) continue;
+
+        const unitId = batchItem.detectedUnitId || `unit_${i + 1}`;
         const targetUnit = syllabus.find(u => u.unitId === unitId);
         const unitTitle = targetUnit ? `Unit ${targetUnit.unitNumber}: ${targetUnit.title}` : unitId;
+
+        setCommitProgress({ current: i + 1, total: totalUnits, unitTitle });
 
         await commitUnitQuestions({
           unitId,
@@ -370,6 +435,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
       showToast('error', 'Failed to commit all units to database.');
     } finally {
       setCommitting(false);
+      setCommitProgress({ current: 0, total: 0, unitTitle: '' });
     }
   }
 
@@ -918,10 +984,14 @@ export default function AdminBotanyTestSeries({ currentUser }) {
               </select>
             </div>
 
-            {/* Drop Zone */}
+            {/* Drop Zone with Multi-file & Drag-and-Drop Support */}
             <div 
-              className="excel-drop-zone"
+              className={`excel-drop-zone ${isDragging ? 'dragover' : ''}`}
               onClick={() => fileInputRef.current?.click()}
+              onDragEnter={handleDragEnter}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
             >
               <input 
                 type="file" 
@@ -935,14 +1005,14 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                 <Upload size={24} />
               </div>
               <div className="excel-drop-title">
-                Click to browse or drop Excel file(s) (.xlsx)
+                {isDragging ? '📥 Release to Upload All Selected Files' : 'Click to Browse or Drag & Drop Excel File(s)'}
               </div>
               <div className="excel-drop-desc">
-                Supports single or multi-file upload for all 10 units (S.No, Question, Options A-D, Correct Answer (Key), Analysis - Options A-D, Context Note).
+                Supports uploading all 10 Unit files simultaneously (e.g. Unit_01 to Unit_10). Drag &amp; drop or select all 10 files using Ctrl+A in the file picker.
               </div>
-              <div style={{ display: 'flex', gap: '0.65rem', marginTop: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', gap: '0.65rem', marginTop: '0.85rem', flexWrap: 'wrap', justifyContent: 'center' }}>
                 <span className="btn btn-primary btn-sm">
-                  <Upload size={14} /> <span>Choose .xlsx File(s)</span>
+                  <Upload size={14} /> <span>Choose .xlsx File(s) (Multi-Select Enabled)</span>
                 </span>
                 <button
                   type="button"
@@ -1247,6 +1317,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                       const newUId = e.target.value;
                       setSelectedUnitId(newUId);
                       setUploadPreview(prev => ({ ...prev, detectedUnitId: newUId }));
+                      setBatchUploadList(prev => prev.map(item => item.fileName === uploadPreview.fileName ? { ...item, detectedUnitId: newUId } : item));
                     }}
                     style={{ fontSize: '0.78rem', padding: '0.2rem 0.5rem', borderRadius: '6px', background: 'var(--bg-elevated)', color: 'var(--text-primary)', border: '1px solid var(--border-light)' }}
                   >
@@ -1286,10 +1357,13 @@ export default function AdminBotanyTestSeries({ currentUser }) {
             {batchUploadList.length > 1 && (
               <div style={{ padding: '0.65rem 1.25rem', background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border-light)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
-                    PREPARED UNITS ({batchUploadList.length} files detected): Click to switch &amp; preview any unit
-                  </span>
-                  <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                    <Layers size={15} style={{ color: 'var(--accent-primary)' }} />
+                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                      ALL {batchUploadList.length} UNITS DETECTED: Click tabs to preview questions
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '0.76rem', color: '#10b981', fontWeight: 700, background: 'rgba(16, 185, 129, 0.1)', padding: '0.15rem 0.55rem', borderRadius: '10px' }}>
                     Total: {batchUploadList.reduce((acc, b) => acc + b.validCount, 0)} Questions
                   </span>
                 </div>
@@ -1308,9 +1382,10 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                           if (bItem.detectedUnitId) setSelectedUnitId(bItem.detectedUnitId);
                         }}
                         className={`btn btn-sm ${isActive ? 'btn-primary' : 'btn-secondary'}`}
-                        style={{ fontSize: '0.76rem', padding: '0.3rem 0.65rem', whiteSpace: 'nowrap' }}
+                        style={{ fontSize: '0.76rem', padding: '0.3rem 0.65rem', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
                       >
-                        {label} ({bItem.validCount} Qs)
+                        {bItem.invalidCount > 0 ? <AlertCircle size={12} color="#ef4444" /> : <CheckCircle2 size={12} color="#10b981" />}
+                        <span>{label} ({bItem.validCount} Qs)</span>
                       </button>
                     );
                   })}
@@ -1432,13 +1507,13 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                   type="button" 
                   className="btn btn-primary"
                   onClick={batchUploadList.length > 1 ? handleCommitAllBatchUnits : handleCommitQuestions}
-                  disabled={committing || uploadPreview.validCount === 0}
+                  disabled={committing || (batchUploadList.length > 1 ? batchUploadList.reduce((acc, b) => acc + b.validCount, 0) === 0 : uploadPreview.validCount === 0)}
                   style={batchUploadList.length > 1 ? { background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', borderColor: '#10b981' } : {}}
                 >
                   {committing ? <span className="btn-spinner"></span> : <Save size={15} />}
                   <span>
                     {committing 
-                      ? 'Archiving & Publishing...' 
+                      ? (commitProgress.total > 1 ? `Publishing Unit ${commitProgress.current} of ${commitProgress.total}...` : 'Archiving & Publishing...') 
                       : batchUploadList.length > 1
                       ? `Confirm & Commit All ${batchUploadList.length} Units (${batchUploadList.reduce((acc, b) => acc + b.validCount, 0)} Qs) to DB`
                       : `Confirm & Commit ${uploadPreview.validCount} Questions to DB`}

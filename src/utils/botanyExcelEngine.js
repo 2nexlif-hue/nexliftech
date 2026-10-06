@@ -173,11 +173,14 @@ function normalizeRow(row, rowIndex) {
   let correctOption = '';
 
   if (correctRaw) {
-    const cleaned = correctRaw.trim().toUpperCase();
+    const cleaned = correctRaw.trim().toUpperCase().replace(/[\(\)\[\]\.\:]/g, '').trim();
     if (['A', 'B', 'C', 'D'].includes(cleaned)) {
       correctOption = cleaned;
     } else if (cleaned.startsWith('OPTION')) {
       const char = cleaned.replace('OPTION', '').trim()[0];
+      if (['A', 'B', 'C', 'D'].includes(char)) correctOption = char;
+    } else if (cleaned.startsWith('ANS')) {
+      const char = cleaned.replace('ANS', '').trim()[0];
       if (['A', 'B', 'C', 'D'].includes(char)) correctOption = char;
     } else if (cleaned === optionA?.toUpperCase()) {
       correctOption = 'A';
@@ -196,8 +199,14 @@ function normalizeRow(row, rowIndex) {
   const analysisD = getVal(['analysis - option d', 'analysis option d', 'analysis d', 'opt d analysis', 'why d', 'option d analysis']);
   const referenceNote = getVal([
     'context note', 'brief context note', 'general note / exam tip', 
-    'general note', 'explanation', 'note', 'exam tip', 'reference note', 'brief note', 'rationale'
+    'general note', 'explanation', 'note', 'notes', 'exam tip', 'reference note', 'brief note', 'rationale', 'syllabus reference', 'context'
   ]);
+
+  // If entire row is blank, skip it cleanly
+  const isCompletelyEmpty = !question && !optionA && !optionB && !optionC && !optionD && !correctRaw;
+  if (isCompletelyEmpty) {
+    return null;
+  }
 
   const errors = [];
   if (!question) errors.push('Question statement is empty.');
@@ -260,7 +269,37 @@ export function parseExcelBuffer(buffer, fileName = 'question_bank.xlsx') {
     }
   }
 
-  const parsedQuestions = rawJson.map((row, idx) => normalizeRow(row, idx));
+  // Fallback 1: check if sheet has a 'Unit' column in its rows
+  if (!detectedUnitId && rawJson.length > 0) {
+    for (const row of rawJson) {
+      const keys = Object.keys(row);
+      for (const k of keys) {
+        const ck = cleanKey(k);
+        if (ck === 'unit' || ck === 'unit no' || ck === 'unit number' || ck === 'syllabus unit') {
+          const val = String(row[k] || '');
+          const m = val.match(/unit[_\s-]?0?(\d+)/i) || val.match(/^[_\s-]?0?(\d+)$/);
+          if (m && m[1]) {
+            detectedUnitId = `unit_${parseInt(m[1], 10)}`;
+            break;
+          }
+        }
+      }
+      if (detectedUnitId) break;
+    }
+  }
+
+  // Fallback 2: leading number in filename e.g. 01_Microbiology or 10_Biotechniques
+  if (!detectedUnitId) {
+    const leadingNumMatch = fileName.match(/^0?(\d+)[_\s-]/);
+    if (leadingNumMatch && leadingNumMatch[1]) {
+      const n = parseInt(leadingNumMatch[1], 10);
+      if (n >= 1 && n <= 10) {
+        detectedUnitId = `unit_${n}`;
+      }
+    }
+  }
+
+  const parsedQuestions = rawJson.map((row, idx) => normalizeRow(row, idx)).filter(Boolean);
   const validQuestions = parsedQuestions.filter(q => q.isValid);
   const invalidQuestions = parsedQuestions.filter(q => !q.isValid);
 
