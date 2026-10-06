@@ -787,7 +787,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                 Click to browse or drop Excel file(s) (.xlsx)
               </div>
               <div className="excel-drop-desc">
-                Supports single or multi-file upload for all 10 units (Question, Options A-D, Correct Answer, Analysis A-D, Brief Context Note).
+                Supports single or multi-file upload for all 10 units (S.No, Question, Options A-D, Correct Answer (Key), Analysis - Options A-D, Context Note).
               </div>
               <div style={{ display: 'flex', gap: '0.65rem', marginTop: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
                 <span className="btn btn-primary btn-sm">
@@ -1208,7 +1208,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                       </div>
                       {q.referenceNote && (
                         <div style={{ color: 'var(--accent-primary)', fontWeight: 600, marginTop: '0.4rem', borderTop: '1px dashed var(--border-light)', paddingTop: '0.4rem', fontSize: '0.8rem' }}>
-                          <strong>💡 Brief Context Note:</strong> {q.referenceNote}
+                          <strong>💡 Context Note:</strong> {q.referenceNote}
                         </div>
                       )}
                     </div>

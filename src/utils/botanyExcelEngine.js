@@ -2,17 +2,18 @@ import * as XLSX from 'xlsx';
 
 // Standard official column headers
 export const EXCEL_COLUMNS = [
+  { key: 'sNo', label: 'S.No', width: 8 },
   { key: 'question', label: 'Question', width: 45 },
   { key: 'optionA', label: 'Option A', width: 28 },
   { key: 'optionB', label: 'Option B', width: 28 },
   { key: 'optionC', label: 'Option C', width: 28 },
   { key: 'optionD', label: 'Option D', width: 28 },
-  { key: 'correctOption', label: 'Correct Answer', width: 16 },
-  { key: 'analysisA', label: 'Analysis – Option A', width: 38 },
-  { key: 'analysisB', label: 'Analysis – Option B', width: 38 },
-  { key: 'analysisC', label: 'Analysis – Option C', width: 38 },
-  { key: 'analysisD', label: 'Analysis – Option D', width: 38 },
-  { key: 'referenceNote', label: 'Brief Context Note', width: 35 }
+  { key: 'correctOption', label: 'Correct Answer (Key)', width: 22 },
+  { key: 'analysisA', label: 'Analysis - Option A', width: 38 },
+  { key: 'analysisB', label: 'Analysis - Option B', width: 38 },
+  { key: 'analysisC', label: 'Analysis - Option C', width: 38 },
+  { key: 'analysisD', label: 'Analysis - Option D', width: 38 },
+  { key: 'referenceNote', label: 'Context Note', width: 35 }
 ];
 
 // Official sample questions tailored to Botany Assistant Professor exam
@@ -62,18 +63,19 @@ export const OFFICIAL_SAMPLE_QUESTIONS = [
  * Downloads a pre-formatted Excel template with canonical headers and sample rows
  */
 export function downloadExcelTemplate(unitId = 'unit_1', unitTitle = 'Unit 1') {
-  const rows = OFFICIAL_SAMPLE_QUESTIONS.map((q) => ({
+  const rows = OFFICIAL_SAMPLE_QUESTIONS.map((q, idx) => ({
+    'S.No': idx + 1,
     'Question': q.question,
     'Option A': q.optionA,
     'Option B': q.optionB,
     'Option C': q.optionC,
     'Option D': q.optionD,
-    'Correct Answer': q.correctOption,
-    'Analysis – Option A': q.analysisA,
-    'Analysis – Option B': q.analysisB,
-    'Analysis – Option C': q.analysisC,
-    'Analysis – Option D': q.analysisD,
-    'Brief Context Note': q.referenceNote
+    'Correct Answer (Key)': q.correctOption,
+    'Analysis - Option A': q.analysisA,
+    'Analysis - Option B': q.analysisB,
+    'Analysis - Option C': q.analysisC,
+    'Analysis - Option D': q.analysisD,
+    'Context Note': q.referenceNote
   }));
 
   const worksheet = XLSX.utils.json_to_sheet(rows);
@@ -96,18 +98,19 @@ export function exportQuestionsToExcel(questions, unitTitle = 'Unit', version = 
     throw new Error('No questions to export.');
   }
 
-  const rows = questions.map((q) => ({
+  const rows = questions.map((q, idx) => ({
+    'S.No': q.sNo || idx + 1,
     'Question': q.question || '',
     'Option A': q.optionA || '',
     'Option B': q.optionB || '',
     'Option C': q.optionC || '',
     'Option D': q.optionD || '',
-    'Correct Answer': (q.correctOption || '').toUpperCase(),
-    'Analysis – Option A': q.analysisA || '',
-    'Analysis – Option B': q.analysisB || '',
-    'Analysis – Option C': q.analysisC || '',
-    'Analysis – Option D': q.analysisD || '',
-    'Brief Context Note': q.referenceNote || ''
+    'Correct Answer (Key)': (q.correctOption || '').toUpperCase(),
+    'Analysis - Option A': q.analysisA || '',
+    'Analysis - Option B': q.analysisB || '',
+    'Analysis - Option C': q.analysisC || '',
+    'Analysis - Option D': q.analysisD || '',
+    'Context Note': q.referenceNote || ''
   }));
 
   const worksheet = XLSX.utils.json_to_sheet(rows);
@@ -123,7 +126,7 @@ export function exportQuestionsToExcel(questions, unitTitle = 'Unit', version = 
 function cleanKey(str) {
   return String(str || '')
     .toLowerCase()
-    .replace(/[\u2013\u2014\-_/]/g, ' ')
+    .replace(/[\u2013\u2014\-_/()]/g, ' ')
     .replace(/[^a-z0-9 ]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
@@ -147,13 +150,26 @@ function normalizeRow(row, rowIndex) {
     return '';
   };
 
+  const sNoRaw = getVal(['s.no', 's no', 'sno', 'sl no', 'sr no', 'q no', 'serial no', 'number', 'no']);
+  const sNo = sNoRaw ? (parseInt(sNoRaw, 10) || (rowIndex + 1)) : (rowIndex + 1);
   const question = getVal(['question', 'question text', 'q', 'item', 'statement', 'question statement']);
   const optionA = getVal(['option a', 'optiona', 'opt a', 'a']);
   const optionB = getVal(['option b', 'optionb', 'opt b', 'b']);
   const optionC = getVal(['option c', 'optionc', 'opt c', 'c']);
   const optionD = getVal(['option d', 'optiond', 'opt d', 'd']);
   
-  let correctRaw = getVal(['correct answer', 'correct option', 'correct option (a/b/c/d)', 'answer', 'correct', 'ans']);
+  let correctRaw = getVal([
+    'correct answer (key)', 
+    'correct answer key', 
+    'correct answer', 
+    'correct option (key)', 
+    'correct option', 
+    'answer (key)',
+    'key',
+    'answer', 
+    'correct', 
+    'ans'
+  ]);
   let correctOption = '';
 
   if (correctRaw) {
@@ -174,12 +190,12 @@ function normalizeRow(row, rowIndex) {
     }
   }
 
-  const analysisA = getVal(['analysis option a', 'analysis a', 'opt a analysis', 'why a', 'option a analysis']);
-  const analysisB = getVal(['analysis option b', 'analysis b', 'opt b analysis', 'why b', 'option b analysis']);
-  const analysisC = getVal(['analysis option c', 'analysis c', 'opt c analysis', 'why c', 'option c analysis']);
-  const analysisD = getVal(['analysis option d', 'analysis d', 'opt d analysis', 'why d', 'option d analysis']);
+  const analysisA = getVal(['analysis - option a', 'analysis option a', 'analysis a', 'opt a analysis', 'why a', 'option a analysis']);
+  const analysisB = getVal(['analysis - option b', 'analysis option b', 'analysis b', 'opt b analysis', 'why b', 'option b analysis']);
+  const analysisC = getVal(['analysis - option c', 'analysis option c', 'analysis c', 'opt c analysis', 'why c', 'option c analysis']);
+  const analysisD = getVal(['analysis - option d', 'analysis option d', 'analysis d', 'opt d analysis', 'why d', 'option d analysis']);
   const referenceNote = getVal([
-    'brief context note', 'context note', 'general note / exam tip', 
+    'context note', 'brief context note', 'general note / exam tip', 
     'general note', 'explanation', 'note', 'exam tip', 'reference note', 'brief note', 'rationale'
   ]);
 
@@ -194,6 +210,7 @@ function normalizeRow(row, rowIndex) {
   return {
     id: `q_${Date.now()}_${rowIndex}`,
     rowNumber: rowIndex + 2, // Excel 1-based index including header
+    sNo,
     question,
     optionA,
     optionB,
