@@ -10,6 +10,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { BOTANY_SYLLABUS, BOTANY_TEST_SCHEDULE, DEFAULT_SERIES_SETTINGS } from './botanyTestSeriesData';
+import { BOTANY_SEED_QUESTION_BANKS } from './botanySeedQuestionBanks';
 
 const SETTINGS_DOC = 'botany_test_series_settings';
 const SYLLABUS_DOC = 'botany_syllabus';
@@ -121,14 +122,17 @@ export async function syncBotanyDataToFirestore(userEmail = 'admin') {
 }
 
 /**
- * Fetch active questions for a specific unit
+ * Fetch active questions for a specific unit (with fallback to preloaded seed bank)
  */
 export async function getUnitQuestions(unitId) {
   try {
     const docRef = doc(db, 'botany_question_banks', unitId);
     const snap = await getDoc(docRef);
-    if (snap.exists()) {
+    if (snap.exists() && snap.data()?.questions?.length) {
       return snap.data();
+    }
+    if (BOTANY_SEED_QUESTION_BANKS && BOTANY_SEED_QUESTION_BANKS[unitId]) {
+      return BOTANY_SEED_QUESTION_BANKS[unitId];
     }
     return {
       unitId,
@@ -138,7 +142,10 @@ export async function getUnitQuestions(unitId) {
       lastUpdated: null
     };
   } catch (err) {
-    console.error(`Error loading questions for ${unitId}:`, err);
+    console.error(`Error loading questions for ${unitId}, using seed fallback:`, err);
+    if (BOTANY_SEED_QUESTION_BANKS && BOTANY_SEED_QUESTION_BANKS[unitId]) {
+      return BOTANY_SEED_QUESTION_BANKS[unitId];
+    }
     return { unitId, version: 0, totalQuestions: 0, questions: [], lastUpdated: null };
   }
 }
@@ -258,4 +265,222 @@ export async function rollbackUnitToVersion({ unitId, versionItem, userEmail }) 
 
   await setDoc(unitDocRef, restoredData);
   return restoredData;
+}
+
+/**
+ * Resolves which unit indices (1..10) a schedule test covers
+ */
+export function resolveTestUnits(unitCovered) {
+  if (!unitCovered) return [];
+  const str = String(unitCovered).toLowerCase();
+  if (str.includes('all 10') || str.includes('1–10') || str.includes('1-10') || str.includes('mock') || str.includes('diagnostic')) {
+    return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  }
+  const matches = [...unitCovered.matchAll(/Unit\s*(\d+)/gi)].map(m => parseInt(m[1], 10));
+  return [...new Set(matches.filter(n => n >= 1 && n <= 10))];
+}
+
+/**
+ * Calculates question bank readiness statistics for a single schedule test
+ */
+export function getTestQuestionStats(testItem, unitStatsMap = {}) {
+  const unitNumbers = resolveTestUnits(testItem.unitCovered);
+  if (!unitNumbers.length) {
+    return {
+      hasBank: false,
+      unitNumbers: [],
+      uploadedCount: 0,
+      targetCount: testItem.questionCount || 0,
+      coveragePct: 0,
+      analysisPct: 0,
+      statusLabel: 'Review / Drill Day',
+      statusType: 'neutral'
+    };
+  }
+
+  let totalInBank = 0;
+  let totalAnalysis = 0;
+  let unitCount = 0;
+
+  unitNumbers.forEach((num) => {
+    const uStats = unitStatsMap[`unit_${num}`];
+    if (uStats) {
+      totalInBank += (uStats.questionCount || 0);
+      totalAnalysis += (uStats.fourOptionAnalysisPct || 0);
+      unitCount++;
+    }
+  });
+
+  const avgAnalysis = unitCount > 0 ? Math.round(totalAnalysis / unitCount) : 0;
+  const target = testItem.questionCount || 0;
+  const coveragePct = target > 0 ? Math.min(100, Math.round((totalInBank / target) * 100)) : 100;
+
+  let statusType = 'ready';
+  let statusLabel = `${totalInBank} in Bank`;
+
+  if (totalInBank === 0) {
+    statusType = 'empty';
+    statusLabel = 'Pending Upload';
+  } else if (totalInBank >= target) {
+    statusType = 'complete';
+    statusLabel = `${totalInBank} Q Bank (100% Ready)`;
+  } else {
+    statusType = 'partial';
+    statusLabel = `${totalInBank} in Bank (${coveragePct}%)`;
+  }
+
+  return {
+    hasBank: true,
+    unitNumbers,
+    uploadedCount: totalInBank,
+    targetCount: target,
+    coveragePct,
+    analysisPct: avgAnalysis,
+    statusLabel,
+    statusType
+  };
+}
+
+/**
+ * Aggregates complete Question Bank statistics across all units from Firestore
+ * (with automatic fallback to validated seed question banks)
+ */
+export async function getAllUnitsQuestionStats(syllabus = BOTANY_SYLLABUS) {
+  const unitsMap = {};
+  
+  // Try querying active question banks from Firestore
+  const firestoreUnits = {};
+  try {
+    const colRef = collection(db, 'botany_question_banks');
+    const snap = await getDocs(colRef);
+    snap.forEach((d) => {
+      const data = d.data();
+      if (data && Array.isArray(data.questions) && data.questions.length > 0) {
+        firestoreUnits[d.id] = data;
+      }
+    });
+  } catch (err) {
+    console.warn('Firestore question banks fetch skipped/offline, using seed fallback:', err);
+  }
+
+  let totalUploadedQuestions = 0;
+  let totalWithAll4Analysis = 0;
+  let totalWithContextNote = 0;
+  const overallKeyCounts = { A: 0, B: 0, C: 0, D: 0 };
+  let unitsWithQuestions = 0;
+
+  syllabus.forEach((unit) => {
+    const unitId = unit.unitId;
+    const fsData = firestoreUnits[unitId];
+    const seedData = BOTANY_SEED_QUESTION_BANKS ? BOTANY_SEED_QUESTION_BANKS[unitId] : null;
+    
+    const activeData = (fsData && fsData.questions && fsData.questions.length > 0)
+      ? fsData
+      : (seedData || {
+          unitId,
+          version: 0,
+          totalQuestions: 0,
+          questions: [],
+          lastUpdated: null,
+          fileName: ''
+        });
+
+    const questions = activeData.questions || [];
+    const count = questions.length;
+    if (count > 0) unitsWithQuestions++;
+    totalUploadedQuestions += count;
+
+    let uAnalysisCount = 0;
+    let uNoteCount = 0;
+    const uKeyDist = { A: 0, B: 0, C: 0, D: 0 };
+
+    questions.forEach((q) => {
+      const key = (q.correctOption || '').trim().toUpperCase();
+      if (overallKeyCounts[key] !== undefined) overallKeyCounts[key]++;
+      if (uKeyDist[key] !== undefined) uKeyDist[key]++;
+
+      const has4Analysis = Boolean(
+        q.analysisA && q.analysisA.trim() &&
+        q.analysisB && q.analysisB.trim() &&
+        q.analysisC && q.analysisC.trim() &&
+        q.analysisD && q.analysisD.trim()
+      );
+      if (has4Analysis) {
+        uAnalysisCount++;
+        totalWithAll4Analysis++;
+      }
+
+      if (q.referenceNote && q.referenceNote.trim()) {
+        uNoteCount++;
+        totalWithContextNote++;
+      }
+    });
+
+    const targetCount = unit.estimatedQuestions || 50;
+    const coveragePercent = Math.min(100, Math.round((count / targetCount) * 100));
+    const analysisPct = count > 0 ? Math.round((uAnalysisCount / count) * 100) : 0;
+    const contextPct = count > 0 ? Math.round((uNoteCount / count) * 100) : 0;
+
+    unitsMap[unitId] = {
+      unitId,
+      unitNumber: unit.unitNumber,
+      title: unit.title,
+      shortTitle: unit.shortTitle || `Unit ${unit.unitNumber}`,
+      questionCount: count,
+      targetCount,
+      coveragePercent,
+      fourOptionAnalysisCount: uAnalysisCount,
+      fourOptionAnalysisPct: analysisPct,
+      contextNoteCount: uNoteCount,
+      contextNotePct: contextPct,
+      keyDistribution: uKeyDist,
+      version: activeData.version || 1,
+      fileName: activeData.fileName || `${unitId}.xlsx`,
+      lastUpdated: activeData.lastUpdated,
+      isSeedFallback: !fsData,
+      questions
+    };
+  });
+
+  const totalTargetQuestions = syllabus.length * 50; // 500
+  const overallAnalysisPct = totalUploadedQuestions > 0 ? Math.round((totalWithAll4Analysis / totalUploadedQuestions) * 100) : 0;
+  const overallContextPct = totalUploadedQuestions > 0 ? Math.round((totalWithContextNote / totalUploadedQuestions) * 100) : 0;
+  const overallCoveragePct = Math.round((totalUploadedQuestions / totalTargetQuestions) * 100);
+
+  return {
+    totalUploadedQuestions,
+    totalTargetQuestions,
+    seriesTotalTarget: 2700,
+    unitsLoadedCount: unitsWithQuestions,
+    totalUnitsCount: syllabus.length,
+    overallAnalysisPct,
+    overallContextPct,
+    overallCoveragePct,
+    overallKeyDistribution: overallKeyCounts,
+    unitStats: unitsMap
+  };
+}
+
+/**
+ * Commits all 10 pre-validated seed question banks (100 MCQs) into Firestore
+ */
+export async function commitAllSeedBanksToFirestore(userEmail = 'admin') {
+  if (!BOTANY_SEED_QUESTION_BANKS) {
+    throw new Error('Seed question banks data not found.');
+  }
+
+  const results = [];
+  for (const unitId of Object.keys(BOTANY_SEED_QUESTION_BANKS)) {
+    const bank = BOTANY_SEED_QUESTION_BANKS[unitId];
+    const unitTitle = `Unit ${bank.unitNumber}: ${BOTANY_SYLLABUS.find(u => u.unitId === bank.unitId)?.title || bank.unitId}`;
+    const res = await commitUnitQuestions({
+      unitId: bank.unitId,
+      unitTitle,
+      questions: bank.questions,
+      fileName: bank.fileName,
+      userEmail
+    });
+    results.push(res);
+  }
+  return results;
 }

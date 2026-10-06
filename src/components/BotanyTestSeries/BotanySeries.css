@@ -2719,3 +2719,73 @@
   }
 }
 
+/* ====================================================
+   Verified Question Bank Statistics Banner (Public Portal)
+   ==================================================== */
+.public-bank-stats-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 10px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.public-stats-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+}
+
+.public-stats-badge strong {
+  color: #10b981;
+}
+
+.public-stats-breakdown {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+}
+
+.stats-tag-item {
+  display: inline-block;
+  padding: 0.1rem 0.4rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+}
+
+.stats-dot {
+  color: var(--text-muted);
+}
+
+.t-live-bank-tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.12rem 0.4rem;
+  border-radius: 4px;
+  background: rgba(16, 185, 129, 0.14);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  width: fit-content;
+}
+
+@media (max-width: 768px) {
+  .public-bank-stats-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.65rem 0.85rem;
+  }
+}
+

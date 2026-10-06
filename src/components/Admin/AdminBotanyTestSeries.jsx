@@ -13,12 +13,16 @@ import {
   getUnitQuestions,
   getUnitVersions,
   commitUnitQuestions,
-  rollbackUnitToVersion
+  rollbackUnitToVersion,
+  getAllUnitsQuestionStats,
+  getTestQuestionStats,
+  commitAllSeedBanksToFirestore
 } from '../../utils/botanyFirestoreService';
+import QuestionBankStatsMatrix from './QuestionBankStatsMatrix';
 import { 
   downloadExcelTemplate, 
   parseExcelFile, 
-  parseExcelBuffer,
+  parseExcelBuffer, 
   exportQuestionsToExcel 
 } from '../../utils/botanyExcelEngine';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
@@ -34,6 +38,8 @@ export default function AdminBotanyTestSeries({ currentUser }) {
   const [syllabus, setSyllabus] = useState([]);
   const [schedule, setSchedule] = useState([]);
   const [subscribers, setSubscribers] = useState([]);
+  const [questionStats, setQuestionStats] = useState(null);
+  const [loadingStats, setLoadingStats] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState({ show: false, type: '', message: '' });
@@ -64,19 +70,36 @@ export default function AdminBotanyTestSeries({ currentUser }) {
     setTimeout(() => setToast({ show: false, type: '', message: '' }), 4000);
   }
 
+  // Refresh question bank statistics across all 10 units
+  async function refreshStats(syllabusList = syllabus) {
+    try {
+      setLoadingStats(true);
+      const stats = await getAllUnitsQuestionStats(syllabusList?.length ? syllabusList : undefined);
+      setQuestionStats(stats);
+      return stats;
+    } catch (e) {
+      console.warn('Could not compute question stats:', e);
+      return null;
+    } finally {
+      setLoadingStats(false);
+    }
+  }
+
   // Initial load
   useEffect(() => {
     async function loadAll() {
       setLoading(true);
       try {
-        const [loadedSettings, loadedSyllabus, loadedSchedule] = await Promise.all([
+        const [loadedSettings, loadedSyllabus, loadedSchedule, loadedStats] = await Promise.all([
           getBotanySettings(),
           getBotanySyllabus(),
-          getBotanySchedule()
+          getBotanySchedule(),
+          getAllUnitsQuestionStats()
         ]);
         setSettings(loadedSettings);
         setSyllabus(loadedSyllabus);
         setSchedule(loadedSchedule);
+        setQuestionStats(loadedStats);
 
         // Fetch subscribers
         try {
@@ -271,6 +294,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
       }
 
       showToast('success', `Committed ${newRelease.totalQuestions} questions for ${unitTitle} (v${newRelease.version}).`);
+      await refreshStats(syllabus);
     } catch (err) {
       console.error('Commit error:', err);
       showToast('error', 'Failed to commit questions to database.');
@@ -306,13 +330,14 @@ export default function AdminBotanyTestSeries({ currentUser }) {
       setUploadPreview(null);
       setBatchUploadList([]);
 
-      // Refresh current active unit
+      // Refresh current active unit & stats
       const [activeData, versions] = await Promise.all([
         getUnitQuestions(selectedUnitId),
         getUnitVersions(selectedUnitId)
       ]);
       setUnitActiveData(activeData);
       setUnitVersions(versions);
+      await refreshStats(syllabus);
 
       showToast('success', `🎉 Successfully committed all ${committedCount} Units (${totalQuestionsCount} questions) to Database!`);
     } catch (err) {
@@ -320,6 +345,28 @@ export default function AdminBotanyTestSeries({ currentUser }) {
       showToast('error', 'Failed to commit all units to database.');
     } finally {
       setCommitting(false);
+    }
+  }
+
+  // 1-Click Sync all 10 verified unit seed banks (100 MCQs) into Firestore
+  async function handleCommitAllSeedBanks() {
+    if (!window.confirm('Sync and commit all 10 verified unit question banks (100 MCQs with 100% 4-option rationale) to Firebase Firestore?')) {
+      return;
+    }
+    setSaving(true);
+    try {
+      await commitAllSeedBanksToFirestore(currentUser?.email || 'admin');
+      await refreshStats(syllabus);
+      const activeData = await getUnitQuestions(selectedUnitId);
+      const versions = await getUnitVersions(selectedUnitId);
+      setUnitActiveData(activeData);
+      setUnitVersions(versions);
+      showToast('success', '🚀 All 10 unit question banks (100 MCQs) successfully synced to Firebase!');
+    } catch (err) {
+      console.error('Error committing all seed banks:', err);
+      showToast('error', err.message || 'Failed to sync seed banks to Firebase.');
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -340,6 +387,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
       setUnitActiveData(restored);
       const updatedVersions = await getUnitVersions(selectedUnitId);
       setUnitVersions(updatedVersions);
+      await refreshStats(syllabus);
       showToast('success', `Rolled back to Version ${versionItem.versionNumber} successfully.`);
     } catch (err) {
       console.error('Rollback error:', err);
@@ -555,6 +603,19 @@ export default function AdminBotanyTestSeries({ currentUser }) {
               </button>
             </div>
           </div>
+
+          <div style={{ marginTop: '1.25rem' }}>
+            <QuestionBankStatsMatrix 
+              questionStats={questionStats}
+              mode="banner"
+              committing={saving}
+              onCommitAllSeed={handleCommitAllSeedBanks}
+              onSelectUnit={(unitId) => {
+                setSelectedUnitId(unitId);
+                setSubTab('excel');
+              }}
+            />
+          </div>
         </div>
       )}
 
@@ -672,6 +733,18 @@ export default function AdminBotanyTestSeries({ currentUser }) {
             </div>
           </div>
 
+          {/* QUESTION BANK READINESS & STATISTICAL AUDIT BANNER */}
+          <QuestionBankStatsMatrix 
+            questionStats={questionStats}
+            mode="banner"
+            committing={saving}
+            onCommitAllSeed={handleCommitAllSeedBanks}
+            onSelectUnit={(unitId) => {
+              setSelectedUnitId(unitId);
+              setSubTab('excel');
+            }}
+          />
+
           <div className="schedule-table-wrapper">
             <table className="schedule-table">
               <thead>
@@ -681,7 +754,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                   <th>Test Title</th>
                   <th>Category</th>
                   <th>Coverage</th>
-                  <th>Questions</th>
+                  <th>Questions &amp; Bank Status</th>
                   <th>Duration</th>
                 </tr>
               </thead>
@@ -691,6 +764,8 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                   if (t.category.includes('Mock')) badgeClass = 'badge-mock';
                   else if (t.category.includes('Cluster')) badgeClass = 'badge-cluster';
                   else if (t.category.includes('Review') || t.category.includes('Analysis')) badgeClass = 'badge-review';
+
+                  const testStats = getTestQuestionStats(t, questionStats?.unitStats);
 
                   return (
                     <tr key={t.id}>
@@ -708,8 +783,26 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                         <span className={`schedule-badge ${badgeClass}`}>{t.category}</span>
                       </td>
                       <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{t.unitCovered}</td>
-                      <td style={{ fontWeight: 700 }}>
-                        {t.questionCount > 0 ? `${t.questionCount} Q` : '—'}
+                      <td>
+                        {t.questionCount > 0 ? (
+                          <div className="schedule-q-cell">
+                            <div className="q-target-line">{t.questionCount} Q Target</div>
+                            {testStats.hasBank && (
+                              <div 
+                                className={`schedule-bank-status ${testStats.statusType}`}
+                                title={`Live bank coverage: ${testStats.uploadedCount} MCQs with ${testStats.analysisPct}% 4-option scientific rationale`}
+                              >
+                                <span className="bank-status-dot"></span>
+                                <span className="bank-status-text">{testStats.statusLabel}</span>
+                                {testStats.analysisPct > 0 && (
+                                  <span className="bank-status-badge">100% Explained</span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <span style={{ color: 'var(--text-muted)' }}>—</span>
+                        )}
                       </td>
                       <td style={{ color: 'var(--text-muted)' }}>
                         {t.durationMinutes > 0 ? `${t.durationMinutes} min` : 'Rest / Analysis'}
@@ -725,8 +818,20 @@ export default function AdminBotanyTestSeries({ currentUser }) {
 
       {/* SUBTAB 4: EXCEL QUESTION BANK & VERSIONING */}
       {subTab === 'excel' && (
-        <div className="excel-hub-grid">
-          {/* Main Upload Canvas */}
+        <div className="excel-hub-container" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          {/* Detailed 10-Unit Statistical Matrix & Quality Audit */}
+          <QuestionBankStatsMatrix 
+            questionStats={questionStats}
+            mode="full"
+            committing={saving}
+            onCommitAllSeed={handleCommitAllSeedBanks}
+            onSelectUnit={(unitId) => {
+              setSelectedUnitId(unitId);
+            }}
+          />
+
+          <div className="excel-hub-grid">
+            {/* Main Upload Canvas */}
           <div className="botany-card">
             <div className="botany-card-header">
               <div>
@@ -912,6 +1017,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
               </div>
             )}
           </div>
+        </div>
         </div>
       )}
 
