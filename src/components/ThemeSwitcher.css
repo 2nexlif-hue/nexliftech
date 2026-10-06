@@ -89,14 +89,18 @@
   box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
 }
 
+html[data-theme="cyber"] .theme-option-btn.active {
+  color: var(--text-inverse) !important;
+}
+
 @media (max-width: 768px) {
   .theme-switcher-wrapper {
-    bottom: 1.25rem;
-    left: 1rem;
+    bottom: 0.75rem;
+    left: 0.5rem;
   }
   .theme-trigger-btn {
-    width: 46px;
-    height: 46px;
+    width: 44px;
+    height: 44px;
   }
   .theme-menu-popup {
     bottom: 3.5rem;

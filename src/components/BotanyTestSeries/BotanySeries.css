@@ -3073,6 +3073,8 @@
 .t-coverage { font-size: 0.75rem; line-height: 1.4; }
 .cbt-table-action-btn { min-height: 42px; padding: 0.55rem 0.7rem; font-size: 0.75rem; }
 .schedule-action-cell { text-align: right; }
+.t-study-day-tag { display: inline-flex; align-items: center; min-height: 42px; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--border-light); color: var(--text-secondary); background: var(--bg-elevated); font-size: 0.76rem; font-weight: 700; }
+html[data-theme="cyber"] .cbt-table-action-btn.start { background: var(--accent-primary); color: var(--text-inverse); }
 .schedule-empty-state { display: grid; justify-items: center; gap: 0.55rem; padding: 2.5rem 1rem; text-align: center; color: var(--text-secondary); }
 .schedule-empty-state svg { color: var(--accent-primary); }
 .schedule-empty-state strong { color: var(--text-primary); font-size: 1rem; }
@@ -3129,6 +3131,26 @@
   .cbt-palette-btn { min-height: 44px; height: 44px; }
 }
 
+@media (max-width: 1023px) {
+  .schedule-table-wrapper { overflow: visible; border: 0; }
+  .schedule-data-table, .schedule-data-table tbody { display: block; }
+  .schedule-data-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+  .schedule-data-table tr { display: grid; position: relative; grid-template-columns: 1fr 1fr; gap: 0.65rem 1rem; padding: 1rem; margin-bottom: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 13px; box-shadow: var(--shadow-sm); }
+  .schedule-data-table td, .schedule-data-table tbody tr:nth-child(even) td { display: block; padding: 0; border: 0; background: transparent; min-width: 0; }
+  .schedule-data-table tr:hover td { background: transparent; }
+  .schedule-data-table td::before { content: attr(data-label); display: block; margin-bottom: 0.3rem; color: var(--text-muted); font-size: 0.65rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; }
+  .schedule-data-table td:nth-child(1) { position: absolute; right: 1rem; top: 1rem; }
+  .schedule-data-table td:nth-child(1)::before { display: none; }
+  .schedule-data-table td:nth-child(2) { grid-column: 1 / -1; grid-row: 1; padding-right: 3.5rem; }
+  .schedule-data-table td:nth-child(3) { grid-column: 1; }
+  .schedule-data-table td:nth-child(4) { grid-column: 2; }
+  .schedule-data-table td:nth-child(5) { grid-column: 1; }
+  .schedule-data-table td:nth-child(6) { grid-column: 2; text-align: right; }
+  .t-name { font-size: 0.94rem; }
+  .t-coverage { font-size: 0.8rem; }
+  .cbt-table-action-btn { width: 100%; max-width: 150px; }
+}
+
 @media (max-width: 767px) {
   .botany-portal-page > .cbt-topbar { gap: 0.5rem; }
   .botany-container { padding-top: 1rem; }
@@ -3141,24 +3163,9 @@
   .botany-subnav-tabs { position: sticky; top: 68px; z-index: 20; }
   .subnav-tab-btn { flex-shrink: 0; }
   .content-card-header .btn { width: 100%; }
-  .schedule-pill-filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.25rem; scrollbar-width: thin; }
+  .schedule-pill-filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.25rem; scrollbar-width: none; }
+  .schedule-pill-filters::-webkit-scrollbar { display: none; }
   .filter-pill-btn { flex-shrink: 0; }
-  .schedule-table-wrapper { overflow: visible; border: 0; }
-  .schedule-data-table, .schedule-data-table tbody { display: block; }
-  .schedule-data-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
-  .schedule-data-table tr { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem 1rem; padding: 1rem; margin-bottom: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 13px; box-shadow: var(--shadow-sm); }
-  .schedule-data-table td, .schedule-data-table tbody tr:nth-child(even) td { display: block; padding: 0; border: 0; background: transparent; min-width: 0; }
-  .schedule-data-table tr:hover td { background: transparent; }
-  .schedule-data-table td::before { content: attr(data-label); display: block; margin-bottom: 0.3rem; color: var(--text-muted); font-size: 0.65rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; }
-  .schedule-data-table td:nth-child(1) { grid-column: 1; }
-  .schedule-data-table td:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
-  .schedule-data-table td:nth-child(3) { grid-column: 1; }
-  .schedule-data-table td:nth-child(4) { grid-column: 2; }
-  .schedule-data-table td:nth-child(5) { grid-column: 1; }
-  .schedule-data-table td:nth-child(6) { grid-column: 2; text-align: right; }
-  .t-name { font-size: 0.94rem; }
-  .t-coverage { font-size: 0.8rem; }
-  .cbt-table-action-btn { width: 100%; max-width: 150px; }
   .cbt-modal-fullscreen .cbt-topbar { min-height: 60px; }
   .cbt-modal-fullscreen .cbt-test-info h2 { max-width: 34vw; }
   .cbt-question-footer { justify-content: space-between; }

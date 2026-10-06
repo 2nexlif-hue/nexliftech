@@ -8,8 +8,9 @@ export default function SecurityGuard() {
   const [warningMessage, setWarningMessage] = useState('');
   const [isDevToolsOpen, setIsDevToolsOpen] = useState(false);
 
-  // If Admin is logged in, bypass all security restrictions so admin can inspect & debug freely!
+  // Keep local viewport testing unobstructed; production still uses the normal guard.
   const isAdmin = Boolean(currentUser);
+  const bypassGuard = isAdmin || import.meta.env.DEV;
 
   // Show security warning toast
   const triggerWarning = (msg) => {
@@ -20,15 +21,17 @@ export default function SecurityGuard() {
   };
 
   useEffect(() => {
-    if (isAdmin) {
-      console.log(
-        '%c🔓 ADMIN SESSION ACTIVE',
-        'color: #00ff99; font-size: 16px; font-weight: 800; font-family: monospace;'
-      );
-      console.log(
-        '%cSecurity restrictions and DevTools inspection blockers are bypassed for logged-in Admin.',
-        'color: #9494b8; font-size: 12px; font-family: monospace;'
-      );
+    if (bypassGuard) {
+      if (isAdmin) {
+        console.log(
+          '%c🔓 ADMIN SESSION ACTIVE',
+          'color: #00ff99; font-size: 16px; font-weight: 800; font-family: monospace;'
+        );
+        console.log(
+          '%cSecurity restrictions and DevTools inspection blockers are bypassed for logged-in Admin.',
+          'color: #9494b8; font-size: 12px; font-family: monospace;'
+        );
+      }
       return;
     }
 
@@ -143,10 +146,10 @@ export default function SecurityGuard() {
       window.removeEventListener('resize', checkDevTools);
       clearInterval(devToolsInterval);
     };
-  }, [isAdmin]);
+  }, [bypassGuard, isAdmin]);
 
-  if (isAdmin) {
-    return null; // Don't render security warnings or overlays for logged-in admin!
+  if (bypassGuard) {
+    return null;
   }
 
   return (

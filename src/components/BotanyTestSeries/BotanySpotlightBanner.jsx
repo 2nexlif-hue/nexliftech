@@ -42,7 +42,7 @@ export default function BotanySpotlightBanner() {
               {settings.flashHeadline || 'Botany Assistant Professor (PSC 2026) CBT Test Series is Live!'}
             </h4>
             <p className="hero-flash-details">
-              {settings.flashDetails || '35 Scheduled Tests • ~2,700 High-Yield Questions • Option-by-Option Analysis (Curated by Dr. Aubid Ahmad)'}
+              {settings.flashDetails || '35-Test Series Plan • ~2,700 High-Yield Questions • Option-by-Option Analysis (Curated by Dr. Aubid Ahmad)'}
             </p>
           </div>
         </div>

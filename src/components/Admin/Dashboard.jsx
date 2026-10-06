@@ -71,7 +71,7 @@ const DEFAULT_PROJECTS = [
     title: 'Botany Assistant Professor CBT Examination Suite',
     category: 'EdTech & Assessment Engines',
     clientTag: 'Curated by Dr. Aubid Ahmad (Asst. Professor) • Built & Deployed by NexLifTech',
-    description: 'An advanced, high-stakes Computer-Based Testing (CBT) portal and examination suite engineered for Dr. Aubid Ahmad, Assistant Professor. Features 35 scheduled tests, ~2,700 high-yield questions across 10 PSC units, Excel bulk uploads with 3-version rollbacks, automated option analysis, and Razorpay student enrollment workflows.',
+    description: 'An advanced, high-stakes Computer-Based Testing (CBT) portal and examination suite engineered for Dr. Aubid Ahmad, Assistant Professor. Features a 35-test plan, ~2,700 high-yield questions across 10 PSC units, Excel bulk uploads with 3-version rollbacks, automated option analysis, and Razorpay student enrollment workflows.',
     tech: ['React', 'Firebase', 'Razorpay', 'Excel Engine', 'CBT Analytics'],
     liveLink: '/botany-test-series',
     image: '/botany-suite-preview.svg'

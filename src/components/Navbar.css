@@ -243,8 +243,8 @@
   min-height: 48px;
 }
 
-/* Responsive Navigation Breakpoint: 992px */
-@media (max-width: 992px) {
+/* Collapse before the desktop links and actions exceed the available width. */
+@media (max-width: 1320px) {
   .nav-desktop {
     display: none;
   }

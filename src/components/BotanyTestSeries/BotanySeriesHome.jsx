@@ -101,7 +101,7 @@ const DEMO_QUESTIONS = [
 const FAQ_ITEMS = [
   {
     q: 'How many tests are included in the Full Series Pass?',
-    a: 'The Full 35-Test Series Pass gives you complete access to all 35 scheduled computer-based simulation tests: 10 Unit Tests (50 MCQs each), 5 Multi-Unit Cluster Tests (60 MCQs each), 11 Special & PYQ Drills, and 9 Full-Length Grand Mocks (100 MCQs each, calibrated strictly to actual PSC entrance difficulty).'
+    a: 'The Full 35-Test Series Pass covers the complete planned series: 10 Unit Tests (50 MCQs each), 5 Multi-Unit Cluster Tests (60 MCQs each), 11 Special & PYQ Drills, and 9 Full-Length Grand Mocks (100 MCQs each, calibrated strictly to actual PSC entrance difficulty). The calendar shows dated tests and preparation days as they are confirmed.'
   },
   {
     q: 'Why is option-by-option scientific rationale so crucial?',
@@ -519,6 +519,9 @@ export default function BotanySeriesHome() {
   const originalPrice = settings?.originalPrice || 2499;
   const finalPrice = Math.max(1, basePrice - discountApplied);
   const unitPrice = settings?.unitWisePrice || 199;
+  const testCount = schedule.filter(item => item.isTest !== false && item.questionCount !== 0).length || 35;
+  const remainingTestCount = Math.max(0, 35 - testCount);
+  const studyDayCount = schedule.length - testCount;
 
   // Filtered Schedule
   const filteredSchedule = schedule.filter(test => {
@@ -758,12 +761,12 @@ export default function BotanySeriesHome() {
               Botany Assistant Professor Computer-Based Test Series
             </h1>
             <p className="hero-compact-subtitle">
-              Standardized examination simulation calibrated to Botany PSC standards. Master all 10 units across {schedule.length || 35} scheduled tests with authentic -0.25 negative marking and comprehensive 4-option scientific literature rationales.
+              Standardized examination simulation calibrated to Botany PSC standards. Master all 10 units across {testCount} scheduled tests with authentic -0.25 negative marking and comprehensive 4-option scientific literature rationales.
             </p>
 
             <div className="hero-compact-chips">
               <div className="hero-chip">
-                <span className="chip-val">{schedule.length || 35}</span>
+                <span className="chip-val">{testCount}</span>
                 <span className="chip-lbl">Scheduled Tests</span>
               </div>
               <span className="chip-dot">•</span>
@@ -808,7 +811,7 @@ export default function BotanySeriesHome() {
             >
               <Calendar size={15} />
               <span>Test Schedule</span>
-              <span className="tab-pill-count">{schedule.length || 35}</span>
+              <span className="tab-pill-count">{testCount}</span>
             </button>
 
             <button 
@@ -852,8 +855,8 @@ export default function BotanySeriesHome() {
             <div className="explorer-content-card">
               <div className="content-card-header">
                 <div>
-                  <h3>Official 35-Test Examination Calendar</h3>
-                  <p>Structured progression: 10 Unit Tests (50 MCQs) → 5 Multi-Unit Clusters (60 MCQs) → 11 PYQ/Specials → 9 Grand Mocks (100 MCQs).</p>
+                  <h3>Botany Examination Calendar</h3>
+                  <p>{testCount} dated tests{remainingTestCount > 0 ? `, ${remainingTestCount} more planned` : ''}{studyDayCount > 0 ? `, and ${studyDayCount} preparation days` : ''}. Progress from unit tests and multi-unit clusters through PYQ drills and grand mocks.</p>
                 </div>
                 <button type="button" className="btn btn-primary btn-sm" onClick={() => scrollToPricing('full')}>
                   <span>Enroll in Series — ₹{finalPrice}</span>
@@ -886,7 +889,7 @@ export default function BotanySeriesHome() {
                     className={`filter-pill-btn ${scheduleFilter === 'all' ? 'active' : ''}`}
                     onClick={() => setScheduleFilter('all')}
                   >
-                    All Tests ({schedule.length})
+                    All Entries ({schedule.length})
                   </button>
                   <button 
                     type="button" 
@@ -942,7 +945,7 @@ export default function BotanySeriesHome() {
                 <table className="schedule-data-table">
                   <thead>
                     <tr>
-                      <th style={{ width: '60px', whiteSpace: 'nowrap' }}>Test #</th>
+                      <th style={{ width: '60px', whiteSpace: 'nowrap' }}>Entry</th>
                       <th style={{ whiteSpace: 'nowrap' }}>Test Title &amp; Syllabus Coverage</th>
                       <th style={{ width: '140px', whiteSpace: 'nowrap' }}>Questions</th>
                       <th style={{ width: '80px', whiteSpace: 'nowrap' }}>Duration</th>
@@ -955,11 +958,13 @@ export default function BotanySeriesHome() {
                       const testBankStats = getTestQuestionStats(t, questionStats?.unitStats);
                       const isAccessible = hasTestAccess(t);
                       const isDemo = t.testNumber === 'T-1' || t.id === 'test_01' || t.category === 'Diagnostic Test';
+                      const isStudyDay = t.isTest === false || t.questionCount === 0;
+                      const entryNumber = schedule.indexOf(t) + 1;
 
                       return (
                         <tr key={t.testId || idx}>
                           <td data-label="Test">
-                            <span className="test-code-badge">{t.testNumber || `T-${idx + 1}`}</span>
+                            <span className="test-code-badge">{isStudyDay ? `Day ${entryNumber}` : t.testNumber || `T-${entryNumber}`}</span>
                           </td>
                           <td data-label="Title and coverage">
                             <div className="table-test-info">
@@ -969,8 +974,8 @@ export default function BotanySeriesHome() {
                           </td>
                           <td data-label="Questions">
                             <div className="table-test-info">
-                              <span className="t-badge-mcq">{t.questionCount || 50} MCQs</span>
-                              {testBankStats?.uploadedCount > 0 && (
+                              <span className="t-badge-mcq">{isStudyDay ? 'Preparation day' : `${t.questionCount || 50} MCQs`}</span>
+                              {!isStudyDay && testBankStats?.uploadedCount > 0 && (
                                 <span 
                                   className="t-live-bank-tag"
                                   title={`${testBankStats.uploadedCount} MCQs in bank with 100% 4-option scientific rationale`}
@@ -981,13 +986,15 @@ export default function BotanySeriesHome() {
                             </div>
                           </td>
                           <td data-label="Duration">
-                            <span className="t-badge-time">{t.durationMinutes || 60} Mins</span>
+                            <span className="t-badge-time">{isStudyDay ? 'Self-paced' : `${t.durationMinutes || 60} Mins`}</span>
                           </td>
                           <td data-label="Schedule">
-                            <span className="t-date-text">{t.scheduledDate || 'Flexible'}</span>
+                            <span className="t-date-text">{t.dayLabel || t.scheduledDate || 'Flexible'}</span>
                           </td>
                           <td data-label="Access" className="schedule-action-cell">
-                            {isAccessible ? (
+                            {isStudyDay ? (
+                              <span className="t-study-day-tag">Study plan</span>
+                            ) : isAccessible ? (
                               <button
                                 type="button"
                                 className={`btn btn-sm cbt-table-action-btn ${isDemo ? 'demo' : 'start'}`}

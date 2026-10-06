@@ -14,16 +14,16 @@ html[data-theme="light"] {
 
   --text-primary: #0f172a;
   --text-secondary: #475569;
-  --text-muted: #64748b;
+  --text-muted: #526276;
   --text-inverse: #ffffff;
 
   /* Vivid accent palette */
   --accent-primary: #7c3aed;       /* rich violet */
   --accent-secondary: #6366f1;     /* deep indigo */
-  --accent-cyan: #0284c7;          /* sky blue */
+  --accent-cyan: #0369a1;          /* readable sky blue */
   --accent-pink: #db2777;          /* deep pink */
-  --accent-green: #059669;         /* emerald */
-  --success: #10b981;
+  --accent-green: #047857;         /* emerald */
+  --success: #047857;
 
   --border-light: rgba(15, 23, 42, 0.08);
   --border-glow: rgba(124, 58, 237, 0.35);
@@ -65,7 +65,7 @@ html[data-theme="dark"] {
 
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-muted: #8796ad;
   --text-inverse: #07070f;
 
   --accent-primary: #a855f7;
@@ -98,7 +98,7 @@ html[data-theme="cyber"] {
 
   --text-primary: #f0fdf4;
   --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-muted: #8796ad;
   --text-inverse: #030712;
 
   --accent-primary: #06b6d4;
@@ -143,7 +143,7 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  min-width: 320px;
+  min-width: 0;
 }
 
 /* Custom Scrollbar */
@@ -287,6 +287,10 @@ section {
   background: var(--gradient-accent);
   color: #ffffff !important;
   box-shadow: 0 4px 18px rgba(124, 58, 237, 0.35);
+}
+
+html[data-theme="cyber"] .btn-primary {
+  color: var(--text-inverse) !important;
 }
 
 .btn-primary:hover {

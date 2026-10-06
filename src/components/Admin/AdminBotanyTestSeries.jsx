@@ -1237,7 +1237,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
               }}
             >
               <Calendar size={16} />
-              <span>📅 Official 35 Scheduled Tests</span>
+              <span>📅 Official 35-Test Plan</span>
               <span className="mode-pill-badge">35 Tests</span>
             </button>
           </div>
@@ -1967,7 +1967,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                         </option>
                       ))}
                     </optgroup>
-                    <optgroup label="Official 35 Scheduled Tests">
+                    <optgroup label="Official Calendar Entries">
                       {schedule.filter(t => t.isTest).map(t => (
                         <option key={t.id} value={t.id}>
                           {t.id.replace('test_', 'T')}: {t.title} ({t.category})
