@@ -196,7 +196,7 @@ export default function BotanySeriesHome() {
   // User active subscriptions
   const [userSubscriptions, setUserSubscriptions] = useState([]);
 
-  const pricingSectionRef = useRef(null);
+  const tabsNavRef = useRef(null);
 
   useEffect(() => {
     async function loadData() {
@@ -269,9 +269,12 @@ export default function BotanySeriesHome() {
 
   function scrollToPricing(tab = 'full') {
     if (tab) setActivePricingTab(tab);
-    if (pricingSectionRef.current) {
-      pricingSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    setExplorerTab('pricing');
+    setTimeout(() => {
+      if (tabsNavRef.current) {
+        tabsNavRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 40);
   }
 
   function applyCoupon() {
@@ -689,8 +692,7 @@ export default function BotanySeriesHome() {
                     className="btn btn-secondary btn-sm"
                     onClick={() => {
                       setExplorerTab('schedule');
-                      const schedEl = document.querySelector('.botany-tab-navigation-bar');
-                      if (schedEl) schedEl.scrollIntoView({ behavior: 'smooth' });
+                      if (tabsNavRef.current) tabsNavRef.current.scrollIntoView({ behavior: 'smooth' });
                     }}
                   >
                     <span>Go to Test Calendar</span>
@@ -702,471 +704,155 @@ export default function BotanySeriesHome() {
           </div>
         )}
 
-        {/* 1. HIGH-IMPACT TEST SERIES HERO SECTION */}
-        <section className="botany-hero-test-card">
-          <div className="hero-test-header-row">
-            <div className="hero-exam-badge">
-              <span className="exam-pulse-beacon" />
-              <span>PSC ENTRANCE 2026 • OFFICIAL CBT TEST SERIES</span>
+        {/* 1. COMPACT ACADEMIC HERO HEADER */}
+        <section className="botany-hero-compact">
+          <div className="hero-compact-top">
+            <div className="hero-academic-meta">
+              <span className="academic-badge">PSC Entrance 2026</span>
+              <span className="academic-curator">
+                <GraduationCap size={14} className="curator-icon" />
+                <span>Curated by: <strong>Dr. Aubid Ahmad</strong> (Assistant Professor)</span>
+              </span>
+              <span className="meta-sep">•</span>
+              <span className="academic-engine">NexLifTech Engine</span>
             </div>
-            <div className="hero-curator-tag">
-              <GraduationCap size={15} className="curator-icon" />
-              <span><strong>Curated by:</strong> Dr. Aubid Ahmad (Assistant Professor)</span>
-              <span className="tag-divider">•</span>
-              <span className="platform-tag">NexLifTech Engine</span>
+
+            <div className="hero-compact-actions">
+              <button 
+                type="button" 
+                className="btn btn-secondary btn-sm hero-btn-demo"
+                onClick={handleDemoCbtClick}
+                title="Launch 1-Click Free Diagnostic Demo"
+              >
+                <Play size={12} className="accent-play-icon" />
+                <span>Try Free Demo ({demoQuestions.length} MCQs)</span>
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-primary btn-sm hero-btn-enroll"
+                onClick={() => scrollToPricing('full')}
+                title="View All Enrollment Passes"
+              >
+                <span>Enroll in Series — ₹{finalPrice}</span>
+                <ArrowRight size={13} />
+              </button>
             </div>
           </div>
 
-          <div className="hero-test-main-content">
-            <h1 className="hero-test-title">
-              Botany Assistant Professor <span className="text-gradient">CBT Suite</span>
+          <div className="hero-compact-body">
+            <h1 className="hero-compact-title">
+              Botany Assistant Professor Computer-Based Test Series
             </h1>
-            <p className="hero-test-desc">
-              Computer-Based Testing calibrated for Botany PSC aspirants. Master the 10-unit syllabus with {schedule.length || 35} scheduled tests, -0.25 negative marking, and option-by-option scientific rationales.
+            <p className="hero-compact-subtitle">
+              Standardized examination simulation calibrated to Botany PSC standards. Master all 10 units across {schedule.length || 35} scheduled tests with authentic -0.25 negative marking and comprehensive 4-option scientific literature rationales.
             </p>
 
-            <div className="hero-test-cta-bar">
-              <button 
-                type="button" 
-                className="btn btn-primary hero-enroll-btn"
-                onClick={scrollToPricing}
-              >
-                <Zap size={15} />
-                <span>Enroll in Full Series — ₹{finalPrice}</span>
-                <ArrowRight size={14} />
-              </button>
-              <button 
-                type="button" 
-                className="btn btn-secondary hero-demo-btn"
-                onClick={handleDemoCbtClick}
-              >
-                <Play size={13} className="accent-play-icon" />
-                <span>Take Free Demo CBT ({demoQuestions.length} MCQs)</span>
-              </button>
-            </div>
-          </div>
-
-          {/* 4 Core Examination Metrics Bar */}
-          <div className="hero-test-metrics-grid">
-            <div className="test-metric-cell">
-              <div className="metric-num">10</div>
-              <div className="metric-lbl">PSC Units</div>
-            </div>
-            <div className="metric-divider" />
-            <div className="test-metric-cell">
-              <div className="metric-num">{schedule.length || 35}</div>
-              <div className="metric-lbl">Scheduled Tests</div>
-            </div>
-            <div className="metric-divider" />
-            <div className="test-metric-cell">
-              <div className="metric-num">{questionStats?.totalUploadedQuestions || 100}+</div>
-              <div className="metric-lbl">Live MCQs Active</div>
-            </div>
-            <div className="metric-divider" />
-            <div className="test-metric-cell">
-              <div className="metric-num">100%</div>
-              <div className="metric-lbl">Scientific Rationale</div>
-            </div>
-          </div>
-        </section>
-
-        {/* 2. PROMINENT & UN-HIDDEN PLANS & PRICING SECTION */}
-        <section ref={pricingSectionRef} className="botany-pricing-showcase-section" id="pricing-plans">
-          <div className="section-title-wrap text-center">
-            <div className="sub-badge-pill">
-              <Tag size={13} />
-              <span>TRANSPARENT CANDIDATE ENROLLMENT PLANS</span>
-            </div>
-            <h2 className="section-heading">Choose Your Test Series Package</h2>
-            <p className="section-subtext">
-              Instant activation via secure Razorpay checkout. Immediate access to test calendar, PDF keys, and diagnostic CBT analysis.
-            </p>
-          </div>
-
-          {/* Mobile Tabbed Switcher: View plans at the exact same location by tabbing */}
-          <div className="pricing-mobile-tab-bar" role="tablist" aria-label="Test series package options">
-            <button 
-              type="button" 
-              role="tab"
-              aria-selected={activePricingTab === 'full'}
-              className={`pricing-mobile-tab-btn ${activePricingTab === 'full' ? 'active tab-featured' : ''}`}
-              onClick={() => setActivePricingTab('full')}
-            >
-              <div className="tab-btn-content">
-                <div className="tab-title-line">
-                  <Star size={13} className="tab-icon-star" fill={activePricingTab === 'full' ? '#10b981' : 'none'} />
-                  <span>Full Pass</span>
-                </div>
-                <div className="tab-meta-badge">₹{finalPrice}</div>
+            <div className="hero-compact-chips">
+              <div className="hero-chip">
+                <span className="chip-val">{schedule.length || 35}</span>
+                <span className="chip-lbl">Scheduled Tests</span>
               </div>
-            </button>
-
-            <button 
-              type="button" 
-              role="tab"
-              aria-selected={activePricingTab === 'unit'}
-              className={`pricing-mobile-tab-btn ${activePricingTab === 'unit' ? 'active tab-unit' : ''}`}
-              onClick={() => setActivePricingTab('unit')}
-            >
-              <div className="tab-btn-content">
-                <div className="tab-title-line">
-                  <BookOpen size={13} className="tab-icon-book" />
-                  <span>Unit-Wise</span>
-                </div>
-                <div className="tab-meta-badge">₹{unitPrice}</div>
+              <span className="chip-dot">•</span>
+              <div className="hero-chip">
+                <span className="chip-val">10</span>
+                <span className="chip-lbl">PSC Units</span>
               </div>
-            </button>
-
-            <button 
-              type="button" 
-              role="tab"
-              aria-selected={activePricingTab === 'demo'}
-              className={`pricing-mobile-tab-btn ${activePricingTab === 'demo' ? 'active tab-demo' : ''}`}
-              onClick={() => setActivePricingTab('demo')}
-            >
-              <div className="tab-btn-content">
-                <div className="tab-title-line">
-                  <Play size={13} className="tab-icon-play" fill={activePricingTab === 'demo' ? '#a855f7' : 'none'} />
-                  <span>Free Demo</span>
-                </div>
-                <div className="tab-meta-badge demo-badge">FREE</div>
+              <span className="chip-dot">•</span>
+              <div className="hero-chip">
+                <span className="chip-val">9</span>
+                <span className="chip-lbl">Grand Mocks</span>
               </div>
-            </button>
-          </div>
-
-          <div className="botany-pricing-cards-container">
-            {/* Card 1: Complete 35-Test Series Master Pass (Highlighted) */}
-            <div className={`pricing-card-box featured-pass ${activePricingTab === 'full' ? 'active-mobile-plan' : ''}`}>
-              <div className="featured-ribbon">
-                <Star size={13} fill="#fff" />
-                <span>MOST POPULAR • ALL-INCLUSIVE</span>
+              <span className="chip-dot">•</span>
+              <div className="hero-chip">
+                <span className="chip-val">{questionStats?.totalUploadedQuestions || 100}+</span>
+                <span className="chip-lbl">MCQs Active</span>
               </div>
-
-              <div className="p-card-header">
-                <span className="p-plan-badge">Complete 10-Unit PSC Prep</span>
-                <h3 className="p-plan-title">Full 35-Test Series Pass</h3>
-                <p className="p-plan-summary">
-                  Complete preparation package: 10 Unit Tests, 5 Multi-Unit Clusters, Numericals, PYQs &amp; 9 Full-Length Grand Mocks.
-                </p>
+              <span className="chip-dot">•</span>
+              <div className="hero-chip">
+                <span className="chip-val">-0.25</span>
+                <span className="chip-lbl">Penalty Calibration</span>
               </div>
-
-              <div className="p-price-container">
-                <div className="p-amount-row">
-                  <span className="p-currency">₹</span>
-                  <span className="p-value">{finalPrice}</span>
-                  <span className="p-original">₹{originalPrice}</span>
-                  <span className="p-discount-tag">40% OFF</span>
-                </div>
-                <span className="p-validity-note">Valid until PSC Examination 2026 • Unlimited Re-attempts</span>
-              </div>
-
-              {/* Coupon Applicator */}
-              <div className="p-coupon-bar">
-                <input 
-                  type="text" 
-                  className="p-coupon-input"
-                  placeholder="Have coupon? (e.g. EARLYBIRD)"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
-                />
-                <button type="button" className="p-coupon-btn" onClick={applyCoupon}>
-                  Apply
-                </button>
-              </div>
-              {couponMessage && (
-                <div className={`p-coupon-msg ${discountApplied > 0 ? 'success' : 'error'}`}>
-                  {couponMessage}
-                </div>
-              )}
-
-              <ul className="p-features-checklist">
-                <li>
-                  <CheckCircle2 size={16} className="p-check-icon" />
-                  <span><strong>All 35 CBT Tests</strong> (~2,700 questions across 10 PSC units)</span>
-                </li>
-                <li>
-                  <CheckCircle2 size={16} className="p-check-icon" />
-                  <span><strong>Option-by-Option Rationale</strong> (explains why correct &amp; why distractors fail)</span>
-                </li>
-                <li>
-                  <CheckCircle2 size={16} className="p-check-icon" />
-                  <span><strong>9 Full-Length Grand Mocks</strong> (calibrated to actual PSC difficulty)</span>
-                </li>
-                <li>
-                  <CheckCircle2 size={16} className="p-check-icon" />
-                  <span><strong>Negative Marking Simulation</strong> (+1.00 / -0.25 penalty calibration)</span>
-                </li>
-                <li>
-                  <CheckCircle2 size={16} className="p-check-icon" />
-                  <span><strong>Instant Razorpay Activation</strong> with email confirmation &amp; receipt</span>
-                </li>
-              </ul>
-
-              <button 
-                type="button" 
-                className="btn btn-primary p-enroll-action-btn"
-                onClick={() => handleEnrollClick('full_series')}
-              >
-                <span>Enroll in Full Test Series — ₹{finalPrice}</span>
-                <ArrowRight size={16} />
-              </button>
-
-              <div className="p-mobile-sample-hint">
-                <span>Want to test the exam engine first?</span>
-                <button 
-                  type="button" 
-                  className="p-tab-switch-hint" 
-                  onClick={() => setActivePricingTab('demo')}
-                >
-                  Try Free Diagnostic Demo CBT →
-                </button>
-              </div>
-            </div>
-
-            {/* Card 2: Unit-Wise Flexi Pass */}
-            <div className={`pricing-card-box flexi-pass ${activePricingTab === 'unit' ? 'active-mobile-plan' : ''}`}>
-              <div className="p-card-header">
-                <span className="p-plan-badge flexi">Targeted Practice</span>
-                <h3 className="p-plan-title">Unit-Wise Individual Test</h3>
-                <p className="p-plan-summary">
-                  Target specific units (e.g. Cytology, Physiology, or Plant Pathology) with high-yield modular tests.
-                </p>
-              </div>
-
-              <div className="p-price-container">
-                <div className="p-amount-row">
-                  <span className="p-currency">₹</span>
-                  <span className="p-value">{unitPrice}</span>
-                  <span className="p-period">/ per single unit test</span>
-                </div>
-                <span className="p-validity-note">
-                  Upgrade to Full Series anytime with 100% price adjustment credit
-                </span>
-              </div>
-
-              {/* Unit Selector */}
-              <div className="p-unit-select-box">
-                <label className="p-select-label">Choose Target Unit:</label>
-                <select 
-                  className="p-unit-dropdown"
-                  value={selectedUnitForPass}
-                  onChange={(e) => setSelectedUnitForPass(e.target.value)}
-                >
-                  {syllabus.map(u => (
-                    <option key={u.unitId} value={u.unitId}>
-                      Unit {u.unitNumber}: {u.shortTitle || u.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <ul className="p-features-checklist">
-                <li>
-                  <CheckCircle2 size={16} className="p-check-icon" />
-                  <span><strong>50 High-Yield MCQs</strong> for chosen single unit</span>
-                </li>
-                <li>
-                  <CheckCircle2 size={16} className="p-check-icon" />
-                  <span><strong>60 Minutes</strong> authentic timed examination mode</span>
-                </li>
-                <li>
-                  <CheckCircle2 size={16} className="p-check-icon" />
-                  <span><strong>Full Option Analysis</strong> with scientific literature references</span>
-                </li>
-                <li>
-                  <CheckCircle2 size={16} className="p-check-icon" />
-                  <span><strong>Weak-Topic Diagnostic Score</strong> &amp; speed analysis</span>
-                </li>
-              </ul>
-
-              <button 
-                type="button" 
-                className="btn btn-secondary p-enroll-action-btn"
-                onClick={() => handleEnrollClick('unit_pass')}
-              >
-                <span>Enroll in Chosen Unit — ₹{unitPrice}</span>
-                <ArrowRight size={16} />
-              </button>
-
-              <div className="p-mobile-sample-hint">
-                <span>Looking for all-inclusive 35-test prep?</span>
-                <button 
-                  type="button" 
-                  className="p-tab-switch-hint" 
-                  onClick={() => setActivePricingTab('full')}
-                >
-                  Switch to Full Pass (₹{finalPrice}) →
-                </button>
-              </div>
-            </div>
-
-            {/* Card 3: Free Diagnostic Entrance CBT Demo */}
-            <div className={`pricing-card-box demo-pass ${activePricingTab === 'demo' ? 'active-mobile-plan' : ''}`}>
-              <div className="p-card-header">
-                <span className="p-plan-badge free">100% Free Sample</span>
-                <h3 className="p-plan-title">Diagnostic Demo CBT</h3>
-                <p className="p-plan-summary">
-                  Experience the actual test engine, live timer, negative marking, and option rationale firsthand with 0 payment.
-                </p>
-              </div>
-
-              <div className="p-price-container">
-                <div className="p-amount-row">
-                  <span className="p-free-text">FREE</span>
-                  <span className="p-period">/ No Credit Card Required</span>
-                </div>
-                <span className="p-validity-note">
-                  Instant 1-Click Launch • Real Simulation Engine
-                </span>
-              </div>
-
-              <div className="p-demo-preview-pill">
-                <span className="demo-pill-title">Includes {demoQuestions.length} High-Yield Sample Questions:</span>
-                <span className="demo-pill-topics">
-                  {demoQuestions.slice(0, 5).map(q => q.question ? q.question.slice(0, 30) + '...' : '').filter(Boolean).join(' • ') || 'Full PSC Diagnostic Entrance Assessment'}
-                </span>
-              </div>
-
-              <ul className="p-features-checklist">
-                <li>
-                  <CheckCircle2 size={16} className="p-check-icon" />
-                  <span><strong>Authentic CBT Simulation</strong> with countdown timer</span>
-                </li>
-                <li>
-                  <CheckCircle2 size={16} className="p-check-icon" />
-                  <span><strong>Question Palette</strong> (Answered, Flagged, Unattempted)</span>
-                </li>
-                <li>
-                  <CheckCircle2 size={16} className="p-check-icon" />
-                  <span><strong>Instant Results Report</strong> with full scientific rationale</span>
-                </li>
-              </ul>
-
-              <button 
-                type="button" 
-                className="btn btn-secondary p-enroll-action-btn demo-btn"
-                onClick={handleDemoCbtClick}
-              >
-                <Play size={15} />
-                <span>Launch Free Demo CBT Test</span>
-              </button>
-
-              <div className="p-mobile-sample-hint">
-                <span>Ready to enroll in full pass?</span>
-                <button 
-                  type="button" 
-                  className="p-tab-switch-hint" 
-                  onClick={() => setActivePricingTab('full')}
-                >
-                  Enroll in Full Pass (₹{finalPrice}) →
-                </button>
+              <span className="chip-dot">•</span>
+              <div className="hero-chip">
+                <span className="chip-val">100%</span>
+                <span className="chip-lbl">Option Rationales</span>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 3. INTERACTIVE LIVE CBT SIMULATOR PREVIEW BANNER */}
-        <section className="botany-cbt-preview-banner">
-          <div className="cbt-banner-left">
-            <div className="cbt-banner-badge">
-              <Clock size={14} />
-              <span>BUILT FOR AUTHENTIC TEST TEMPERAMENT</span>
-            </div>
-            <h2>Experience the Computer-Based Testing Interface</h2>
-            <p>
-              Test anxiety and negative marking penalties cost candidates valuable marks. Our examination engine mimics the exact NTA/PSC user interface with live countdown timers, question jumping palette, review flags, and detailed post-test diagnostics.
-            </p>
-            <div className="cbt-feature-pills">
-              <span>⏱️ Real-Time Countdown Timer</span>
-              <span>🏷️ Flag &amp; Review Later</span>
-              <span>📉 -0.25 Negative Marking Simulation</span>
-              <span>🔬 Option-by-Option Breakdown</span>
-            </div>
-          </div>
-          <div className="cbt-banner-right">
-            <div className="cbt-mock-window">
-              <div className="mock-window-topbar">
-                <div className="mock-dots"><span /><span /><span /></div>
-                <div className="mock-timer-display">⏱️ 00:09:45</div>
-              </div>
-              <div className="mock-window-content">
-                <span className="mock-q-meta">Q. 1 of 5 • Microbiology &amp; Lower Plants</span>
-                <p className="mock-q-text">
-                  Which plant virus possesses a circular dsDNA genome with 3 site-specific discontinuities (pararetrovirus)?
-                </p>
-                <div className="mock-options-group">
-                  <div className="mock-opt">A) Tobacco Mosaic Virus (TMV)</div>
-                  <div className="mock-opt active">B) Cauliflower Mosaic Virus (CaMV) ✓</div>
-                  <div className="mock-opt">C) Turnip Yellow Mosaic Virus (TYMV)</div>
-                  <div className="mock-opt">D) Potato Virus X (PVX)</div>
-                </div>
-                <button type="button" className="mock-launch-btn" onClick={handleDemoCbtClick}>
-                  <Play size={13} /> Try Full Simulation Now
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* 4. TABBED EXPLORER FOR DETAILED EXAMINATION CONTENT */}
-        <section className="botany-deep-explorer-section">
-          {/* Sticky Tab Navigation Bar */}
-          <div className="botany-subnav-tabs">
+        {/* 2. UNIFIED ACADEMIC EXPLORER (TEST SCHEDULE FIRST, PASSES & PRICING, SYLLABUS, BLUEPRINT & FAQS) */}
+        <section className="botany-main-explorer" ref={tabsNavRef}>
+          {/* Minimal Tab Bar */}
+          <div className="botany-subnav-tabs" role="tablist" aria-label="Portal Navigation Tabs">
             <button 
+              type="button" 
+              role="tab"
+              aria-selected={explorerTab === 'schedule'}
               className={`subnav-tab-btn ${explorerTab === 'schedule' ? 'active' : ''}`}
               onClick={() => setExplorerTab('schedule')}
             >
-              <Calendar size={16} />
-              <span>35-Test Scheduled Calendar</span>
+              <Calendar size={15} />
+              <span>Test Schedule</span>
               <span className="tab-pill-count">{schedule.length || 35}</span>
             </button>
 
             <button 
+              type="button" 
+              role="tab"
+              aria-selected={explorerTab === 'pricing'}
+              className={`subnav-tab-btn ${explorerTab === 'pricing' ? 'active' : ''}`}
+              onClick={() => setExplorerTab('pricing')}
+            >
+              <Tag size={15} />
+              <span>Passes &amp; Pricing</span>
+              <span className="tab-pill-count">₹{unitPrice} / ₹{finalPrice}</span>
+            </button>
+
+            <button 
+              type="button" 
+              role="tab"
+              aria-selected={explorerTab === 'syllabus'}
               className={`subnav-tab-btn ${explorerTab === 'syllabus' ? 'active' : ''}`}
               onClick={() => setExplorerTab('syllabus')}
             >
-              <BookOpen size={16} />
-              <span>10-Unit Syllabus &amp; Blueprint</span>
+              <BookOpen size={15} />
+              <span>10-Unit Syllabus</span>
               <span className="tab-pill-count">{syllabus.length || 10}</span>
             </button>
 
             <button 
-              className={`subnav-tab-btn ${explorerTab === 'features' ? 'active' : ''}`}
-              onClick={() => setExplorerTab('features')}
+              type="button" 
+              role="tab"
+              aria-selected={explorerTab === 'blueprint'}
+              className={`subnav-tab-btn ${explorerTab === 'blueprint' ? 'active' : ''}`}
+              onClick={() => setExplorerTab('blueprint')}
             >
-              <Sparkles size={16} />
-              <span>CBT Platform Features</span>
-            </button>
-
-            <button 
-              className={`subnav-tab-btn ${explorerTab === 'faq' ? 'active' : ''}`}
-              onClick={() => setExplorerTab('faq')}
-            >
-              <HelpCircle size={16} />
-              <span>Candidate FAQs</span>
+              <ShieldCheck size={15} />
+              <span>Blueprint &amp; FAQs</span>
             </button>
           </div>
 
-          {/* TAB CONTENT: 35-TEST CALENDAR */}
+          {/* TAB 1: TEST SCHEDULE (DEFAULT FRONT AND CENTER) */}
           {explorerTab === 'schedule' && (
             <div className="explorer-content-card">
               <div className="content-card-header">
                 <div>
-                  <h3>Official 35-Test Calendar &amp; Schedule</h3>
-                  <p>Comprehensive progression: 10 Unit Tests → 5 Multi-Unit Clusters → 11 PYQ/Specials → 9 Grand Mocks.</p>
+                  <h3>Official 35-Test Examination Calendar</h3>
+                  <p>Structured progression: 10 Unit Tests (50 MCQs) → 5 Multi-Unit Clusters (60 MCQs) → 11 PYQ/Specials → 9 Grand Mocks (100 MCQs).</p>
                 </div>
-                <button type="button" className="btn btn-primary btn-sm" onClick={scrollToPricing}>
-                  <span>Enroll in All Tests</span>
-                  <ArrowRight size={14} />
+                <button type="button" className="btn btn-primary btn-sm" onClick={() => scrollToPricing('full')}>
+                  <span>Enroll in Series — ₹{finalPrice}</span>
+                  <ArrowRight size={13} />
                 </button>
               </div>
 
-              {/* Verified Question Bank Statistics Banner */}
+              {/* Minimal verification strip */}
               <div className="public-bank-stats-banner">
                 <div className="public-stats-badge">
-                  <CheckCircle2 size={15} style={{ color: '#10b981', flexShrink: 0 }} />
+                  <CheckCircle2 size={14} style={{ color: '#10b981', flexShrink: 0 }} />
                   <span>
-                    Verified Question Bank: <strong>100% 4-Option Scientific Rationale &amp; Context Notes</strong> across all 10 PSC Units
+                    Verified Question Bank: <strong>100% 4-Option Scientific Rationale</strong> • Zero Key Bias
                   </span>
                 </div>
                 <div className="public-stats-breakdown">
@@ -1174,7 +860,7 @@ export default function BotanySeriesHome() {
                   <span className="stats-dot">•</span>
                   <span className="stats-tag-item"><strong>10/10</strong> Units Analyzed</span>
                   <span className="stats-dot">•</span>
-                  <span className="stats-tag-item"><strong>Zero Key Bias</strong> (A-D Equibalanced)</span>
+                  <span className="stats-tag-item">-0.25 Marking</span>
                 </div>
               </div>
 
@@ -1219,7 +905,7 @@ export default function BotanySeriesHome() {
                 </div>
 
                 <div className="schedule-search-box">
-                  <Search size={15} className="search-icon" />
+                  <Search size={14} className="search-icon" />
                   <input 
                     type="text" 
                     placeholder="Search test by title or topic..."
@@ -1236,17 +922,17 @@ export default function BotanySeriesHome() {
                 </div>
               )}
 
-              {/* Tests Table */}
+              {/* Schedule Table */}
               <div className="schedule-table-wrapper">
                 <table className="schedule-data-table">
                   <thead>
                     <tr>
-                      <th style={{ width: '65px', whiteSpace: 'nowrap' }}>Test #</th>
+                      <th style={{ width: '60px', whiteSpace: 'nowrap' }}>Test #</th>
                       <th style={{ whiteSpace: 'nowrap' }}>Test Title &amp; Syllabus Coverage</th>
-                      <th style={{ width: '150px', whiteSpace: 'nowrap' }}>Questions &amp; Bank</th>
-                      <th style={{ width: '85px', whiteSpace: 'nowrap' }}>Duration</th>
-                      <th style={{ width: '105px', whiteSpace: 'nowrap' }}>Schedule</th>
-                      <th style={{ width: '120px', textAlign: 'right', whiteSpace: 'nowrap' }}>Actions</th>
+                      <th style={{ width: '140px', whiteSpace: 'nowrap' }}>Questions</th>
+                      <th style={{ width: '80px', whiteSpace: 'nowrap' }}>Duration</th>
+                      <th style={{ width: '100px', whiteSpace: 'nowrap' }}>Schedule</th>
+                      <th style={{ width: '115px', textAlign: 'right', whiteSpace: 'nowrap' }}>Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1267,14 +953,14 @@ export default function BotanySeriesHome() {
                             </div>
                           </td>
                           <td>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', alignItems: 'flex-start' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem', alignItems: 'flex-start' }}>
                               <span className="t-badge-mcq">{t.questionCount || 50} MCQs</span>
                               {testBankStats?.uploadedCount > 0 && (
                                 <span 
                                   className="t-live-bank-tag"
                                   title={`${testBankStats.uploadedCount} MCQs in bank with 100% 4-option scientific rationale`}
                                 >
-                                  ✓ {testBankStats.uploadedCount} Q Active
+                                  ✓ {testBankStats.uploadedCount} Active
                                 </span>
                               )}
                             </div>
@@ -1294,7 +980,7 @@ export default function BotanySeriesHome() {
                                 disabled={testLaunchLoading}
                                 title={isDemo ? 'Launch Free Diagnostic Demo' : 'Launch Official CBT Simulation'}
                               >
-                                <Play size={12} />
+                                <Play size={11} />
                                 <span>{isDemo ? 'Free Demo' : 'Start CBT'}</span>
                               </button>
                             ) : (
@@ -1304,7 +990,7 @@ export default function BotanySeriesHome() {
                                 onClick={() => handleUnlockTest(t)}
                                 title="Unlock Test Access"
                               >
-                                <Lock size={12} />
+                                <Lock size={11} />
                                 <span>Unlock</span>
                               </button>
                             )}
@@ -1318,7 +1004,259 @@ export default function BotanySeriesHome() {
             </div>
           )}
 
-          {/* TAB CONTENT: 10-UNIT SYLLABUS */}
+          {/* TAB 2: PASSES & PRICING */}
+          {explorerTab === 'pricing' && (
+            <div className="explorer-content-card">
+              <div className="content-card-header">
+                <div>
+                  <h3>Candidate Enrollment Passes &amp; Instant Activation</h3>
+                  <p>Direct enrollment via Razorpay (UPI, Cards, NetBanking). Credentials and access activate immediately with receipt generation.</p>
+                </div>
+              </div>
+
+              {/* Mobile Tabbed Switcher */}
+              <div className="pricing-mobile-tab-bar" role="tablist" aria-label="Test series package options">
+                <button 
+                  type="button" 
+                  role="tab"
+                  aria-selected={activePricingTab === 'full'}
+                  className={`pricing-mobile-tab-btn ${activePricingTab === 'full' ? 'active tab-featured' : ''}`}
+                  onClick={() => setActivePricingTab('full')}
+                >
+                  <div className="tab-btn-content">
+                    <div className="tab-title-line">
+                      <Star size={13} className="tab-icon-star" fill={activePricingTab === 'full' ? '#10b981' : 'none'} />
+                      <span>Full Pass</span>
+                    </div>
+                    <div className="tab-meta-badge">₹{finalPrice}</div>
+                  </div>
+                </button>
+
+                <button 
+                  type="button" 
+                  role="tab"
+                  aria-selected={activePricingTab === 'unit'}
+                  className={`pricing-mobile-tab-btn ${activePricingTab === 'unit' ? 'active tab-unit' : ''}`}
+                  onClick={() => setActivePricingTab('unit')}
+                >
+                  <div className="tab-btn-content">
+                    <div className="tab-title-line">
+                      <BookOpen size={13} className="tab-icon-book" />
+                      <span>Unit-Wise</span>
+                    </div>
+                    <div className="tab-meta-badge">₹{unitPrice}</div>
+                  </div>
+                </button>
+
+                <button 
+                  type="button" 
+                  role="tab"
+                  aria-selected={activePricingTab === 'demo'}
+                  className={`pricing-mobile-tab-btn ${activePricingTab === 'demo' ? 'active tab-demo' : ''}`}
+                  onClick={() => setActivePricingTab('demo')}
+                >
+                  <div className="tab-btn-content">
+                    <div className="tab-title-line">
+                      <Play size={13} className="tab-icon-play" fill={activePricingTab === 'demo' ? '#a855f7' : 'none'} />
+                      <span>Free Demo</span>
+                    </div>
+                    <div className="tab-meta-badge demo-badge">FREE</div>
+                  </div>
+                </button>
+              </div>
+
+              <div className="botany-pricing-cards-container">
+                {/* Card 1: Complete 35-Test Series Master Pass */}
+                <div className={`pricing-card-box featured-pass ${activePricingTab === 'full' ? 'active-mobile-plan' : ''}`}>
+                  <div className="p-card-header">
+                    <span className="p-plan-badge">All-Inclusive Pass</span>
+                    <h3 className="p-plan-title">Full 35-Test Series Pass</h3>
+                    <p className="p-plan-summary">
+                      Complete preparation: 10 Unit Tests, 5 Clusters, PYQs &amp; 9 Full-Length Grand Mocks.
+                    </p>
+                  </div>
+
+                  <div className="p-price-container">
+                    <div className="p-amount-row">
+                      <span className="p-currency">₹</span>
+                      <span className="p-value">{finalPrice}</span>
+                      <span className="p-original">₹{originalPrice}</span>
+                      <span className="p-discount-tag">40% OFF</span>
+                    </div>
+                    <span className="p-validity-note">Valid until PSC Exam 2026 • Unlimited Re-attempts</span>
+                  </div>
+
+                  {/* Coupon Applicator */}
+                  <div className="p-coupon-bar">
+                    <input 
+                      type="text" 
+                      className="p-coupon-input"
+                      placeholder="Coupon code (e.g. EARLYBIRD)"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                    />
+                    <button type="button" className="p-coupon-btn" onClick={applyCoupon}>
+                      Apply
+                    </button>
+                  </div>
+                  {couponMessage && (
+                    <div className={`p-coupon-msg ${discountApplied > 0 ? 'success' : 'error'}`}>
+                      {couponMessage}
+                    </div>
+                  )}
+
+                  <ul className="p-features-checklist">
+                    <li>
+                      <CheckCircle2 size={15} className="p-check-icon" />
+                      <span><strong>All 35 CBT Tests</strong> (~2,700 questions across 10 PSC units)</span>
+                    </li>
+                    <li>
+                      <CheckCircle2 size={15} className="p-check-icon" />
+                      <span><strong>Option-by-Option Rationale</strong> for every question</span>
+                    </li>
+                    <li>
+                      <CheckCircle2 size={15} className="p-check-icon" />
+                      <span><strong>9 Full Grand Mocks</strong> calibrated to actual PSC difficulty</span>
+                    </li>
+                    <li>
+                      <CheckCircle2 size={15} className="p-check-icon" />
+                      <span><strong>Negative Marking</strong> (+1.00 / -0.25 penalty calibration)</span>
+                    </li>
+                    <li>
+                      <CheckCircle2 size={15} className="p-check-icon" />
+                      <span><strong>Instant Razorpay Activation</strong> with email receipt</span>
+                    </li>
+                  </ul>
+
+                  <button 
+                    type="button" 
+                    className="btn btn-primary p-enroll-action-btn"
+                    onClick={() => handleEnrollClick('full_series')}
+                  >
+                    <span>Enroll in Full Series — ₹{finalPrice}</span>
+                    <ArrowRight size={15} />
+                  </button>
+                </div>
+
+                {/* Card 2: Unit-Wise Flexi Pass */}
+                <div className={`pricing-card-box flexi-pass ${activePricingTab === 'unit' ? 'active-mobile-plan' : ''}`}>
+                  <div className="p-card-header">
+                    <span className="p-plan-badge flexi">Targeted Practice</span>
+                    <h3 className="p-plan-title">Unit-Wise Individual Pass</h3>
+                    <p className="p-plan-summary">
+                      Practice a specific unit (e.g. Cytology, Physiology, or Plant Pathology).
+                    </p>
+                  </div>
+
+                  <div className="p-price-container">
+                    <div className="p-amount-row">
+                      <span className="p-currency">₹</span>
+                      <span className="p-value">{unitPrice}</span>
+                      <span className="p-period">/ per single unit</span>
+                    </div>
+                    <span className="p-validity-note">
+                      Upgrade to Full Series anytime with price adjustment credit
+                    </span>
+                  </div>
+
+                  {/* Unit Selector */}
+                  <div className="p-unit-select-box">
+                    <label className="p-select-label">Choose Target Unit:</label>
+                    <select 
+                      className="p-unit-dropdown"
+                      value={selectedUnitForPass}
+                      onChange={(e) => setSelectedUnitForPass(e.target.value)}
+                    >
+                      {syllabus.map(u => (
+                        <option key={u.unitId} value={u.unitId}>
+                          Unit {u.unitNumber}: {u.shortTitle || u.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <ul className="p-features-checklist">
+                    <li>
+                      <CheckCircle2 size={15} className="p-check-icon" />
+                      <span><strong>50 High-Yield MCQs</strong> for selected unit</span>
+                    </li>
+                    <li>
+                      <CheckCircle2 size={15} className="p-check-icon" />
+                      <span><strong>60 Minutes</strong> authentic timed examination mode</span>
+                    </li>
+                    <li>
+                      <CheckCircle2 size={15} className="p-check-icon" />
+                      <span><strong>Option Analysis</strong> with scientific literature references</span>
+                    </li>
+                    <li>
+                      <CheckCircle2 size={15} className="p-check-icon" />
+                      <span><strong>Weak-Topic Diagnostic</strong> &amp; speed analysis</span>
+                    </li>
+                  </ul>
+
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary p-enroll-action-btn"
+                    onClick={() => handleEnrollClick('unit_pass')}
+                  >
+                    <span>Enroll in Unit Pass — ₹{unitPrice}</span>
+                    <ArrowRight size={15} />
+                  </button>
+                </div>
+
+                {/* Card 3: Free Diagnostic CBT Demo */}
+                <div className={`pricing-card-box demo-pass ${activePricingTab === 'demo' ? 'active-mobile-plan' : ''}`}>
+                  <div className="p-card-header">
+                    <span className="p-plan-badge free">100% Free Sample</span>
+                    <h3 className="p-plan-title">Diagnostic Demo CBT</h3>
+                    <p className="p-plan-summary">
+                      Experience the exam engine, live timer, negative marking, and analysis firsthand.
+                    </p>
+                  </div>
+
+                  <div className="p-price-container">
+                    <div className="p-amount-row">
+                      <span className="p-free-text">FREE</span>
+                      <span className="p-period">/ No Payment Required</span>
+                    </div>
+                    <span className="p-validity-note">
+                      Instant 1-Click Launch • Authentic Simulation
+                    </span>
+                  </div>
+
+                  <ul className="p-features-checklist">
+                    <li>
+                      <CheckCircle2 size={15} className="p-check-icon" />
+                      <span><strong>{demoQuestions.length} High-Yield MCQs</strong> spanning PSC units</span>
+                    </li>
+                    <li>
+                      <CheckCircle2 size={15} className="p-check-icon" />
+                      <span><strong>Authentic CBT Mode</strong> with countdown timer</span>
+                    </li>
+                    <li>
+                      <CheckCircle2 size={15} className="p-check-icon" />
+                      <span><strong>Question Palette</strong> (Answered, Flagged, Unattempted)</span>
+                    </li>
+                    <li>
+                      <CheckCircle2 size={15} className="p-check-icon" />
+                      <span><strong>Instant Results Report</strong> with complete rationale</span>
+                    </li>
+                  </ul>
+
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary p-enroll-action-btn demo-btn"
+                    onClick={handleDemoCbtClick}
+                  >
+                    <Play size={14} />
+                    <span>Launch Free Demo CBT</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: 10-UNIT SYLLABUS */}
           {explorerTab === 'syllabus' && (
             <div className="explorer-content-card">
               <div className="content-card-header">
@@ -1327,10 +1265,10 @@ export default function BotanySeriesHome() {
                   <p>Compiled by Sheikh Gulfam (1 July 2023) • Curated by Dr. Aubid Ahmad, Assistant Professor (Botany).</p>
                 </div>
                 <div className="syllabus-search-box">
-                  <Search size={15} className="search-icon" />
+                  <Search size={14} className="search-icon" />
                   <input 
                     type="text" 
-                    placeholder="Search topics (e.g. CaMV, Sporne, APG, Glycolysis, CRISPR)..."
+                    placeholder="Search topics (e.g. CaMV, Sporne, APG, CRISPR)..."
                     value={syllabusSearch}
                     onChange={(e) => setSyllabusSearch(e.target.value)}
                   />
@@ -1352,8 +1290,8 @@ export default function BotanySeriesHome() {
                           <span className="unit-title-text">{unit.title}</span>
                         </div>
                         <div className="unit-trigger-right">
-                          <span className="unit-q-weight">{unit.estimatedQuestions || 50} Target MCQs</span>
-                          {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                          <span className="unit-q-weight">{unit.estimatedQuestions || 50} MCQs</span>
+                          {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                         </div>
                       </button>
 
@@ -1376,53 +1314,46 @@ export default function BotanySeriesHome() {
             </div>
           )}
 
-          {/* TAB CONTENT: PLATFORM FEATURES */}
-          {explorerTab === 'features' && (
+          {/* TAB 4: BLUEPRINT & FAQS */}
+          {explorerTab === 'blueprint' && (
             <div className="explorer-content-card">
               <div className="content-card-header">
                 <div>
-                  <h3>Engineered Specifically for Competitive Examination Success</h3>
-                  <p>How NexLifTech CBT Engine prepares you for PSC Assistant Professor examination.</p>
+                  <h3>Examination Blueprint &amp; Candidate FAQs</h3>
+                  <p>Standardized testing guidelines, negative marking rules, and enrollment details.</p>
                 </div>
               </div>
 
-              <div className="features-showcase-grid">
+              {/* Blueprint Feature Cards */}
+              <div className="features-showcase-grid" style={{ marginBottom: '2rem' }}>
                 <div className="feature-highlight-card">
-                  <div className="f-icon-box"><Clock size={22} /></div>
-                  <h4>Authentic PSC/NTA Examination Mode</h4>
-                  <p>Countdown timer, question jumping palette with color-coded states (Answered, Marked for Review, Not Visited), building true exam-hall confidence.</p>
+                  <div className="f-icon-box"><Clock size={20} /></div>
+                  <h4>Authentic PSC CBT Engine</h4>
+                  <p>Real-time countdown timer, question palette with status color codes, and flag-for-review navigation.</p>
                 </div>
 
                 <div className="feature-highlight-card">
-                  <div className="f-icon-box"><BookOpen size={22} /></div>
-                  <h4>Option-by-Option Scientific Rationale</h4>
-                  <p>Eliminate confusion with detailed rationales explaining why choice A is false, choice B is correct, and choices C &amp; D are misleading distractors.</p>
+                  <div className="f-icon-box"><BookOpen size={20} /></div>
+                  <h4>Option-by-Option Rationales</h4>
+                  <p>Explains why the correct choice succeeds and why each of the 3 distractors fails, with cited references.</p>
                 </div>
 
                 <div className="feature-highlight-card">
-                  <div className="f-icon-box"><Zap size={22} /></div>
-                  <h4>Negative Marking Calibration (-0.25)</h4>
-                  <p>Calibrated negative marking calculates your true percentile score, penalizing blind guesses and teaching strategic question skipping.</p>
+                  <div className="f-icon-box"><Zap size={20} /></div>
+                  <h4>-0.25 Negative Marking</h4>
+                  <p>Exact PSC grading (+1.00 for correct, -0.25 penalty for incorrect, 0 for skipped) for true percentile calibration.</p>
                 </div>
 
                 <div className="feature-highlight-card">
-                  <div className="f-icon-box"><Award size={22} /></div>
-                  <h4>Multi-Unit Clusters &amp; Grand Mocks</h4>
-                  <p>Progressive testing: start with individual units, advance through 5 cross-unit clusters, and finish with 9 full-length PSC Grand Mocks.</p>
+                  <div className="f-icon-box"><Award size={20} /></div>
+                  <h4>Structured Progression</h4>
+                  <p>10 modular Unit Tests → 5 Multi-Unit Clusters → 11 PYQs/Specials → 9 full-length Grand Mocks.</p>
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* TAB CONTENT: FAQS */}
-          {explorerTab === 'faq' && (
-            <div className="explorer-content-card">
-              <div className="content-card-header">
-                <div>
-                  <h3>Frequently Asked Questions</h3>
-                  <p>Everything you need to know about enrollment, payment, and test series access.</p>
-                </div>
-              </div>
+              <h4 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '0.75rem', color: 'var(--text-primary)' }}>
+                Frequently Asked Questions
+              </h4>
 
               <div className="faq-accordions-list">
                 {FAQ_ITEMS.map((item, idx) => {
@@ -1435,7 +1366,7 @@ export default function BotanySeriesHome() {
                         onClick={() => setOpenFaqIdx(isOpen ? -1 : idx)}
                       >
                         <span className="faq-q-text">{item.q}</span>
-                        {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                        {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                       </button>
                       {isOpen && (
                         <div className="faq-answer-body">
@@ -1448,25 +1379,6 @@ export default function BotanySeriesHome() {
               </div>
             </div>
           )}
-        </section>
-
-        {/* 5. BOTTOM ENROLLMENT REMINDER BAR */}
-        <section className="botany-bottom-cta-banner">
-          <div className="bottom-cta-inner">
-            <div>
-              <h3>Ready to Elevate Your Assistant Professor PSC Preparation?</h3>
-              <p>Enroll in the Full 35-Test Series Pass today at 40% OFF with instant Razorpay activation.</p>
-            </div>
-            <div className="bottom-cta-actions">
-              <button type="button" className="btn btn-secondary btn-sm" onClick={handleDemoCbtClick}>
-                <Play size={13} /> Try Free Demo
-              </button>
-              <button type="button" className="btn btn-primary btn-sm" onClick={scrollToPricing}>
-                <span>Enroll in Full Pass — ₹{finalPrice}</span>
-                <ArrowRight size={14} />
-              </button>
-            </div>
-          </div>
         </section>
       </main>
 
