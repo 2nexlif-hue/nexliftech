@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { 
   Clock, AlertTriangle, ArrowLeft, ArrowRight, Bookmark, 
-  RotateCcw, Award, Check, X, HelpCircle, BookOpen 
+  RotateCcw, Award, Check, X, HelpCircle, BookOpen, LayoutGrid 
 } from 'lucide-react';
 import './BotanySeries.css';
 
@@ -13,6 +13,7 @@ export default function StudentExamEngine({ testData, questions = [], onClose })
   const [secondsRemaining, setSecondsRemaining] = useState((testData?.durationMinutes || 60) * 60);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
+  const [showMobilePalette, setShowMobilePalette] = useState(false);
 
   // Countdown timer
   useEffect(() => {
@@ -166,40 +167,52 @@ export default function StudentExamEngine({ testData, questions = [], onClose })
                   <div className="cbt-footer-left">
                     <button 
                       type="button" 
-                      className={`btn btn-secondary btn-sm ${markedForReview[currentQ.id] ? 'is-marked' : ''}`}
+                      className={`btn btn-secondary btn-sm cbt-footer-btn ${markedForReview[currentQ.id] ? 'is-marked' : ''}`}
                       onClick={toggleMarkForReview}
                     >
-                      <Bookmark size={14} />
-                      <span>{markedForReview[currentQ.id] ? 'Marked for Review' : 'Mark for Review'}</span>
+                      <Bookmark size={13} />
+                      <span>{markedForReview[currentQ.id] ? 'Marked' : 'Review'}</span>
                     </button>
                     {userAnswers[currentQ.id] && (
                       <button 
                         type="button" 
-                        className="btn btn-secondary btn-sm"
+                        className="btn btn-secondary btn-sm cbt-footer-btn"
                         onClick={clearResponse}
                       >
-                        <RotateCcw size={14} />
-                        <span>Clear Response</span>
+                        <RotateCcw size={13} />
+                        <span>Clear</span>
                       </button>
                     )}
+                  </div>
+
+                  <div className="cbt-footer-center">
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm cbt-footer-btn cbt-mobile-palette-toggle"
+                      onClick={() => setShowMobilePalette(!showMobilePalette)}
+                      aria-label="Toggle Question Palette"
+                    >
+                      <LayoutGrid size={13} />
+                      <span>Q-Palette ({currentIdx + 1}/{questions.length})</span>
+                    </button>
                   </div>
 
                   <div className="cbt-footer-right">
                     <button
                       type="button"
-                      className="btn btn-secondary btn-sm"
+                      className="btn btn-secondary btn-sm cbt-footer-btn"
                       onClick={() => setCurrentIdx(prev => Math.max(0, prev - 1))}
                       disabled={currentIdx === 0}
                     >
-                      <ArrowLeft size={14} /> Previous
+                      <ArrowLeft size={13} /> <span>Prev</span>
                     </button>
                     <button
                       type="button"
-                      className="btn btn-primary btn-sm"
+                      className="btn btn-primary btn-sm cbt-footer-btn"
                       onClick={() => setCurrentIdx(prev => Math.min(questions.length - 1, prev + 1))}
                       disabled={currentIdx === questions.length - 1}
                     >
-                      Save &amp; Next <ArrowRight size={14} />
+                      <span>Next</span> <ArrowRight size={13} />
                     </button>
                   </div>
                 </footer>
@@ -211,15 +224,25 @@ export default function StudentExamEngine({ testData, questions = [], onClose })
             )}
           </main>
 
-          {/* Palette Sidebar */}
-          <aside className="cbt-palette-pane">
+          {/* Palette Sidebar (Desktop) & Bottom Sheet Drawer (Mobile) */}
+          <aside className={`cbt-palette-pane ${showMobilePalette ? 'mobile-open' : ''}`}>
+            <div className="cbt-palette-drawer-header">
+              <h4 className="cbt-palette-heading">Question Palette ({questions.length} Qs)</h4>
+              <button 
+                type="button" 
+                className="cbt-palette-close-btn"
+                onClick={() => setShowMobilePalette(false)}
+                aria-label="Close palette"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
             <div className="cbt-palette-legend">
-              <div className="legend-item"><span className="legend-dot green"></span> Answered ({Object.keys(userAnswers).length})</div>
+              <div className="legend-item"><span className="legend-dot green"></span> Ans ({Object.keys(userAnswers).length})</div>
               <div className="legend-item"><span className="legend-dot purple"></span> Review ({Object.values(markedForReview).filter(Boolean).length})</div>
               <div className="legend-item"><span className="legend-dot grey"></span> Unattempted ({questions.length - Object.keys(userAnswers).length})</div>
             </div>
-
-            <h4 className="cbt-palette-heading">Question Palette</h4>
 
             <div className="cbt-palette-grid">
               {questions.map((q, idx) => {
@@ -236,7 +259,10 @@ export default function StudentExamEngine({ testData, questions = [], onClose })
                     key={q.id || idx}
                     type="button"
                     className={`cbt-palette-btn ${statusClass} ${isCurrent ? 'current' : ''}`}
-                    onClick={() => setCurrentIdx(idx)}
+                    onClick={() => {
+                      setCurrentIdx(idx);
+                      setShowMobilePalette(false);
+                    }}
                   >
                     {idx + 1}
                   </button>
@@ -244,6 +270,14 @@ export default function StudentExamEngine({ testData, questions = [], onClose })
               })}
             </div>
           </aside>
+
+          {/* Backdrop for mobile drawer */}
+          {showMobilePalette && (
+            <div 
+              className="cbt-palette-backdrop" 
+              onClick={() => setShowMobilePalette(false)}
+            ></div>
+          )}
         </div>
       ) : (
         /* Post-Submission Scorecard & Option-By-Option Scientific Review */
