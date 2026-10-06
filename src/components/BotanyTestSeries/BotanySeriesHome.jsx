@@ -11,7 +11,8 @@ import {
   getBotanySyllabus, 
   getBotanySchedule,
   getAllUnitsQuestionStats,
-  getTestQuestionStats
+  getTestQuestionStats,
+  getUnitQuestions
 } from '../../utils/botanyFirestoreService';
 import { initiateRazorpayPayment } from '../../utils/razorpayService';
 import StudentAuthModal from './StudentAuthModal';
@@ -137,6 +138,7 @@ export default function BotanySeriesHome() {
   const [syllabus, setSyllabus] = useState([]);
   const [schedule, setSchedule] = useState([]);
   const [questionStats, setQuestionStats] = useState(null);
+  const [demoQuestions, setDemoQuestions] = useState(DEMO_QUESTIONS);
   const [loading, setLoading] = useState(true);
 
   // Active Explorer Tab: 'schedule' | 'syllabus' | 'features' | 'faq'
@@ -175,16 +177,20 @@ export default function BotanySeriesHome() {
     async function loadData() {
       setLoading(true);
       try {
-        const [loadedSettings, loadedSyllabus, loadedSchedule, loadedStats] = await Promise.all([
+        const [loadedSettings, loadedSyllabus, loadedSchedule, loadedStats, loadedDemo] = await Promise.all([
           getBotanySettings(),
           getBotanySyllabus(),
           getBotanySchedule(),
-          getAllUnitsQuestionStats()
+          getAllUnitsQuestionStats(),
+          getUnitQuestions('diagnostic_demo').catch(() => null)
         ]);
         setSettings(loadedSettings);
         setSyllabus(loadedSyllabus);
         setSchedule(loadedSchedule);
         setQuestionStats(loadedStats);
+        if (loadedDemo?.questions?.length > 0) {
+          setDemoQuestions(loadedDemo.questions);
+        }
       } catch (err) {
         console.error('Failed to load Botany Series portal data:', err);
       } finally {
@@ -429,7 +435,7 @@ export default function BotanySeriesHome() {
                 onClick={handleDemoCbtClick}
               >
                 <Play size={14} className="accent-play-icon" />
-                <span>Take Free Diagnostic Demo CBT (5 MCQs)</span>
+                <span>Take Free Diagnostic Demo CBT ({demoQuestions.length} MCQs)</span>
               </button>
             </div>
           </div>
@@ -709,8 +715,10 @@ export default function BotanySeriesHome() {
               </div>
 
               <div className="p-demo-preview-pill">
-                <span className="demo-pill-title">Includes 5 High-Yield Sample Questions:</span>
-                <span className="demo-pill-topics">CaMV Pararetrovirus • Archaeal Lipids • Burgeff Heterokaryosis • Albugo • Rhynia</span>
+                <span className="demo-pill-title">Includes {demoQuestions.length} High-Yield Sample Questions:</span>
+                <span className="demo-pill-topics">
+                  {demoQuestions.slice(0, 5).map(q => q.question ? q.question.slice(0, 30) + '...' : '').filter(Boolean).join(' • ') || 'Full PSC Diagnostic Entrance Assessment'}
+                </span>
               </div>
 
               <ul className="p-features-checklist">
@@ -1138,10 +1146,10 @@ export default function BotanySeriesHome() {
         <StudentExamEngine 
           testData={{
             title: 'Diagnostic Entrance Assessment Demo',
-            unitCovered: 'Unit 1 & Lower Plants High-Yield Sample',
-            durationMinutes: 10
+            unitCovered: `High-Yield Entrance Sample (${demoQuestions.length} MCQs)`,
+            durationMinutes: Math.max(10, Math.round(demoQuestions.length * 1.5))
           }}
-          questions={DEMO_QUESTIONS}
+          questions={demoQuestions}
           onClose={() => setShowCbtEngine(false)}
         />
       )}

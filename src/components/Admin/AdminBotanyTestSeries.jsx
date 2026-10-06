@@ -262,7 +262,9 @@ export default function AdminBotanyTestSeries({ currentUser }) {
     try {
       const targetUnitId = uploadPreview.detectedUnitId || selectedUnitId;
       const targetUnit = syllabus.find(u => u.unitId === targetUnitId);
-      const unitTitle = targetUnit ? `Unit ${targetUnit.unitNumber}: ${targetUnit.title}` : targetUnitId;
+      const unitTitle = targetUnit 
+        ? `Unit ${targetUnit.unitNumber}: ${targetUnit.title}` 
+        : (targetUnitId === 'diagnostic_demo' ? 'Diagnostic Entrance Assessment Demo' : targetUnitId);
 
       const newRelease = await commitUnitQuestions({
         unitId: targetUnitId,
@@ -845,8 +847,12 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                   type="button"
                   className="btn btn-secondary btn-sm"
                   onClick={() => {
-                    const unit = syllabus.find(u => u.unitId === selectedUnitId);
-                    downloadExcelTemplate(selectedUnitId, unit ? unit.title : selectedUnitId);
+                    if (selectedUnitId === 'diagnostic_demo') {
+                      downloadExcelTemplate('diagnostic_demo', 'Diagnostic Demo Entrance Test (10-30 MCQs)');
+                    } else {
+                      const unit = syllabus.find(u => u.unitId === selectedUnitId);
+                      downloadExcelTemplate(selectedUnitId, unit ? unit.title : selectedUnitId);
+                    }
                   }}
                 >
                   <Download size={14} /> <span>Download Template .xlsx</span>
@@ -864,11 +870,18 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                 onChange={(e) => setSelectedUnitId(e.target.value)}
                 style={{ width: '100%', padding: '0.65rem 0.9rem', borderRadius: '8px', background: 'var(--bg-elevated)', color: 'var(--text-primary)', border: '1px solid var(--border-light)', fontSize: '0.9rem' }}
               >
-                {syllabus.map(u => (
-                  <option key={u.unitId} value={u.unitId}>
-                    Unit {u.unitNumber}: {u.title}
+                <optgroup label="Free Entrance Assessment">
+                  <option value="diagnostic_demo">
+                    🎯 Diagnostic Demo Entrance Test (Free Demo CBT — 10 to 30 MCQs)
                   </option>
-                ))}
+                </optgroup>
+                <optgroup label="PSC Curriculum Units (Units 1 to 10)">
+                  {syllabus.map(u => (
+                    <option key={u.unitId} value={u.unitId}>
+                      Unit {u.unitNumber}: {u.title}
+                    </option>
+                  ))}
+                </optgroup>
               </select>
             </div>
 
@@ -1193,6 +1206,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                     }}
                     style={{ fontSize: '0.78rem', padding: '0.2rem 0.5rem', borderRadius: '6px', background: 'var(--bg-elevated)', color: 'var(--text-primary)', border: '1px solid var(--border-light)' }}
                   >
+                    <option value="diagnostic_demo">🎯 Diagnostic Demo Entrance Test (10-30 MCQs)</option>
                     {syllabus.map(u => (
                       <option key={u.unitId} value={u.unitId}>
                         Unit {u.unitNumber}: {u.title}

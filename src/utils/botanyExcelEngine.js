@@ -59,10 +59,8 @@ export const OFFICIAL_SAMPLE_QUESTIONS = [
   }
 ];
 
-/**
- * Downloads a pre-formatted Excel template with canonical headers and sample rows
- */
 export function downloadExcelTemplate(unitId = 'unit_1', unitTitle = 'Unit 1') {
+  const isDemo = unitId === 'diagnostic_demo' || /demo|diagnos/i.test(unitTitle);
   const rows = OFFICIAL_SAMPLE_QUESTIONS.map((q, idx) => ({
     'S.No': idx + 1,
     'Question': q.question,
@@ -84,10 +82,12 @@ export function downloadExcelTemplate(unitId = 'unit_1', unitTitle = 'Unit 1') {
   worksheet['!cols'] = EXCEL_COLUMNS.map(col => ({ wch: col.width }));
 
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Question Bank');
+  XLSX.utils.book_append_sheet(workbook, worksheet, isDemo ? 'Diagnostic Demo Bank' : 'Question Bank');
 
-  const safeUnitName = unitTitle.replace(/[^a-zA-Z0-9_-]/g, '_');
-  XLSX.writeFile(workbook, `Template_${safeUnitName}_Questions.xlsx`);
+  const filePrefix = isDemo 
+    ? 'Template_Diagnostic_Entrance_Demo_10_to_30_MCQs.xlsx' 
+    : `Template_${unitTitle.replace(/[^a-zA-Z0-9_-]/g, '_')}_Questions.xlsx`;
+  XLSX.writeFile(workbook, filePrefix);
 }
 
 /**
@@ -250,6 +250,8 @@ export function parseExcelBuffer(buffer, fileName = 'question_bank.xlsx') {
   const unitMatch = fileName.match(/unit[_\s-]?0?(\d+)/i);
   if (unitMatch && unitMatch[1]) {
     detectedUnitId = `unit_${parseInt(unitMatch[1], 10)}`;
+  } else if (/demo|diagnos|sample|entrance/i.test(fileName)) {
+    detectedUnitId = 'diagnostic_demo';
   }
 
   const parsedQuestions = rawJson.map((row, idx) => normalizeRow(row, idx));

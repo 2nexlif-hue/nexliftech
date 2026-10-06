@@ -2096,6 +2096,18 @@
     font-size: 0.7rem;
   }
 
+  .cbt-palette-grid {
+    grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+    gap: 0.5rem;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .cbt-palette-btn {
+    height: 38px;
+    font-size: 0.84rem;
+    border-radius: 8px;
+  }
+
   .cbt-palette-backdrop {
     position: fixed;
     inset: 0;

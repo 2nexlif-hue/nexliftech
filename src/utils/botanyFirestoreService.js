@@ -445,7 +445,13 @@ export async function getAllUnitsQuestionStats(syllabus = BOTANY_SYLLABUS) {
   const totalTargetQuestions = syllabus.length * 50; // 500
   const overallAnalysisPct = totalUploadedQuestions > 0 ? Math.round((totalWithAll4Analysis / totalUploadedQuestions) * 100) : 0;
   const overallContextPct = totalUploadedQuestions > 0 ? Math.round((totalWithContextNote / totalUploadedQuestions) * 100) : 0;
-  const overallCoveragePct = Math.round((totalUploadedQuestions / totalTargetQuestions) * 100);
+  const demoBank = firestoreUnits['diagnostic_demo'];
+  const demoStats = demoBank ? {
+    questionCount: demoBank.questions?.length || 0,
+    version: demoBank.version || 1,
+    fileName: demoBank.fileName || 'Diagnostic_Demo.xlsx',
+    lastUpdated: demoBank.lastUpdated
+  } : null;
 
   return {
     totalUploadedQuestions,
@@ -457,7 +463,8 @@ export async function getAllUnitsQuestionStats(syllabus = BOTANY_SYLLABUS) {
     overallContextPct,
     overallCoveragePct,
     overallKeyDistribution: overallKeyCounts,
-    unitStats: unitsMap
+    unitStats: unitsMap,
+    demoStats
   };
 }
 
