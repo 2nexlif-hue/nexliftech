@@ -865,6 +865,7 @@
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
+  white-space: nowrap !important;
   transition: all var(--transition-fast);
 }
 
@@ -878,6 +879,46 @@
   color: #ffffff;
   border-color: #10b981;
   box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+}
+
+.public-bank-stats-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 8px;
+  padding: 0.5rem 0.85rem;
+  margin-bottom: 0.85rem;
+  font-size: 0.78rem;
+}
+
+.public-stats-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-primary);
+  font-size: 0.78rem;
+}
+
+.public-stats-breakdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+}
+
+.stats-tag-item {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.stats-dot {
+  color: var(--text-muted);
 }
 
 .schedule-search-box {
@@ -919,17 +960,19 @@
 
 .schedule-data-table th {
   background: var(--bg-elevated);
-  padding: 0.45rem 0.65rem;
+  padding: 0.55rem 0.75rem;
   color: var(--text-muted);
   font-size: 0.72rem;
   text-transform: uppercase;
   font-weight: 700;
   letter-spacing: 0.03em;
   border-bottom: 1px solid var(--border-light);
+  white-space: nowrap !important;
+  vertical-align: middle;
 }
 
 .schedule-data-table td {
-  padding: 0.45rem 0.65rem;
+  padding: 0.48rem 0.75rem;
   border-bottom: 1px solid var(--border-light);
   vertical-align: middle;
 }
@@ -950,6 +993,8 @@
   background: rgba(124, 58, 237, 0.1);
   padding: 0.15rem 0.4rem;
   border-radius: 4px;
+  white-space: nowrap !important;
+  display: inline-block;
 }
 
 .table-test-info {
@@ -962,28 +1007,49 @@
   font-weight: 700;
   color: var(--text-primary);
   font-size: 0.84rem;
+  line-height: 1.35;
 }
 
 .t-coverage {
   font-size: 0.72rem;
   color: var(--text-secondary);
+  line-height: 1.25;
 }
 
 .t-badge-mcq {
   font-weight: 700;
   color: #10b981;
   font-size: 0.76rem;
+  white-space: nowrap !important;
+}
+
+.t-live-bank-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  white-space: nowrap !important;
+  font-size: 0.69rem;
+  font-weight: 700;
+  color: #059669;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  border-radius: 4px;
+  padding: 0.12rem 0.42rem;
+  width: fit-content;
+  line-height: 1.25;
 }
 
 .t-badge-time {
   color: var(--text-muted);
   font-size: 0.76rem;
+  white-space: nowrap !important;
 }
 
 .t-date-text {
   font-family: var(--font-mono);
   font-size: 0.76rem;
   color: var(--text-secondary);
+  white-space: nowrap !important;
 }
 
 .t-access-tag {
@@ -994,6 +1060,7 @@
   background: rgba(16, 185, 129, 0.12);
   padding: 0.15rem 0.45rem;
   border-radius: 4px;
+  white-space: nowrap !important;
 }
 
 /* Interactive CBT Table Action Buttons */

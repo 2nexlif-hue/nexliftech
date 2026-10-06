@@ -1241,12 +1241,12 @@ export default function BotanySeriesHome() {
                 <table className="schedule-data-table">
                   <thead>
                     <tr>
-                      <th style={{ width: '70px' }}>Test #</th>
-                      <th>Test Title &amp; Syllabus Coverage</th>
-                      <th style={{ width: '130px' }}>Questions &amp; Bank</th>
-                      <th style={{ width: '90px' }}>Duration</th>
-                      <th style={{ width: '120px' }}>Scheduled Date</th>
-                      <th style={{ width: '130px', textAlign: 'right' }}>Actions</th>
+                      <th style={{ width: '65px', whiteSpace: 'nowrap' }}>Test #</th>
+                      <th style={{ whiteSpace: 'nowrap' }}>Test Title &amp; Syllabus Coverage</th>
+                      <th style={{ width: '150px', whiteSpace: 'nowrap' }}>Questions &amp; Bank</th>
+                      <th style={{ width: '85px', whiteSpace: 'nowrap' }}>Duration</th>
+                      <th style={{ width: '105px', whiteSpace: 'nowrap' }}>Schedule</th>
+                      <th style={{ width: '120px', textAlign: 'right', whiteSpace: 'nowrap' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1267,14 +1267,14 @@ export default function BotanySeriesHome() {
                             </div>
                           </td>
                           <td>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', alignItems: 'flex-start' }}>
                               <span className="t-badge-mcq">{t.questionCount || 50} MCQs</span>
                               {testBankStats?.uploadedCount > 0 && (
                                 <span 
                                   className="t-live-bank-tag"
                                   title={`${testBankStats.uploadedCount} MCQs in bank with 100% 4-option scientific rationale`}
                                 >
-                                  ✓ Bank Active ({testBankStats.uploadedCount} Q)
+                                  ✓ {testBankStats.uploadedCount} Q Active
                                 </span>
                               )}
                             </div>
