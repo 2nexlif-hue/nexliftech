@@ -83,7 +83,7 @@ export default function StudentAuthModal({ isOpen, onClose, onSuccess, initialMo
           return;
         }
         await resetPassword(emailTrimmed);
-        setMessage('Password reset instructions sent! Please check your email inbox (including spam/promotions) and follow the link to reset your password.');
+        setMessage('If this email has a password account, a reset link will arrive shortly. Check Spam too. If you signed up with Google, use Continue with Google instead.');
       }
     } catch (err) {
       console.error('Email Auth Error:', err);
@@ -113,6 +113,15 @@ export default function StudentAuthModal({ isOpen, onClose, onSuccess, initialMo
           break;
         case 'auth/invalid-email':
           setError('Please enter a valid email address.');
+          break;
+        case 'auth/too-many-requests':
+          setError('Too many attempts. Please wait a while before trying again.');
+          break;
+        case 'auth/network-request-failed':
+          setError('Could not connect. Check your internet connection and try again.');
+          break;
+        case 'auth/operation-not-allowed':
+          setError('Password sign-in is unavailable right now. Please use Google sign-in or contact support.');
           break;
         default:
           setError(err.message || 'Authentication failed. Please check your connection and try again.');
@@ -363,9 +372,13 @@ export default function StudentAuthModal({ isOpen, onClose, onSuccess, initialMo
           )}
           {mode === 'reset' && (
             <p>
-              Remembered your password?{' '}
+              Have an account?{' '}
               <button type="button" className="botany-link-btn bold" onClick={() => switchMode('signin')}>
-                Back to Sign In
+                Sign in or use Google
+              </button>
+              {' · '}
+              <button type="button" className="botany-link-btn bold" onClick={() => switchMode('signup')}>
+                Create account
               </button>
             </p>
           )}
