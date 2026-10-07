@@ -899,22 +899,22 @@ export default function BotanySeriesHome() {
               {/* Filter controls */}
               <div className="schedule-filter-controls">
                 <div className="schedule-pill-filters">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className={`filter-pill-btn ${scheduleFilter === 'all' ? 'active' : ''}`}
                     onClick={() => setScheduleFilter('all')}
                   >
                     All Entries ({schedule.length})
                   </button>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className={`filter-pill-btn ${scheduleFilter === 'unit' ? 'active' : ''}`}
                     onClick={() => setScheduleFilter('unit')}
                   >
                     10 Unit Tests
                   </button>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className={`filter-pill-btn ${scheduleFilter === 'cluster' ? 'active' : ''}`}
                     onClick={() => setScheduleFilter('cluster')}
                   >
@@ -1059,11 +1059,10 @@ export default function BotanySeriesHome() {
 
           {/* TAB 2: PASSES & PRICING */}
           {explorerTab === 'pricing' && (
-            <div className="explorer-content-card">
+            <div className="explorer-content-card pricing-content-card">
               <div className="content-card-header">
                 <div>
                   <h3>Choose Your Pass</h3>
-                  <p>Get the full series, practice one unit, or try a free test.</p>
                 </div>
               </div>
 
@@ -1178,6 +1177,15 @@ export default function BotanySeriesHome() {
                     </div>
                   )}
 
+                  <button
+                    type="button"
+                    className="btn btn-primary p-enroll-action-btn"
+                    onClick={() => handleEnrollClick('full_series')}
+                  >
+                    <span>Enroll in Full Series — ₹{finalPrice}</span>
+                    <ArrowRight size={15} />
+                  </button>
+
                   <ul className="p-features-checklist">
                     <li>
                       <CheckCircle2 size={15} className="p-check-icon" />
@@ -1193,14 +1201,6 @@ export default function BotanySeriesHome() {
                     </li>
                   </ul>
 
-                  <button 
-                    type="button" 
-                    className="btn btn-primary p-enroll-action-btn"
-                    onClick={() => handleEnrollClick('full_series')}
-                  >
-                    <span>Enroll in Full Series — ₹{finalPrice}</span>
-                    <ArrowRight size={15} />
-                  </button>
                 </div>
 
                 {/* Card 2: Unit-Wise Flexi Pass */}
@@ -1240,6 +1240,15 @@ export default function BotanySeriesHome() {
                     </select>
                   </div>
 
+                  <button
+                    type="button"
+                    className="btn btn-secondary p-enroll-action-btn"
+                    onClick={() => handleEnrollClick('unit_pass')}
+                  >
+                    <span>Enroll in Unit Pass — ₹{unitPrice}</span>
+                    <ArrowRight size={15} />
+                  </button>
+
                   <ul className="p-features-checklist">
                     <li>
                       <CheckCircle2 size={15} className="p-check-icon" />
@@ -1259,14 +1268,6 @@ export default function BotanySeriesHome() {
                     </li>
                   </ul>
 
-                  <button 
-                    type="button" 
-                    className="btn btn-secondary p-enroll-action-btn"
-                    onClick={() => handleEnrollClick('unit_pass')}
-                  >
-                    <span>Enroll in Unit Pass — ₹{unitPrice}</span>
-                    <ArrowRight size={15} />
-                  </button>
                 </div>
 
                 {/* Card 3: Free Diagnostic CBT Demo */}
@@ -1285,6 +1286,15 @@ export default function BotanySeriesHome() {
                     </div>
                   </div>
 
+                  <button
+                    type="button"
+                    className="btn btn-secondary p-enroll-action-btn demo-btn"
+                    onClick={handleDemoCbtClick}
+                  >
+                    <Play size={14} />
+                    <span>Start Free Test</span>
+                  </button>
+
                   <ul className="p-features-checklist">
                     <li>
                       <CheckCircle2 size={15} className="p-check-icon" />
@@ -1300,14 +1310,6 @@ export default function BotanySeriesHome() {
                     </li>
                   </ul>
 
-                  <button 
-                    type="button" 
-                    className="btn btn-secondary p-enroll-action-btn demo-btn"
-                    onClick={handleDemoCbtClick}
-                  >
-                    <Play size={14} />
-                    <span>Start Free Test</span>
-                  </button>
                 </div>
               </div>
             </div>
