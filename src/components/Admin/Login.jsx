@@ -78,7 +78,7 @@ export default function Login() {
         // If it's the designated Botany Admin account and it does not exist in Firebase Auth yet, auto-provision it
         if (isBotanyAdminEmail && (authErr.code === 'auth/user-not-found' || authErr.code === 'auth/invalid-credential')) {
           try {
-            cred = await signup(emailTrimmed, password, 'Dr. Aubid Ahmad');
+            cred = await signup(emailTrimmed, password, 'Dr. Aubid Hussain Malik');
           } catch (signupErr) {
             if (signupErr.code === 'auth/email-already-in-use') {
               throw authErr;

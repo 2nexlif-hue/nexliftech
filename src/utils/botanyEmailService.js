@@ -66,7 +66,7 @@ KEY PLATFORM FEATURES UNLOCKED
 • Instant Scorecard & Performance Analytics with permanent history
 
 Academic Curator:
-Dr. Aubid Ahmad (Assistant Professor, Botany)
+Dr. Aubid Hussain Malik (Assistant Professor, Botany)
 
 Support & Inquiries:
 Email: ${supportEmail} / ${contactEmail}
@@ -110,7 +110,7 @@ This is an authentic transactional receipt issued to ${subData.userEmail}.
         <td class="header">
           <div style="font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #a7f3d0; margin-bottom: 4px;">OFFICIAL ENROLLMENT CONFIRMATION</div>
           <h1>Botany Assistant Professor CBT Suite</h1>
-          <p>Curated by Dr. Aubid Ahmad • NexLifTech Engine</p>
+          <p>Curated by Dr. Aubid Hussain Malik • NexLifTech Engine</p>
         </td>
       </tr>
       <tr>

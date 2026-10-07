@@ -53,7 +53,7 @@ export function AuthProvider({ children }) {
 
         if (isBotanyAdmin && role !== 'botany_admin') {
           role = 'botany_admin';
-          displayName = displayName || 'Dr. Aubid Ahmad';
+          displayName = displayName || 'Dr. Aubid Hussain Malik';
           needsUpdate = true;
         } else if (isSuperAdmin && role !== 'admin') {
           role = 'admin';
@@ -70,7 +70,7 @@ export function AuthProvider({ children }) {
         // When new user continues with Google or registers, student role is created by default
         const defaultRole = isBotanyAdmin ? 'botany_admin' : isSuperAdmin ? 'admin' : 'student';
         const displayName = isBotanyAdmin 
-          ? (user.displayName || 'Dr. Aubid Ahmad') 
+          ? (user.displayName || 'Dr. Aubid Hussain Malik')
           : isSuperAdmin 
           ? (user.displayName || 'Website Admin') 
           : (user.displayName || user.email.split('@')[0]);

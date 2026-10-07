@@ -39,10 +39,10 @@ export default function BotanySpotlightBanner() {
           </span>
           <div className="hero-flash-copy">
             <h4 className="hero-flash-title">
-              {settings.flashHeadline || 'Botany Assistant Professor (PSC 2026) CBT Test Series is Live!'}
+              {(settings.flashHeadline || 'Botany Test Series for Assistant Professor Exam').replaceAll('Dr. Aubid Ahmad', 'Dr. Aubid Hussain Malik')}
             </h4>
             <p className="hero-flash-details">
-              {settings.flashDetails || '35-Test Series Plan • ~2,700 High-Yield Questions • Option-by-Option Analysis (Curated by Dr. Aubid Ahmad)'}
+              {(settings.flashDetails || '35 planned tests across 10 units. Try a free practice test.').replaceAll('Dr. Aubid Ahmad', 'Dr. Aubid Hussain Malik')}
             </p>
           </div>
         </div>

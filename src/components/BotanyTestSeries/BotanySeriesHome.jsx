@@ -3,7 +3,7 @@ import {
   BookOpen, Calendar, CheckCircle2, Play, 
   ArrowRight, Tag, Sparkles, UserCheck, LogOut, ArrowLeft, Search, 
   GraduationCap, Lock, Clock, ShieldCheck, Award, HelpCircle, 
-  ChevronDown, ChevronUp, Zap, Check, AlertCircle, FileText, X, Star, User, Printer
+  ChevronDown, ChevronUp, Zap, Check, AlertCircle, FileText, X, Star, User, Printer, ClipboardList
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { 
@@ -21,6 +21,7 @@ import { BOTANY_SEED_QUESTION_BANKS } from '../../utils/botanySeedQuestionBanks'
 import { searchSyllabusAdvanced, HighlightMatch } from '../../utils/botanySearch';
 import StudentAuthModal from './StudentAuthModal';
 import StudentExamEngine from './StudentExamEngine';
+import StudentResults from './StudentResults';
 import LogoSVG from '../Logo';
 import './BotanySeries.css';
 
@@ -100,28 +101,28 @@ const DEMO_QUESTIONS = [
 
 const FAQ_ITEMS = [
   {
-    q: 'How many tests are included in the Full Series Pass?',
-    a: 'The Full 35-Test Series Pass covers the complete planned series: 10 Unit Tests (50 MCQs each), 5 Multi-Unit Cluster Tests (60 MCQs each), 11 Special & PYQ Drills, and 9 Full-Length Grand Mocks (100 MCQs each, calibrated strictly to actual PSC entrance difficulty). The calendar shows dated tests and preparation days as they are confirmed.'
+    q: 'What is included in the full pass?',
+    a: 'The full pass includes all 35 planned tests across 10 Botany units, including 9 full mock tests. New dates will appear in the calendar as they are confirmed.'
   },
   {
-    q: 'Why is option-by-option scientific rationale so crucial?',
-    a: 'Unlike ordinary books or online platforms that only give one-word answers or brief one-line hints, our CBT engine explains why the right option is correct AND why each of the 3 distractors is false. This trains your diagnostic elimination skills for tricky PSC negative marking.'
+    q: 'Will I see answer explanations?',
+    a: 'Yes. After each test, you can review the answers and explanations.'
   },
   {
-    q: 'Is negative marking simulated in the tests?',
-    a: 'Yes, exactly according to official PSC guidelines: +1.00 mark for every correct answer, -0.25 mark penalty for every wrong answer, and 0 for unattempted questions.'
+    q: 'How are tests scored?',
+    a: 'You get 1 mark for a correct answer. A wrong answer loses 0.25 marks. Skipped questions score 0.'
   },
   {
     q: 'Can I take the tests on mobile or tablet?',
-    a: 'Yes, 100%. The CBT testing interface is fully responsive across mobile phones, tablets, laptops, and desktop computers.'
+    a: 'Yes. You can take tests on a phone, tablet, or computer.'
   },
   {
     q: 'How long will my test access remain valid?',
-    a: 'Your access remains active with unlimited review and re-attempt capability until the completion of the J&K PSC Assistant Professor Botany Examination 2026.'
+    a: 'You can review and retake tests until the 2026 J&K PSC Assistant Professor Botany exam.'
   },
   {
-    q: 'How does payment activation work?',
-    a: 'Payments are processed securely via Razorpay (UPI, Google Pay, PhonePe, Paytm, Cards, NetBanking). Your subscription and access credentials activate immediately upon payment.'
+    q: 'When can I start after payment?',
+    a: 'You can start using your pass as soon as payment is complete.'
   }
 ];
 
@@ -189,6 +190,9 @@ export default function BotanySeriesHome() {
   const [testNotification, setTestNotification] = useState('');
   const [enrollSuccessMessage, setEnrollSuccessMessage] = useState('');
   const [latestSubscriptionRecord, setLatestSubscriptionRecord] = useState(null);
+  const [resultsRefreshKey, setResultsRefreshKey] = useState(0);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [logoutError, setLogoutError] = useState('');
 
   // Active pricing plan tab for mobile view: 'full' | 'unit' | 'demo'
   const [activePricingTab, setActivePricingTab] = useState('full');
@@ -275,6 +279,17 @@ export default function BotanySeriesHome() {
         tabsNavRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }, 40);
+  }
+
+  async function confirmLogout() {
+    try {
+      await logout();
+      setShowLogoutConfirm(false);
+      setLogoutError('');
+      setExplorerTab('schedule');
+    } catch {
+      setLogoutError('Could not sign out. Please try again.');
+    }
   }
 
   function applyCoupon() {
@@ -417,7 +432,7 @@ export default function BotanySeriesHome() {
         });
         setShowCbtEngine(true);
       } else {
-        setTestNotification(`The verified question bank for "${test.title}" is currently being populated by faculty (Dr. Aubid Ahmad). Please practice with Unit 1 or the 30-MCQ Diagnostic Demo now!`);
+        setTestNotification(`Questions for "${test.title}" are not ready yet. Please try Unit 1 or the free demo.`);
         setTimeout(() => setTestNotification(''), 7000);
       }
     } catch (err) {
@@ -452,8 +467,8 @@ export default function BotanySeriesHome() {
     setActiveTestForCbt({
       id: 'diagnostic_demo',
       testNumber: 'T-1',
-      title: 'Diagnostic Entrance Assessment Demo',
-      unitCovered: `High-Yield Entrance Sample (${demoQuestions.length} MCQs)`,
+      title: 'Free Botany Practice Test',
+      unitCovered: `${demoQuestions.length} Botany questions`,
       durationMinutes: Math.max(10, Math.round(demoQuestions.length * 1.5)),
       questions: demoQuestions
     });
@@ -501,7 +516,7 @@ export default function BotanySeriesHome() {
       appliedCoupon: discountApplied > 0 ? { code: couponCode, discount: discountApplied } : null,
       onSuccess: async (subRecord) => {
         setLatestSubscriptionRecord(subRecord);
-        setEnrollSuccessMessage(`Enrollment confirmed! Subscription ID: ${subRecord.subscriptionId}. Your official access credentials have been activated.`);
+        setEnrollSuccessMessage('Your pass is ready. You can start a test now.');
         // Refresh subscriptions immediately
         if (user?.uid) {
           const subs = await getUserBotanySubscriptions(user.uid);
@@ -516,7 +531,6 @@ export default function BotanySeriesHome() {
   }
 
   const basePrice = settings?.fullSeriesPrice || 1499;
-  const originalPrice = settings?.originalPrice || 2499;
   const finalPrice = Math.max(1, basePrice - discountApplied);
   const unitPrice = settings?.unitWisePrice || 199;
   const testCount = schedule.filter(item => item.isTest !== false && item.questionCount !== 0).length || 35;
@@ -589,7 +603,7 @@ export default function BotanySeriesHome() {
             <span className="cbt-brand-dot">.</span>
           </a>
           <span className="cbt-top-divider">/</span>
-          <span className="cbt-topbar-title">Botany Assistant Professor CBT Suite</span>
+          <span className="cbt-topbar-title">Botany Test Series</span>
         </div>
 
         <div className="cbt-topbar-right">
@@ -617,7 +631,7 @@ export default function BotanySeriesHome() {
                   type="button" 
                   className="btn btn-secondary btn-sm cbt-receipt-btn" 
                   onClick={() => printSubscriptionReceipt(latestSubscriptionRecord || userSubscriptions[0])}
-                  title="Print / Save Official Tax Invoice & Subscription Receipt"
+                  title="Download receipt"
                   style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
                 >
                   <Printer size={13} /> <span className="cbt-btn-text">My Receipt</span>
@@ -626,7 +640,7 @@ export default function BotanySeriesHome() {
               <button 
                 type="button" 
                 className="btn btn-secondary btn-sm cbt-logout-btn" 
-                onClick={logout} 
+                onClick={() => { setLogoutError(''); setShowLogoutConfirm(true); }}
                 title="Sign Out"
               >
                 <LogOut size={13} /> <span className="cbt-btn-text">Logout</span>
@@ -673,22 +687,22 @@ export default function BotanySeriesHome() {
               <div className="enrollment-body">
                 <div className="enrollment-header-row">
                   <h3 className="enrollment-title">
-                    Payment Verified & Subscription Active
+                    Payment complete. Your pass is ready.
                   </h3>
                   <span className="enrollment-verified-tag">
-                    Verified Candidate
+                    Ready to start
                   </span>
                 </div>
 
                 <p className="enrollment-message">
-                  {enrollSuccessMessage || 'Your candidate credentials are live. All scheduled computer-based tests, timed exams, and option analysis rationales are unlocked.'}
+                  {enrollSuccessMessage || 'Your tests are ready to take.'}
                 </p>
 
                 {/* Email Delivery Notice */}
                 <div className="enrollment-email-notice">
                   <ShieldCheck size={16} className="enrollment-email-icon" />
                   <span>
-                    <strong>Confirmation Email Sent:</strong> An authentic transactional receipt with access credentials was queued for delivery to your registered email from <code>admissions@nexliftech.space</code>. Please check your <em>Primary Inbox</em> or <em>Updates</em> tab.
+                    Check your email for your receipt and sign-in details.
                   </span>
                 </div>
 
@@ -701,7 +715,7 @@ export default function BotanySeriesHome() {
                       onClick={() => printSubscriptionReceipt(latestSubscriptionRecord || userSubscriptions[0])}
                     >
                       <Printer size={14} />
-                      <span>Print / Download Tax Receipt (PDF)</span>
+                      <span>Download receipt</span>
                     </button>
                   )}
                   <button
@@ -728,10 +742,8 @@ export default function BotanySeriesHome() {
               <span className="academic-badge">PSC Entrance 2026</span>
               <span className="academic-curator">
                 <GraduationCap size={14} className="curator-icon" />
-                <span>Curated by: <strong>Dr. Aubid Ahmad</strong> (Assistant Professor)</span>
+                <span>Curated by: <strong>Dr. Aubid Hussain Malik</strong> (Assistant Professor)</span>
               </span>
-              <span className="meta-sep">•</span>
-              <span className="academic-engine">NexLifTech Engine</span>
             </div>
 
             <div className="hero-compact-actions">
@@ -742,7 +754,7 @@ export default function BotanySeriesHome() {
                 title="Launch 1-Click Free Diagnostic Demo"
               >
                 <Play size={12} className="accent-play-icon" />
-                <span>Try Free Demo ({demoQuestions.length} MCQs)</span>
+                <span>Try Free Demo ({demoQuestions.length} Questions)</span>
               </button>
               <button 
                 type="button" 
@@ -758,10 +770,10 @@ export default function BotanySeriesHome() {
 
           <div className="hero-compact-body">
             <h1 className="hero-compact-title">
-              Botany Assistant Professor Computer-Based Test Series
+              Botany Assistant Professor Test Series
             </h1>
             <p className="hero-compact-subtitle">
-              Standardized examination simulation calibrated to Botany PSC standards. Master all 10 units across {testCount} scheduled tests with authentic -0.25 negative marking and comprehensive 4-option scientific literature rationales.
+              Prepare across 10 Botany units with {testCount} scheduled tests and 9 full mock tests.
             </p>
 
             <div className="hero-compact-chips">
@@ -769,30 +781,25 @@ export default function BotanySeriesHome() {
                 <span className="chip-val">{testCount}</span>
                 <span className="chip-lbl">Scheduled Tests</span>
               </div>
-              <span className="chip-dot">•</span>
               <div className="hero-chip">
                 <span className="chip-val">10</span>
-                <span className="chip-lbl">PSC Units</span>
+                <span className="chip-lbl">Botany Units</span>
               </div>
-              <span className="chip-dot">•</span>
               <div className="hero-chip">
                 <span className="chip-val">9</span>
-                <span className="chip-lbl">Grand Mocks</span>
+                <span className="chip-lbl">Full Mock Tests</span>
               </div>
-              <span className="chip-dot">•</span>
               <div className="hero-chip">
                 <span className="chip-val">{questionStats?.totalUploadedQuestions || 100}+</span>
-                <span className="chip-lbl">MCQs Active</span>
+                <span className="chip-lbl">Questions Ready</span>
               </div>
-              <span className="chip-dot">•</span>
               <div className="hero-chip">
                 <span className="chip-val">-0.25</span>
-                <span className="chip-lbl">Penalty Calibration</span>
+                <span className="chip-lbl">Per Wrong Answer</span>
               </div>
-              <span className="chip-dot">•</span>
               <div className="hero-chip">
                 <span className="chip-val">100%</span>
-                <span className="chip-lbl">Option Rationales</span>
+                <span className="chip-lbl">Answers Explained</span>
               </div>
             </div>
           </div>
@@ -814,6 +821,17 @@ export default function BotanySeriesHome() {
               <span className="tab-pill-count">{testCount}</span>
             </button>
 
+            <button
+              type="button"
+              role="tab"
+              aria-selected={explorerTab === 'results'}
+              className={`subnav-tab-btn ${explorerTab === 'results' ? 'active' : ''}`}
+              onClick={() => setExplorerTab('results')}
+            >
+              <ClipboardList size={15} />
+              <span>My Results</span>
+            </button>
+
             <button 
               type="button" 
               role="tab"
@@ -822,7 +840,7 @@ export default function BotanySeriesHome() {
               onClick={() => setExplorerTab('pricing')}
             >
               <Tag size={15} />
-              <span>Passes &amp; Pricing</span>
+              <span>Choose a Pass</span>
               <span className="tab-pill-count">₹{unitPrice} / ₹{finalPrice}</span>
             </button>
 
@@ -846,7 +864,7 @@ export default function BotanySeriesHome() {
               onClick={() => setExplorerTab('blueprint')}
             >
               <ShieldCheck size={15} />
-              <span>Blueprint &amp; FAQs</span>
+              <span>How It Works</span>
             </button>
           </div>
 
@@ -856,29 +874,12 @@ export default function BotanySeriesHome() {
               <div className="content-card-header">
                 <div>
                   <h3>Botany Examination Calendar</h3>
-                  <p>{testCount} dated tests{remainingTestCount > 0 ? `, ${remainingTestCount} more planned` : ''}{studyDayCount > 0 ? `, and ${studyDayCount} preparation days` : ''}. Progress from unit tests and multi-unit clusters through PYQ drills and grand mocks.</p>
+                  <p>{testCount} tests have dates{remainingTestCount > 0 ? `; ${remainingTestCount} more ${remainingTestCount === 1 ? 'is' : 'are'} planned` : ''}{studyDayCount > 0 ? `. The calendar also includes ${studyDayCount} study days` : ''}.</p>
                 </div>
                 <button type="button" className="btn btn-primary btn-sm" onClick={() => scrollToPricing('full')}>
                   <span>Enroll in Series — ₹{finalPrice}</span>
                   <ArrowRight size={13} />
                 </button>
-              </div>
-
-              {/* Minimal verification strip */}
-              <div className="public-bank-stats-banner">
-                <div className="public-stats-badge">
-                  <CheckCircle2 size={14} style={{ color: '#10b981', flexShrink: 0 }} />
-                  <span>
-                    Verified Question Bank: <strong>100% 4-Option Scientific Rationale</strong> • Zero Key Bias
-                  </span>
-                </div>
-                <div className="public-stats-breakdown">
-                  <span className="stats-tag-item"><strong>{questionStats?.totalUploadedQuestions || 100}</strong> MCQs Loaded</span>
-                  <span className="stats-dot">•</span>
-                  <span className="stats-tag-item"><strong>10/10</strong> Units Analyzed</span>
-                  <span className="stats-dot">•</span>
-                  <span className="stats-tag-item">-0.25 Marking</span>
-                </div>
               </div>
 
               {/* Filter controls */}
@@ -917,7 +918,7 @@ export default function BotanySeriesHome() {
                     className={`filter-pill-btn ${scheduleFilter === 'special' ? 'active' : ''}`}
                     onClick={() => setScheduleFilter('special')}
                   >
-                    PYQs &amp; Specials
+                    Past Papers &amp; Specials
                   </button>
                 </div>
 
@@ -974,13 +975,13 @@ export default function BotanySeriesHome() {
                           </td>
                           <td data-label="Questions">
                             <div className="table-test-info">
-                              <span className="t-badge-mcq">{isStudyDay ? 'Preparation day' : `${t.questionCount || 50} MCQs`}</span>
+                              <span className="t-badge-mcq">{isStudyDay ? 'Study day' : `${t.questionCount || 50} questions`}</span>
                               {!isStudyDay && testBankStats?.uploadedCount > 0 && (
                                 <span 
                                   className="t-live-bank-tag"
-                                  title={`${testBankStats.uploadedCount} MCQs in bank with 100% 4-option scientific rationale`}
+                                  title={`${testBankStats.uploadedCount} questions ready`}
                                 >
-                                  ✓ {testBankStats.uploadedCount} Active
+                                  ✓ {testBankStats.uploadedCount} ready
                                 </span>
                               )}
                             </div>
@@ -1000,10 +1001,10 @@ export default function BotanySeriesHome() {
                                 className={`btn btn-sm cbt-table-action-btn ${isDemo ? 'demo' : 'start'}`}
                                 onClick={() => handleLaunchTest(t)}
                                 disabled={testLaunchLoading}
-                                title={isDemo ? 'Launch Free Diagnostic Demo' : 'Launch Official CBT Simulation'}
+                                title={isDemo ? 'Try the free demo' : 'Start this test'}
                               >
                                 <Play size={11} />
-                                <span>{isDemo ? 'Free Demo' : 'Start CBT'}</span>
+                                <span>{isDemo ? 'Free Demo' : 'Start Test'}</span>
                               </button>
                             ) : (
                               <button
@@ -1034,13 +1035,21 @@ export default function BotanySeriesHome() {
             </div>
           )}
 
+          {explorerTab === 'results' && (
+            <StudentResults
+              onStartDemo={handleDemoCbtClick}
+              onSignIn={() => { setAuthPendingAction(null); setShowAuthModal(true); }}
+              refreshKey={resultsRefreshKey}
+            />
+          )}
+
           {/* TAB 2: PASSES & PRICING */}
           {explorerTab === 'pricing' && (
             <div className="explorer-content-card">
               <div className="content-card-header">
                 <div>
-                  <h3>Candidate Enrollment Passes &amp; Instant Activation</h3>
-                  <p>Direct enrollment via Razorpay (UPI, Cards, NetBanking). Credentials and access activate immediately with receipt generation.</p>
+                  <h3>Choose Your Pass</h3>
+                  <p>Get the full series, practice one unit, or try a free test.</p>
                 </div>
               </div>
 
@@ -1099,10 +1108,10 @@ export default function BotanySeriesHome() {
                 {/* Card 1: Complete 35-Test Series Master Pass */}
                 <div className={`pricing-card-box featured-pass ${activePricingTab === 'full' ? 'active-mobile-plan' : ''}`}>
                   <div className="p-card-header">
-                    <span className="p-plan-badge">All-Inclusive Pass</span>
+                    <span className="p-plan-badge">Full Series</span>
                     <h3 className="p-plan-title">Full 35-Test Series Pass</h3>
                     <p className="p-plan-summary">
-                      Complete preparation: 10 Unit Tests, 5 Clusters, PYQs &amp; 9 Full-Length Grand Mocks.
+                      Practice every Botany unit in one pass.
                     </p>
                   </div>
 
@@ -1110,10 +1119,8 @@ export default function BotanySeriesHome() {
                     <div className="p-amount-row">
                       <span className="p-currency">₹</span>
                       <span className="p-value">{finalPrice}</span>
-                      <span className="p-original">₹{originalPrice}</span>
-                      <span className="p-discount-tag">40% OFF</span>
                     </div>
-                    <span className="p-validity-note">Valid until PSC Exam 2026 • Unlimited Re-attempts</span>
+                    <span className="p-validity-note">Access until the 2026 exam. Retake tests anytime.</span>
                   </div>
 
                   {/* Promo Code Applicator */}
@@ -1129,7 +1136,7 @@ export default function BotanySeriesHome() {
                       <input 
                         type="text" 
                         className="p-coupon-input"
-                        placeholder="Enter promo code..."
+                        placeholder="Promo code"
                         value={couponCode}
                         onChange={(e) => setCouponCode(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && applyCoupon()}
@@ -1148,23 +1155,15 @@ export default function BotanySeriesHome() {
                   <ul className="p-features-checklist">
                     <li>
                       <CheckCircle2 size={15} className="p-check-icon" />
-                      <span><strong>All 35 CBT Tests</strong> (~2,700 questions across 10 PSC units)</span>
+                      <span>Tests across all 10 Botany units</span>
                     </li>
                     <li>
                       <CheckCircle2 size={15} className="p-check-icon" />
-                      <span><strong>Option-by-Option Rationale</strong> for every question</span>
+                      <span>Answers and explanations after each test</span>
                     </li>
                     <li>
                       <CheckCircle2 size={15} className="p-check-icon" />
-                      <span><strong>9 Full Grand Mocks</strong> calibrated to actual PSC difficulty</span>
-                    </li>
-                    <li>
-                      <CheckCircle2 size={15} className="p-check-icon" />
-                      <span><strong>Negative Marking</strong> (+1.00 / -0.25 penalty calibration)</span>
-                    </li>
-                    <li>
-                      <CheckCircle2 size={15} className="p-check-icon" />
-                      <span><strong>Instant Razorpay Activation</strong> with email receipt</span>
+                      <span>9 full mock tests</span>
                     </li>
                   </ul>
 
@@ -1181,10 +1180,10 @@ export default function BotanySeriesHome() {
                 {/* Card 2: Unit-Wise Flexi Pass */}
                 <div className={`pricing-card-box flexi-pass ${activePricingTab === 'unit' ? 'active-mobile-plan' : ''}`}>
                   <div className="p-card-header">
-                    <span className="p-plan-badge flexi">Targeted Practice</span>
-                    <h3 className="p-plan-title">Unit-Wise Individual Pass</h3>
+                    <span className="p-plan-badge flexi">One Unit</span>
+                    <h3 className="p-plan-title">Single Unit Pass</h3>
                     <p className="p-plan-summary">
-                      Practice a specific unit (e.g. Cytology, Physiology, or Plant Pathology).
+                      Choose one Botany unit to practice.
                     </p>
                   </div>
 
@@ -1192,16 +1191,16 @@ export default function BotanySeriesHome() {
                     <div className="p-amount-row">
                       <span className="p-currency">₹</span>
                       <span className="p-value">{unitPrice}</span>
-                      <span className="p-period">/ per single unit</span>
+                      <span className="p-period">for one unit</span>
                     </div>
                     <span className="p-validity-note">
-                      Upgrade to Full Series anytime with price adjustment credit
+                      Upgrade later and use this payment toward the full pass.
                     </span>
                   </div>
 
                   {/* Unit Selector */}
                   <div className="p-unit-select-box">
-                    <label className="p-select-label">Choose Target Unit:</label>
+                    <label className="p-select-label">Choose a unit:</label>
                     <select 
                       className="p-unit-dropdown"
                       value={selectedUnitForPass}
@@ -1218,19 +1217,19 @@ export default function BotanySeriesHome() {
                   <ul className="p-features-checklist">
                     <li>
                       <CheckCircle2 size={15} className="p-check-icon" />
-                      <span><strong>50 High-Yield MCQs</strong> for selected unit</span>
+                      <span>50 questions from your chosen unit</span>
                     </li>
                     <li>
                       <CheckCircle2 size={15} className="p-check-icon" />
-                      <span><strong>60 Minutes</strong> authentic timed examination mode</span>
+                      <span>60 minutes to complete the test</span>
                     </li>
                     <li>
                       <CheckCircle2 size={15} className="p-check-icon" />
-                      <span><strong>Option Analysis</strong> with scientific literature references</span>
+                      <span>Answers and explanations</span>
                     </li>
                     <li>
                       <CheckCircle2 size={15} className="p-check-icon" />
-                      <span><strong>Weak-Topic Diagnostic</strong> &amp; speed analysis</span>
+                      <span>See your results and try again</span>
                     </li>
                   </ul>
 
@@ -1247,39 +1246,31 @@ export default function BotanySeriesHome() {
                 {/* Card 3: Free Diagnostic CBT Demo */}
                 <div className={`pricing-card-box demo-pass ${activePricingTab === 'demo' ? 'active-mobile-plan' : ''}`}>
                   <div className="p-card-header">
-                    <span className="p-plan-badge free">100% Free Sample</span>
-                    <h3 className="p-plan-title">Diagnostic Demo CBT</h3>
+                    <span className="p-plan-badge free">Free Sample</span>
+                    <h3 className="p-plan-title">Free Practice Test</h3>
                     <p className="p-plan-summary">
-                      Experience the exam engine, live timer, negative marking, and analysis firsthand.
+                      Try a short Botany test before you buy.
                     </p>
                   </div>
 
                   <div className="p-price-container">
                     <div className="p-amount-row">
                       <span className="p-free-text">FREE</span>
-                      <span className="p-period">/ No Payment Required</span>
                     </div>
-                    <span className="p-validity-note">
-                      Instant 1-Click Launch • Authentic Simulation
-                    </span>
                   </div>
 
                   <ul className="p-features-checklist">
                     <li>
                       <CheckCircle2 size={15} className="p-check-icon" />
-                      <span><strong>{demoQuestions.length} High-Yield MCQs</strong> spanning PSC units</span>
+                      <span>{demoQuestions.length} Botany questions</span>
                     </li>
                     <li>
                       <CheckCircle2 size={15} className="p-check-icon" />
-                      <span><strong>Authentic CBT Mode</strong> with countdown timer</span>
+                      <span>Timed test</span>
                     </li>
                     <li>
                       <CheckCircle2 size={15} className="p-check-icon" />
-                      <span><strong>Question Palette</strong> (Answered, Flagged, Unattempted)</span>
-                    </li>
-                    <li>
-                      <CheckCircle2 size={15} className="p-check-icon" />
-                      <span><strong>Instant Results Report</strong> with complete rationale</span>
+                      <span>Results and answer explanations</span>
                     </li>
                   </ul>
 
@@ -1289,7 +1280,7 @@ export default function BotanySeriesHome() {
                     onClick={handleDemoCbtClick}
                   >
                     <Play size={14} />
-                    <span>Launch Free Demo CBT</span>
+                    <span>Start Free Test</span>
                   </button>
                 </div>
               </div>
@@ -1301,8 +1292,8 @@ export default function BotanySeriesHome() {
             <div className="explorer-content-card">
               <div className="content-card-header">
                 <div>
-                  <h3>Official Public Service Commission Syllabus (10 Units)</h3>
-                  <p>Compiled by Sheikh Gulfam (1 July 2023) • Curated by Dr. Aubid Ahmad, Assistant Professor (Botany).</p>
+                  <h3>Botany Syllabus: 10 Units</h3>
+                  <p>See the topics covered in each unit.</p>
                 </div>
                 <div className="syllabus-header-actions">
                   <div className="syllabus-expand-controls">
@@ -1423,8 +1414,8 @@ export default function BotanySeriesHome() {
             <div className="explorer-content-card">
               <div className="content-card-header">
                 <div>
-                  <h3>Examination Blueprint &amp; Candidate FAQs</h3>
-                  <p>Standardized testing guidelines, negative marking rules, and enrollment details.</p>
+                  <h3>How the Tests Work</h3>
+                  <p>What to expect when you take a test.</p>
                 </div>
               </div>
 
@@ -1432,26 +1423,26 @@ export default function BotanySeriesHome() {
               <div className="features-showcase-grid">
                 <div className="feature-highlight-card">
                   <div className="f-icon-box"><Clock size={20} /></div>
-                  <h4>Authentic PSC CBT Engine</h4>
-                  <p>Real-time countdown timer, question palette with status color codes, and flag-for-review navigation.</p>
+                  <h4>Take a Timed Test</h4>
+                  <p>See how much time is left and mark questions to review.</p>
                 </div>
 
                 <div className="feature-highlight-card">
                   <div className="f-icon-box"><BookOpen size={20} /></div>
-                  <h4>Option-by-Option Rationales</h4>
-                  <p>Explains why the correct choice succeeds and why each of the 3 distractors fails, with cited references.</p>
+                  <h4>Review Your Answers</h4>
+                  <p>See the correct answers and clear explanations after the test.</p>
                 </div>
 
                 <div className="feature-highlight-card">
                   <div className="f-icon-box"><Zap size={20} /></div>
-                  <h4>-0.25 Negative Marking</h4>
-                  <p>Exact PSC grading (+1.00 for correct, -0.25 penalty for incorrect, 0 for skipped) for true percentile calibration.</p>
+                  <h4>Know Your Score</h4>
+                  <p>Correct: +1 mark. Wrong: -0.25 marks. Skipped: 0.</p>
                 </div>
 
                 <div className="feature-highlight-card">
                   <div className="f-icon-box"><Award size={20} /></div>
-                  <h4>Structured Progression</h4>
-                  <p>10 modular Unit Tests → 5 Multi-Unit Clusters → 11 PYQs/Specials → 9 full-length Grand Mocks.</p>
+                  <h4>Practice Step by Step</h4>
+                  <p>Start with unit tests, then try mixed tests and full mock tests.</p>
                 </div>
               </div>
 
@@ -1497,8 +1488,8 @@ export default function BotanySeriesHome() {
       {showCbtEngine && (
         <StudentExamEngine 
           testData={activeTestForCbt || {
-            title: 'Diagnostic Entrance Assessment Demo',
-            unitCovered: `High-Yield Entrance Sample (${demoQuestions.length} MCQs)`,
+            title: 'Free Botany Practice Test',
+            unitCovered: `${demoQuestions.length} Botany questions`,
             durationMinutes: Math.max(10, Math.round(demoQuestions.length * 1.5))
           }}
           questions={activeTestForCbt?.questions || demoQuestions}
@@ -1511,8 +1502,30 @@ export default function BotanySeriesHome() {
             setActiveTestForCbt(null);
             handleUnlockTest(test);
           }}
+          onResultSaved={() => setResultsRefreshKey(key => key + 1)}
+          onViewResults={() => {
+            setShowCbtEngine(false);
+            setActiveTestForCbt(null);
+            setExplorerTab('results');
+            setTimeout(() => tabsNavRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
+          }}
           userSubscriptions={userSubscriptions}
         />
+      )}
+
+      {showLogoutConfirm && (
+        <div className="botany-modal-overlay">
+          <div className="botany-modal-card" role="dialog" aria-modal="true" aria-labelledby="logout-title" style={{ maxWidth: '420px', textAlign: 'center' }}>
+            <LogOut size={32} className="confirm-dialog-icon" />
+            <h3 id="logout-title">Sign out?</h3>
+            <p>You can sign in again to view your saved results and tests.</p>
+            {logoutError && <p role="alert" className="results-load-note">{logoutError}</p>}
+            <div className="cbt-submit-confirm-actions">
+              <button type="button" className="btn btn-secondary" onClick={() => setShowLogoutConfirm(false)}>Stay Signed In</button>
+              <button type="button" className="btn btn-primary" onClick={confirmLogout}>Sign Out</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

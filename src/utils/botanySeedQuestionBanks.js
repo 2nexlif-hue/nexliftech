@@ -191,7 +191,7 @@ export const BOTANY_SEED_QUESTION_BANKS = {
       }
     ],
     "lastUpdated": "2026-10-06T00:00:00.000Z",
-    "updatedBy": "Dr. Aubid Ahmad (Seed Bank)"
+    "updatedBy": "Dr. Aubid Hussain Malik (Seed Bank)"
   },
   "unit_2": {
     "unitId": "unit_2",
@@ -382,7 +382,7 @@ export const BOTANY_SEED_QUESTION_BANKS = {
       }
     ],
     "lastUpdated": "2026-10-06T00:00:00.000Z",
-    "updatedBy": "Dr. Aubid Ahmad (Seed Bank)"
+    "updatedBy": "Dr. Aubid Hussain Malik (Seed Bank)"
   },
   "unit_3": {
     "unitId": "unit_3",
@@ -573,7 +573,7 @@ export const BOTANY_SEED_QUESTION_BANKS = {
       }
     ],
     "lastUpdated": "2026-10-06T00:00:00.000Z",
-    "updatedBy": "Dr. Aubid Ahmad (Seed Bank)"
+    "updatedBy": "Dr. Aubid Hussain Malik (Seed Bank)"
   },
   "unit_4": {
     "unitId": "unit_4",
@@ -764,7 +764,7 @@ export const BOTANY_SEED_QUESTION_BANKS = {
       }
     ],
     "lastUpdated": "2026-10-06T00:00:00.000Z",
-    "updatedBy": "Dr. Aubid Ahmad (Seed Bank)"
+    "updatedBy": "Dr. Aubid Hussain Malik (Seed Bank)"
   },
   "unit_5": {
     "unitId": "unit_5",
@@ -955,7 +955,7 @@ export const BOTANY_SEED_QUESTION_BANKS = {
       }
     ],
     "lastUpdated": "2026-10-06T00:00:00.000Z",
-    "updatedBy": "Dr. Aubid Ahmad (Seed Bank)"
+    "updatedBy": "Dr. Aubid Hussain Malik (Seed Bank)"
   },
   "unit_6": {
     "unitId": "unit_6",
@@ -1146,7 +1146,7 @@ export const BOTANY_SEED_QUESTION_BANKS = {
       }
     ],
     "lastUpdated": "2026-10-06T00:00:00.000Z",
-    "updatedBy": "Dr. Aubid Ahmad (Seed Bank)"
+    "updatedBy": "Dr. Aubid Hussain Malik (Seed Bank)"
   },
   "unit_7": {
     "unitId": "unit_7",
@@ -1337,7 +1337,7 @@ export const BOTANY_SEED_QUESTION_BANKS = {
       }
     ],
     "lastUpdated": "2026-10-06T00:00:00.000Z",
-    "updatedBy": "Dr. Aubid Ahmad (Seed Bank)"
+    "updatedBy": "Dr. Aubid Hussain Malik (Seed Bank)"
   },
   "unit_8": {
     "unitId": "unit_8",
@@ -1528,7 +1528,7 @@ export const BOTANY_SEED_QUESTION_BANKS = {
       }
     ],
     "lastUpdated": "2026-10-06T00:00:00.000Z",
-    "updatedBy": "Dr. Aubid Ahmad (Seed Bank)"
+    "updatedBy": "Dr. Aubid Hussain Malik (Seed Bank)"
   },
   "unit_9": {
     "unitId": "unit_9",
@@ -1719,7 +1719,7 @@ export const BOTANY_SEED_QUESTION_BANKS = {
       }
     ],
     "lastUpdated": "2026-10-06T00:00:00.000Z",
-    "updatedBy": "Dr. Aubid Ahmad (Seed Bank)"
+    "updatedBy": "Dr. Aubid Hussain Malik (Seed Bank)"
   },
   "unit_10": {
     "unitId": "unit_10",
@@ -1910,7 +1910,7 @@ export const BOTANY_SEED_QUESTION_BANKS = {
       }
     ],
     "lastUpdated": "2026-10-06T00:00:00.000Z",
-    "updatedBy": "Dr. Aubid Ahmad (Seed Bank)"
+    "updatedBy": "Dr. Aubid Hussain Malik (Seed Bank)"
   }
 ,
   "diagnostic_demo": {

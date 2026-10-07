@@ -779,7 +779,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
             <span className="botany-header-badge">PSC Entrance 2026</span>
           </h2>
           <p className="botany-header-subtitle">
-            Curated by Dr. Aubid Ahmad, Assistant Professor (Botany). Managed, hosted, and deployed via NexLifTech.
+            Curated by Dr. Aubid Hussain Malik, Assistant Professor (Botany). Managed, hosted, and deployed via NexLifTech.
           </p>
         </div>
 
@@ -973,7 +973,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
             <div>
               <h3>Official Public Service Commission Syllabus (10 Units)</h3>
               <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Compiled by Sheikh Gulfam (1 July 2023) • Curated by Dr. Aubid Ahmad, Assistant Professor (Botany).
+                Compiled by Sheikh Gulfam (1 July 2023) • Curated by Dr. Aubid Hussain Malik, Assistant Professor (Botany).
               </p>
             </div>
             <div className="botany-card-actions">
@@ -2383,7 +2383,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                     type="text"
                     value={enrollForm.name}
                     onChange={(e) => setEnrollForm({ ...enrollForm, name: e.target.value })}
-                    placeholder="e.g. Dr. Aubid Ahmad or Candidate Name"
+                    placeholder="e.g. Dr. Aubid Hussain Malik or Candidate Name"
                     style={{
                       width: '100%',
                       padding: '0.65rem 0.85rem',

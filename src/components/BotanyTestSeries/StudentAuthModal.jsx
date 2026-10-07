@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { X, Mail, Lock, User, AlertCircle, ArrowRight, Eye, EyeOff, CheckCircle2, UserPlus, LogIn, Sparkles } from 'lucide-react';
+import { X, Mail, Lock, User, AlertCircle, ArrowRight, Eye, EyeOff, CheckCircle2, UserPlus, LogIn } from 'lucide-react';
 import './BotanySeries.css';
 
 export default function StudentAuthModal({ isOpen, onClose, onSuccess, initialMode = 'signin' }) {
@@ -59,7 +59,7 @@ export default function StudentAuthModal({ isOpen, onClose, onSuccess, initialMo
 
     try {
       if (mode === 'signin') {
-        const cred = await login(email.trim(), password);
+        const cred = await login(emailTrimmed, password);
         onSuccess?.(cred.user);
         onClose();
       } else if (mode === 'signup') {
@@ -73,7 +73,7 @@ export default function StudentAuthModal({ isOpen, onClose, onSuccess, initialMo
           setLoading(false);
           return;
         }
-        const cred = await signup(email.trim(), password, displayName.trim());
+        const cred = await signup(emailTrimmed, password, displayName.trim());
         onSuccess?.(cred.user);
         onClose();
       } else if (mode === 'reset') {
@@ -82,7 +82,7 @@ export default function StudentAuthModal({ isOpen, onClose, onSuccess, initialMo
           setLoading(false);
           return;
         }
-        await resetPassword(email.trim());
+        await resetPassword(emailTrimmed);
         setMessage('Password reset instructions sent! Please check your email inbox (including spam/promotions) and follow the link to reset your password.');
       }
     } catch (err) {
@@ -99,7 +99,7 @@ export default function StudentAuthModal({ isOpen, onClose, onSuccess, initialMo
         case 'auth/invalid-credential':
         case 'auth/user-not-found':
           if (mode === 'signin') {
-            setError('Invalid credentials or account does not exist yet.');
+            setError('Email or password is incorrect, or no account exists yet.');
             setErrorAction({
               label: 'Create Student Account Now →',
               action: () => switchMode('signup')
@@ -141,7 +141,7 @@ export default function StudentAuthModal({ isOpen, onClose, onSuccess, initialMo
         {/* Compact Header */}
         <div className="botany-modal-header compact">
           <div className="botany-modal-logo-small">
-            <span className="auth-brand-badge">🌿 NexLifTech CBT</span>
+            <span className="auth-brand-badge">🌿 Botany Test Series</span>
           </div>
           <h3 id="student-auth-title">
             {mode === 'signin' && 'Student Sign In'}
@@ -149,9 +149,9 @@ export default function StudentAuthModal({ isOpen, onClose, onSuccess, initialMo
             {mode === 'reset' && 'Reset Password'}
           </h3>
           <p>
-            {mode === 'signin' && 'Sign in to access your tests, performance analytics, and CBT simulator.'}
-            {mode === 'signup' && 'Create your free account to track tests, negative marking, and enrollment.'}
-            {mode === 'reset' && 'Enter your email to receive recovery instructions.'}
+            {mode === 'signin' && 'Sign in to see your tests and results.'}
+            {mode === 'signup' && 'Create an account to take tests and save your results.'}
+            {mode === 'reset' && 'Enter your email to reset your password.'}
           </p>
         </div>
 
@@ -238,7 +238,7 @@ export default function StudentAuthModal({ isOpen, onClose, onSuccess, initialMo
                   className="botany-auth-input"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="e.g. Dr. / Candidate Name"
+                  placeholder="Your name"
                   required
                 />
               </div>
@@ -347,7 +347,7 @@ export default function StudentAuthModal({ isOpen, onClose, onSuccess, initialMo
         <div className="botany-modal-footer compact">
           {mode === 'signin' && (
             <p>
-              New candidate?{' '}
+              New here?{' '}
               <button type="button" className="botany-link-btn bold" onClick={() => switchMode('signup')}>
                 Create Free Account
               </button>

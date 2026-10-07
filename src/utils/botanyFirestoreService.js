@@ -605,11 +605,13 @@ export async function grantManualSubscription({ userEmail, userName, planType, a
  */
 export async function saveCbtSubmission(submission) {
   try {
-    const subId = `cbt_${submission.userId || 'anon'}_${Date.now()}`;
+    const subId = submission.submissionId || `cbt_${submission.userId || 'anon'}_${Date.now()}`;
+    const summary = { ...submission };
+    delete summary.answerReview;
     const payload = {
+      ...summary,
       submissionId: subId,
-      ...submission,
-      savedAt: new Date().toISOString()
+      savedAt: submission.savedAt || new Date().toISOString()
     };
     const docRef = doc(db, 'botany_cbt_submissions', subId);
     await setDoc(docRef, payload);
@@ -618,4 +620,13 @@ export async function saveCbtSubmission(submission) {
     console.warn('Error saving CBT test submission:', err?.message || err);
     return null;
   }
+}
+
+export async function getCbtSubmissionsForUser(userId) {
+  if (!userId) return [];
+  const submissionsRef = collection(db, 'botany_cbt_submissions');
+  const snap = await getDocs(query(submissionsRef, where('userId', '==', userId)));
+  return snap.docs
+    .map(item => ({ ...item.data(), submissionId: item.id }))
+    .sort((a, b) => Date.parse(b.savedAt || 0) - Date.parse(a.savedAt || 0));
 }

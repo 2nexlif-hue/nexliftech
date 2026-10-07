@@ -70,8 +70,8 @@ const DEFAULT_PROJECTS = [
   {
     title: 'Botany Assistant Professor CBT Examination Suite',
     category: 'EdTech & Assessment Engines',
-    clientTag: 'Curated by Dr. Aubid Ahmad (Asst. Professor) • Built & Deployed by NexLifTech',
-    description: 'An advanced, high-stakes Computer-Based Testing (CBT) portal and examination suite engineered for Dr. Aubid Ahmad, Assistant Professor. Features a 35-test plan, ~2,700 high-yield questions across 10 PSC units, Excel bulk uploads with 3-version rollbacks, automated option analysis, and Razorpay student enrollment workflows.',
+    clientTag: 'Curated by Dr. Aubid Hussain Malik (Asst. Professor) • Built & Deployed by NexLifTech',
+    description: 'An advanced, high-stakes Computer-Based Testing (CBT) portal and examination suite engineered for Dr. Aubid Hussain Malik, Assistant Professor. Features a 35-test plan, ~2,700 high-yield questions across 10 PSC units, Excel bulk uploads with 3-version rollbacks, automated option analysis, and Razorpay student enrollment workflows.',
     tech: ['React', 'Firebase', 'Razorpay', 'Excel Engine', 'CBT Analytics'],
     liveLink: '/botany-test-series',
     image: '/botany-suite-preview.svg'
@@ -1140,7 +1140,7 @@ export default function Dashboard() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
               <span className="admin-email-text" style={isBotanyAdminOnly ? { color: '#10b981' } : {}}>
-                {isBotanyAdminOnly ? 'Dr. Aubid Ahmad' : currentUser?.email}
+                {isBotanyAdminOnly ? 'Dr. Aubid Hussain Malik' : currentUser?.email}
               </span>
               {isBotanyAdminOnly && (
                 <span style={{ fontSize: '0.67rem', color: 'var(--text-muted)' }}>{currentUser?.email}</span>
@@ -1148,7 +1148,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <button onClick={handleLogout} className="btn btn-secondary btn-sm" style={{ color: '#f43f5e', borderColor: 'rgba(244, 63, 94, 0.25)', background: 'rgba(244, 63, 94, 0.08)' }}>
+          <button onClick={() => setConfirmModal({ title: 'Sign out?', message: 'You can sign in again to return to this workspace.', actionText: 'Sign Out', icon: 'logout', onConfirm: () => { setConfirmModal(null); handleLogout(); } })} className="btn btn-secondary btn-sm" style={{ color: '#f43f5e', borderColor: 'rgba(244, 63, 94, 0.25)', background: 'rgba(244, 63, 94, 0.08)' }}>
             <LogOut size={14} /> Logout
           </button>
         </div>
@@ -1162,7 +1162,7 @@ export default function Dashboard() {
               <div className="faculty-badge-icon">🌿</div>
               <div>
                 <h2>Botany Examination Suite</h2>
-                <p>Dedicated Exam & Question Bank Workspace • Dr. Aubid Ahmad</p>
+                <p>Dedicated Exam & Question Bank Workspace • Dr. Aubid Hussain Malik</p>
               </div>
             </div>
             <div className="faculty-account-pill">
@@ -1223,7 +1223,7 @@ export default function Dashboard() {
               {workspace === 'cms' 
                 ? 'Manage site content, portfolio, pricing, and incoming messages.'
                 : workspace === 'botany'
-                ? 'Curated by Dr. Aubid Ahmad. Manage syllabus, test calendar, Excel question banks, versioning, and subscriptions.'
+                ? 'Curated by Dr. Aubid Hussain Malik. Manage syllabus, test calendar, Excel question banks, versioning, and subscriptions.'
                 : 'Official government inspection checklists, personal apps, and Firestore records.'}
             </p>
           </div>
@@ -2624,13 +2624,15 @@ export default function Dashboard() {
           justifyContent: 'center',
           padding: '1rem'
         }}>
-          <div style={{
+          <div role="dialog" aria-modal="true" aria-labelledby="admin-confirm-title" style={{
             background: 'var(--bg-secondary, #ffffff)',
             border: '1px solid var(--border-light, #e2e8f0)',
             borderRadius: '20px',
-            padding: '2rem 2.25rem',
+            padding: 'clamp(1rem, 4vw, 2rem) clamp(1rem, 4vw, 2.25rem)',
             maxWidth: '440px',
             width: '100%',
+            maxHeight: '90dvh',
+            overflowY: 'auto',
             boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
             display: 'flex',
             flexDirection: 'column',
@@ -2638,9 +2640,9 @@ export default function Dashboard() {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#e11d48' }}>
               <div style={{ background: 'rgba(225, 29, 72, 0.1)', padding: '0.6rem', borderRadius: '12px' }}>
-                <Trash2 size={24} />
+                {confirmModal.icon === 'logout' ? <LogOut size={24} /> : <Trash2 size={24} />}
               </div>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
+              <h3 id="admin-confirm-title" style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
                 {confirmModal.title}
               </h3>
             </div>
@@ -2649,12 +2651,12 @@ export default function Dashboard() {
               {confirmModal.message}
             </p>
 
-            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
               <button
                 type="button"
                 className="btn btn-secondary"
                 onClick={() => setConfirmModal(null)}
-                style={{ padding: '0.55rem 1.1rem', fontSize: '0.85rem' }}
+                style={{ padding: '0.55rem 1.1rem', minHeight: '44px', fontSize: '0.85rem' }}
               >
                 Cancel
               </button>
@@ -2666,6 +2668,7 @@ export default function Dashboard() {
                   border: 'none',
                   borderRadius: '10px',
                   padding: '0.55rem 1.25rem',
+                  minHeight: '44px',
                   fontWeight: 700,
                   fontSize: '0.85rem',
                   cursor: 'pointer',

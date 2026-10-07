@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   Clock, AlertTriangle, ArrowLeft, ArrowRight, Bookmark, 
   RotateCcw, Award, Check, X, HelpCircle, BookOpen, LayoutGrid, CheckCircle2, Lock 
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { saveCbtSubmission } from '../../utils/botanyFirestoreService';
+import { saveDeviceCbtResult } from '../../utils/botanyResultsStorage';
 import './BotanySeries.css';
 
 export default function StudentExamEngine({ 
@@ -12,6 +13,8 @@ export default function StudentExamEngine({
   questions = [], 
   onClose, 
   onUnlockNeeded, 
+  onResultSaved,
+  onViewResults,
   userSubscriptions = [] 
 }) {
   const { currentUser, userProfile } = useAuth();
@@ -54,9 +57,11 @@ export default function StudentExamEngine({
   const [markedForReview, setMarkedForReview] = useState({}); // { [qId]: true }
   const [secondsRemaining, setSecondsRemaining] = useState((testData?.durationMinutes || 60) * 60);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [submissionId, setSubmissionId] = useState(null);
+  const [saveStatus, setSaveStatus] = useState('');
   const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
+  const [showConfirmExit, setShowConfirmExit] = useState(false);
   const [showMobilePalette, setShowMobilePalette] = useState(false);
+  const submissionStartedRef = useRef(false);
 
   // Countdown timer
   useEffect(() => {
@@ -109,8 +114,12 @@ export default function StudentExamEngine({
   }
 
   async function handleSubmitTest() {
+    if (submissionStartedRef.current) return;
+    submissionStartedRef.current = true;
     setShowConfirmSubmit(false);
+    setShowConfirmExit(false);
     setIsSubmitted(true);
+    setSaveStatus('saving');
 
     // Compute evaluation results
     let cCount = 0;
@@ -131,29 +140,41 @@ export default function StudentExamEngine({
     const calculatedScore = (cCount * 1) - (iCount * 0.25);
     const calculatedAccuracy = (cCount + iCount) > 0 ? Math.round((cCount / (cCount + iCount)) * 100) : 0;
 
-    // Save submission to Firestore
-    try {
-      const saved = await saveCbtSubmission({
-        userId: currentUser?.uid || 'guest_candidate',
-        userEmail: currentUser?.email || 'guest@nexliftech.com',
-        userName: currentUser?.displayName || userProfile?.displayName || 'Candidate',
-        testId: testData?.id || testData?.testNumber || 'diagnostic_demo',
-        testTitle: testData?.title || 'Botany Diagnostic Test',
-        unitCovered: testData?.unitCovered || 'All Units',
-        totalQuestions: questions.length,
-        correctCount: cCount,
-        incorrectCount: iCount,
-        unattemptedCount: uCount,
-        score: calculatedScore,
-        accuracy: calculatedAccuracy,
-        timeTakenSeconds: ((testData?.durationMinutes || 60) * 60) - secondsRemaining
-      });
-      if (saved?.submissionId) {
-        setSubmissionId(saved.submissionId);
-      }
-    } catch (err) {
-      console.warn('Submission record error:', err);
+    const submission = {
+      submissionId: `cbt_${currentUser?.uid || 'guest'}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      userId: currentUser?.uid || 'guest',
+      userEmail: currentUser?.email || '',
+      userName: currentUser?.displayName || userProfile?.displayName || 'Student',
+      testId: testData?.id || testData?.testNumber || 'diagnostic_demo',
+      testTitle: testData?.title || 'Botany Test',
+      unitCovered: testData?.unitCovered || 'All Units',
+      totalQuestions: questions.length,
+      correctCount: cCount,
+      incorrectCount: iCount,
+      unattemptedCount: uCount,
+      score: calculatedScore,
+      accuracy: calculatedAccuracy,
+      timeTakenSeconds: ((testData?.durationMinutes || 60) * 60) - secondsRemaining,
+      savedAt: new Date().toISOString(),
+      answerReview: questions.map(q => ({
+        questionId: q.id,
+        question: q.question,
+        options: Object.fromEntries(['A', 'B', 'C', 'D'].map(option => [option, q[`option${option}`] || ''])),
+        analyses: Object.fromEntries(['A', 'B', 'C', 'D'].map(option => [option, q[`analysis${option}`] || ''])),
+        correctOption: q.correctOption,
+        selectedOption: userAnswers[q.id] || null,
+        referenceNote: q.referenceNote || ''
+      }))
+    };
+
+    const savedOnDevice = saveDeviceCbtResult(currentUser?.uid, submission);
+    if (currentUser?.uid) {
+      const savedToAccount = await saveCbtSubmission(submission);
+      setSaveStatus(savedToAccount ? 'account' : savedOnDevice ? 'device' : 'failed');
+    } else {
+      setSaveStatus(savedOnDevice ? 'device' : 'failed');
     }
+    onResultSaved?.();
   }
 
   function handleReattempt() {
@@ -161,7 +182,8 @@ export default function StudentExamEngine({
     setMarkedForReview({});
     setCurrentIdx(0);
     setSecondsRemaining((testData?.durationMinutes || 60) * 60);
-    setSubmissionId(null);
+    submissionStartedRef.current = false;
+    setSaveStatus('');
     setIsSubmitted(false);
   }
 
@@ -197,29 +219,29 @@ export default function StudentExamEngine({
           </div>
 
           <span className="unit-badge" style={{ marginBottom: '0.75rem', display: 'inline-block' }}>
-            Premium Examination Content
+            Pass Required
           </span>
 
           <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0 0 0.5rem', color: 'var(--text-primary)' }}>
-            Subscription Pass Required
+            Get a Pass to Take This Test
           </h2>
 
           <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6, margin: '0 0 1.25rem' }}>
-            <strong>{testData?.title || 'This Test'}</strong> ({testData?.unitCovered || 'PSC Syllabus'}) is restricted under official examination guardrails. To attempt this test with timed simulation, rank scoring, and option-by-option rationale, please unlock your Candidate Pass.
+            <strong>{testData?.title || 'This test'}</strong> is part of the paid series. Choose a pass to start.
           </p>
 
           <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-light)', borderRadius: '12px', padding: '1rem', textAlign: 'left', marginBottom: '1.5rem', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)' }}>
               <CheckCircle2 size={16} color="#10b981" />
-              <span>Full 10 Units PSC Syllabus Coverage (35 Tests, 9 Grand Mocks)</span>
+              <span>35 planned tests across 10 Botany units</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)' }}>
               <CheckCircle2 size={16} color="#10b981" />
-              <span>Option-by-option scientific explanation curated by Dr. Aubid Ahmad</span>
+              <span>Answers and explanations after each test</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)' }}>
               <CheckCircle2 size={16} color="#10b981" />
-              <span>Official tax invoice & email confirmation delivered instantly</span>
+              <span>9 full mock tests in the full series</span>
             </div>
           </div>
 
@@ -236,7 +258,7 @@ export default function StudentExamEngine({
                 }
               }}
             >
-              <span>Unlock Pass & Subscribe via Razorpay</span>
+              <span>View Passes</span>
               <ArrowRight size={16} />
             </button>
             <button
@@ -258,11 +280,11 @@ export default function StudentExamEngine({
       {/* Top CBT Header Bar */}
       <header className="cbt-topbar">
         <div className="cbt-topbar-left">
-          <button type="button" className="btn btn-secondary btn-sm" onClick={onClose} aria-label="Exit CBT exam">
-            <ArrowLeft size={14} /> <span>Exit CBT</span>
+          <button type="button" className="btn btn-secondary btn-sm" onClick={() => isSubmitted ? onClose() : setShowConfirmExit(true)} aria-label="Exit test">
+            <ArrowLeft size={14} /> <span>Exit Test</span>
           </button>
           <div className="cbt-test-info">
-            <h2>{testData?.title || 'Botany Entrance CBT Simulation'}</h2>
+            <h2>{testData?.title || 'Botany Practice Test'}</h2>
             <span>{testData?.unitCovered || 'PSC Entrance Syllabus'}</span>
           </div>
         </div>
@@ -352,11 +374,11 @@ export default function StudentExamEngine({
                       type="button"
                       className="btn btn-secondary btn-sm cbt-footer-btn cbt-mobile-palette-toggle"
                       onClick={() => setShowMobilePalette(!showMobilePalette)}
-                      aria-label="Toggle Question Palette"
+                      aria-label="Show all questions"
                       aria-expanded={showMobilePalette}
                     >
                       <LayoutGrid size={13} />
-                      <span>Q-Palette ({currentIdx + 1}/{questions.length})</span>
+                      <span>Questions ({currentIdx + 1}/{questions.length})</span>
                     </button>
                   </div>
 
@@ -390,21 +412,21 @@ export default function StudentExamEngine({
           {/* Palette Sidebar (Desktop) & Bottom Sheet Drawer (Mobile) */}
           <aside className={`cbt-palette-pane ${showMobilePalette ? 'mobile-open' : ''}`}>
             <div className="cbt-palette-drawer-header">
-              <h4 className="cbt-palette-heading">Question Palette ({questions.length} Qs)</h4>
+              <h4 className="cbt-palette-heading">Questions ({questions.length})</h4>
               <button 
                 type="button" 
                 className="cbt-palette-close-btn"
                 onClick={() => setShowMobilePalette(false)}
-                aria-label="Close palette"
+                aria-label="Close questions"
               >
                 <X size={16} />
               </button>
             </div>
 
             <div className="cbt-palette-legend">
-              <div className="legend-item"><span className="legend-dot green"></span> Ans ({Object.keys(userAnswers).length})</div>
+              <div className="legend-item"><span className="legend-dot green"></span> Answered ({Object.keys(userAnswers).length})</div>
               <div className="legend-item"><span className="legend-dot purple"></span> Review ({Object.values(markedForReview).filter(Boolean).length})</div>
-              <div className="legend-item"><span className="legend-dot grey"></span> Unattempted ({questions.length - Object.keys(userAnswers).length})</div>
+              <div className="legend-item"><span className="legend-dot grey"></span> Not answered ({questions.length - Object.keys(userAnswers).length})</div>
             </div>
 
             <div className="cbt-palette-grid">
@@ -453,21 +475,21 @@ export default function StudentExamEngine({
                 <Award size={36} />
               </div>
               <div>
-                <h2>Test Completed &amp; Evaluated</h2>
-                <p>Evaluation with +1.0 for correct and -0.25 negative marking</p>
+                <h2>Test Complete</h2>
+                <p>Correct: +1 mark. Wrong: -0.25 marks.</p>
               </div>
             </div>
 
             <div className="scorecard-metrics">
               <div className="metric-box">
-                <span className="metric-label">Calculated Score</span>
+                <span className="metric-label">Your Score</span>
                 <span className="metric-value">{score.toFixed(2)}</span>
                 <span className="metric-sub">Out of {questions.length}</span>
               </div>
               <div className="metric-box">
-                <span className="metric-label">Accuracy</span>
+                <span className="metric-label">Percent Correct</span>
                 <span className="metric-value">{accuracy}%</span>
-                <span className="metric-sub">Correct vs Attempted</span>
+                <span className="metric-sub">Correct out of answered</span>
               </div>
               <div className="metric-box green">
                 <span className="metric-label">Correct</span>
@@ -475,12 +497,12 @@ export default function StudentExamEngine({
                 <span className="metric-sub">Questions</span>
               </div>
               <div className="metric-box red">
-                <span className="metric-label">Incorrect</span>
+                <span className="metric-label">Wrong</span>
                 <span className="metric-value">{incorrectCount}</span>
                 <span className="metric-sub">-0.25 penalty</span>
               </div>
               <div className="metric-box grey">
-                <span className="metric-label">Unattempted</span>
+                <span className="metric-label">Skipped</span>
                 <span className="metric-value">{unattemptedCount}</span>
                 <span className="metric-sub">0 marks</span>
               </div>
@@ -488,20 +510,29 @@ export default function StudentExamEngine({
 
             {/* Scorecard Action Bar */}
             <div className="scorecard-actions-bar">
-              {submissionId && (
-                <div className="submission-saved-tag">
-                  <CheckCircle2 size={14} />
-                  <span>Submission Recorded: <strong>{submissionId}</strong></span>
+              {saveStatus && (
+                <div className={`submission-saved-tag ${saveStatus === 'failed' ? 'is-error' : ''}`} role="status">
+                  {saveStatus === 'failed' ? <AlertTriangle size={14} /> : <CheckCircle2 size={14} />}
+                  <span>
+                    {saveStatus === 'saving' && 'Saving your result...'}
+                    {saveStatus === 'account' && 'Saved to your account. View it in My Results.'}
+                    {saveStatus === 'device' && (currentUser ? 'Saved on this device. Account save was unavailable.' : 'Saved on this device. Sign in to save future results to your account.')}
+                    {saveStatus === 'failed' && 'This result could not be saved.'}
+                  </span>
                 </div>
               )}
               <div className="scorecard-btn-group">
                 <button type="button" className="btn btn-secondary btn-sm" onClick={handleReattempt}>
                   <RotateCcw size={13} />
-                  <span>Re-attempt Test</span>
+                  <span>Try Again</span>
+                </button>
+                <button type="button" className="btn btn-secondary btn-sm" onClick={onViewResults || onClose}>
+                  <BookOpen size={13} />
+                  <span>My Results</span>
                 </button>
                 <button type="button" className="btn btn-primary btn-sm" onClick={onClose}>
                   <ArrowLeft size={13} />
-                  <span>Back to Portal</span>
+                  <span>Back to Tests</span>
                 </button>
               </div>
             </div>
@@ -511,7 +542,7 @@ export default function StudentExamEngine({
           <div className="cbt-analysis-section">
             <div className="analysis-header">
               <BookOpen size={20} className="accent-icon" />
-              <h3>Detailed Scientific Analysis &amp; Option Breakdown</h3>
+              <h3>Review Your Answers</h3>
             </div>
 
             <div className="analysis-list">
@@ -526,8 +557,8 @@ export default function StudentExamEngine({
                       <span className="analysis-q-num">Q{idx + 1}.</span>
                       <div className="analysis-status-pill">
                         {isCorrect && <span className="pill green"><Check size={12} /> Correct (+1.0)</span>}
-                        {!isCorrect && !isSkipped && <span className="pill red"><X size={12} /> Incorrect (-0.25)</span>}
-                        {isSkipped && <span className="pill grey"><HelpCircle size={12} /> Not Attempted (0.0)</span>}
+                        {!isCorrect && !isSkipped && <span className="pill red"><X size={12} /> Wrong (-0.25)</span>}
+                        {isSkipped && <span className="pill grey"><HelpCircle size={12} /> Skipped (0)</span>}
                       </div>
                     </div>
 
@@ -556,7 +587,7 @@ export default function StudentExamEngine({
                             </div>
                             {optAnalysis && (
                               <div className="opt-analysis-text">
-                                <strong>Rationale:</strong> {optAnalysis}
+                                <strong>Why:</strong> {optAnalysis}
                               </div>
                             )}
                           </div>
@@ -566,7 +597,7 @@ export default function StudentExamEngine({
 
                     {q.referenceNote && (
                       <div className="analysis-ref-tip">
-                        <strong>Exam Tip / Reference Note:</strong> {q.referenceNote}
+                        <strong>Extra note:</strong> {q.referenceNote}
                       </div>
                     )}
                   </div>
@@ -584,7 +615,7 @@ export default function StudentExamEngine({
             <div style={{ color: '#f59e0b', margin: '0 auto 0.75rem auto' }}>
               <AlertTriangle size={36} />
             </div>
-            <h3 id="submit-test-title" style={{ margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }}>Submit Test Confirmation</h3>
+            <h3 id="submit-test-title" style={{ margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }}>Submit test?</h3>
             <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', margin: '0 0 1.25rem 0', lineHeight: 1.5 }}>
               You have answered <strong>{Object.keys(userAnswers).length}</strong> of <strong>{questions.length}</strong> questions.
               <br />
@@ -605,6 +636,20 @@ export default function StudentExamEngine({
               >
                 Yes, Submit Test
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showConfirmExit && (
+        <div className="botany-modal-overlay">
+          <div className="botany-modal-card" role="dialog" aria-modal="true" aria-labelledby="exit-test-title" style={{ maxWidth: '420px', textAlign: 'center' }}>
+            <AlertTriangle size={36} className="confirm-dialog-icon" />
+            <h3 id="exit-test-title">Leave this test?</h3>
+            <p>Your answers will be lost. Submit the test first if you want to save a result.</p>
+            <div className="cbt-submit-confirm-actions">
+              <button type="button" className="btn btn-secondary" onClick={() => setShowConfirmExit(false)}>Keep Testing</button>
+              <button type="button" className="btn btn-primary" onClick={onClose}>Leave Test</button>
             </div>
           </div>
         </div>
