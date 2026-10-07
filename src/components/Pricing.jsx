@@ -1,8 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Check, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { doc, onSnapshot } from 'firebase/firestore';
-import { db } from '../firebase';
 import './Pricing.css';
 
 const DEFAULT_PLANS = [
@@ -116,19 +114,7 @@ const playClickSound = () => {
 
 export default function Pricing() {
   const [activeTab, setActiveTab] = useState(1); // Default to Professional
-  const [plans, setPlans] = useState(DEFAULT_PLANS);
-
-  useEffect(() => {
-    const docRef = doc(db, 'siteContent', 'pricing_plans');
-    const unsubscribe = onSnapshot(docRef, (snap) => {
-      if (snap.exists() && snap.data().plans) {
-        setPlans(DEFAULT_PLANS);
-      }
-    }, (err) => {
-      console.error('Firestore pricing plans load error:', err);
-    });
-    return unsubscribe;
-  }, []);
+  const plans = DEFAULT_PLANS;
 
   return (
     <section id="pricing" className="pricing">

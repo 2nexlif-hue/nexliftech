@@ -1,45 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import { doc, onSnapshot } from 'firebase/firestore';
-import { db } from '../firebase';
+import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import LottieReact from 'lottie-react';
 import './Services.css';
-
-// Fix for Vite CommonJS/ESM interop with lottie-react
-const Lottie = LottieReact.default || LottieReact;
-
-// Inline lightweight Lottie animation data for each service
-const lottieData = {
-  code: {
-    v: "5.7.4", fr: 30, ip: 0, op: 60, w: 100, h: 100,
-    layers: [{ 
-      ty: 4, nm: "code", sr: 1, ks: { o: { a: 0, k: 100 }, r: { a: 0, k: 0 }, 
-      p: { a: 0, k: [50, 50, 0] }, a: { a: 0, k: [0, 0, 0] }, 
-      s: { a: 1, k: [
-        { t: 0, s: [90, 90, 100], i: { x: [0.5], y: [1] }, o: { x: [0.5], y: [0] } },
-        { t: 30, s: [100, 100, 100], i: { x: [0.5], y: [1] }, o: { x: [0.5], y: [0] } },
-        { t: 60, s: [90, 90, 100] }
-      ]}},
-      shapes: [
-        { ty: "gr", it: [
-          { ty: "rc", d: 1, s: { a: 0, k: [60, 45] }, p: { a: 0, k: [0, 0] }, r: { a: 0, k: 6 } },
-          { ty: "st", c: { a: 0, k: [0.55, 0.36, 0.96, 1] }, o: { a: 0, k: 100 }, w: { a: 0, k: 2 } },
-          { ty: "tr", p: { a: 0, k: [0, 0] }, a: { a: 0, k: [0, 0] }, s: { a: 0, k: [100, 100] }, r: { a: 0, k: 0 }, o: { a: 0, k: 100 } }
-        ], nm: "rect" },
-        { ty: "gr", it: [
-          { ty: "sh", d: 1, ks: { a: 0, k: { c: false, v: [[-12, -5], [-20, 0], [-12, 5]], i: [[0, 0], [0, 0], [0, 0]], o: [[0, 0], [0, 0], [0, 0]] }}},
-          { ty: "st", c: { a: 0, k: [0.39, 0.4, 0.95, 1] }, o: { a: 0, k: 100 }, w: { a: 0, k: 2 }, lc: 2, lj: 2 },
-          { ty: "tr", p: { a: 0, k: [0, 0] }, a: { a: 0, k: [0, 0] }, s: { a: 0, k: [100, 100] }, r: { a: 0, k: 0 }, o: { a: 0, k: 100 } }
-        ], nm: "left" },
-        { ty: "gr", it: [
-          { ty: "sh", d: 1, ks: { a: 0, k: { c: false, v: [[12, -5], [20, 0], [12, 5]], i: [[0, 0], [0, 0], [0, 0]], o: [[0, 0], [0, 0], [0, 0]] }}},
-          { ty: "st", c: { a: 0, k: [0.39, 0.4, 0.95, 1] }, o: { a: 0, k: 100 }, w: { a: 0, k: 2 }, lc: 2, lj: 2 },
-          { ty: "tr", p: { a: 0, k: [0, 0] }, a: { a: 0, k: [0, 0] }, s: { a: 0, k: [100, 100] }, r: { a: 0, k: 0 }, o: { a: 0, k: 100 } }
-        ], nm: "right" }
-      ], ip: 0, op: 60, st: 0
-    }]
-  }
-};
 
 const DEFAULT_SERVICES = [
   {
@@ -96,19 +57,7 @@ const cardVariants = {
 export default function Services() {
   const headerRef = useRef(null);
   const headerInView = useInView(headerRef, { once: true, margin: '-50px' });
-  const [services, setServices] = useState(DEFAULT_SERVICES);
-
-  useEffect(() => {
-    const docRef = doc(db, 'siteContent', 'services_list');
-    const unsubscribe = onSnapshot(docRef, (snap) => {
-      if (snap.exists() && snap.data().services) {
-        setServices(DEFAULT_SERVICES);
-      }
-    }, (err) => {
-      console.error('Firestore services load error:', err);
-    });
-    return unsubscribe;
-  }, []);
+  const services = DEFAULT_SERVICES;
 
   return (
     <section id="services" className="services">
@@ -150,15 +99,7 @@ export default function Services() {
               }}
             >
               <div className="service-icon-wrapper" style={{ background: service.color }}>
-                {index === 0 ? (
-                  <Lottie
-                    animationData={lottieData.code}
-                    loop={true}
-                    style={{ width: 48, height: 48 }}
-                  />
-                ) : (
-                  <span className="service-emoji">{service.icon}</span>
-                )}
+                <span className="service-emoji" aria-hidden="true">{service.icon}</span>
               </div>
               <h3 className="service-title">{service.title}</h3>
               <p className="service-desc">{service.description}</p>

@@ -1,6 +1,3 @@
-import { useState, useEffect } from 'react';
-import { doc, onSnapshot } from 'firebase/firestore';
-import { db } from '../firebase';
 import { Star, Quote } from 'lucide-react';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import './Testimonials.css';
@@ -28,19 +25,7 @@ const DEFAULT_TESTIMONIALS = [
 
 export default function Testimonials() {
   const animateRef = useScrollAnimation();
-  const [testimonials, setTestimonials] = useState(DEFAULT_TESTIMONIALS);
-
-  useEffect(() => {
-    const docRef = doc(db, 'siteContent', 'testimonials_list');
-    const unsubscribe = onSnapshot(docRef, (snap) => {
-      if (snap.exists() && snap.data().testimonials) {
-        setTestimonials(DEFAULT_TESTIMONIALS);
-      }
-    }, (err) => {
-      console.error('Firestore testimonials load error:', err);
-    });
-    return unsubscribe;
-  }, []);
+  const testimonials = DEFAULT_TESTIMONIALS;
 
   return (
     <section id="testimonials" className="testimonials">

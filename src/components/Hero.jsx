@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { ArrowRight, Code } from 'lucide-react';
-import { motion } from 'framer-motion';
 import BotanySpotlightBanner from './BotanyTestSeries/BotanySpotlightBanner';
 import './Hero.css';
 
@@ -55,93 +54,39 @@ export default function Hero() {
 
   return (
     <section id="home" className="hero">
-      {/* Background video - cinemagraph style */}
-      <div className="hero-video-wrapper">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="none"
-          className="hero-video"
-        >
-          {/* Abstract tech/coding loop - royalty free */}
-          <source
-            src="https://cdn.pixabay.com/video/2020/05/25/40130-424930032_large.mp4"
-            type="video/mp4"
-          />
-        </video>
-        <div className="hero-video-overlay"></div>
-      </div>
-
       <div className="bg-glow hero-glow"></div>
       <div className="particle-grid"></div>
 
       <div className="container hero-container">
-        <motion.div
-          className="hero-content"
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <motion.div
-            className="badge hero-badge"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-          >
+        <div className="hero-content">
+          <div className="badge hero-badge">
             {data.badge}
-          </motion.div>
+          </div>
 
-          <motion.h1
-            className="hero-title"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          >
+          <h1 className="hero-title">
             {renderTitle(data.title)}
-          </motion.h1>
+          </h1>
 
-          <motion.p
-            className="hero-subtitle"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.7 }}
-          >
+          <p className="hero-subtitle">
             {data.subtitle}
-          </motion.p>
+          </p>
 
           {/* Middle of screen Test Series Flash Announcement */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.58, duration: 0.6 }}
-            style={{ width: '100%' }}
-          >
+          <div className="hero-announcement">
             <BotanySpotlightBanner />
-          </motion.div>
+          </div>
 
-          <motion.div
-            className="hero-actions"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.65, duration: 0.7 }}
-          >
+          <div className="hero-actions">
             <a href={data.ctaLink1} className="btn btn-primary btn-lg magnetic-btn">
               {data.ctaText1} <ArrowRight size={18} />
             </a>
             <a href={data.ctaLink2} className="btn btn-secondary btn-lg magnetic-btn">
               {data.ctaText2}
             </a>
-          </motion.div>
+          </div>
 
           {data.techBadges && data.techBadges.length > 0 && (
-            <motion.div
-              className="trust-signals"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.9, duration: 0.8 }}
-            >
+            <div className="trust-signals">
               <p>{data.trustText || 'Trusted technology stack:'}</p>
               <div className="tech-badges">
                 {data.techBadges.map((tech, idx) => (
@@ -150,9 +95,9 @@ export default function Hero() {
                   </span>
                 ))}
               </div>
-            </motion.div>
+            </div>
           )}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

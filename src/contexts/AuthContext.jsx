@@ -10,7 +10,8 @@ import {
   sendPasswordResetEmail
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase';
+import { db } from '../firebase';
+import { auth } from '../firebaseAuth';
 
 const AuthContext = createContext(null);
 

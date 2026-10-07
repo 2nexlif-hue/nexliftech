@@ -1,6 +1,5 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
 import { useNotifications } from './hooks/useNotifications';
 
 // Public components (eagerly loaded for the landing page)
@@ -15,14 +14,9 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import WhatsAppButton from './components/WhatsAppButton';
 import CustomCursor from './components/CustomCursor';
-import SecurityGuard from './components/SecurityGuard';
 import ThemeSwitcher from './components/ThemeSwitcher';
 
-// Admin components (lazy loaded — only fetched when admin routes are visited)
-const Login = lazy(() => import('./components/Admin/Login'));
-const Dashboard = lazy(() => import('./components/Admin/Dashboard'));
-const ProtectedRoute = lazy(() => import('./components/Admin/ProtectedRoute'));
-const BotanySeriesHome = lazy(() => import('./components/BotanyTestSeries/BotanySeriesHome'));
+const AuthenticatedApp = lazy(() => import('./AuthenticatedApp'));
 
 function AdminFallback() {
   return (
@@ -31,20 +25,20 @@ function AdminFallback() {
       alignItems: 'center',
       justifyContent: 'center',
       minHeight: '100vh',
-      background: '#0a0a0f',
-      color: '#8888a0',
+      background: 'var(--bg-primary)',
+      color: 'var(--text-secondary)',
       flexDirection: 'column',
       gap: '1rem'
     }}>
       <div style={{
         width: 40,
         height: 40,
-        border: '3px solid rgba(255,255,255,0.06)',
-        borderTopColor: '#8b5cf6',
+        border: '3px solid var(--border-light)',
+        borderTopColor: 'var(--accent-primary)',
         borderRadius: '50%',
         animation: 'spin 0.8s linear infinite'
       }} />
-      <p>Loading admin panel...</p>
+      <p>Loading...</p>
     </div>
   );
 }
@@ -82,41 +76,17 @@ function RouteAwareThemeSwitcher() {
 
 function App() {
   return (
-    <AuthProvider>
-      <SecurityGuard />
-      <Router>
-        <RouteAwareThemeSwitcher />
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route
-            path="/botany-test-series"
-            element={
-              <Suspense fallback={<AdminFallback />}>
-                <BotanySeriesHome />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/admin/login"
-            element={
-              <Suspense fallback={<AdminFallback />}>
-                <Login />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/admin/dashboard"
-            element={
-              <Suspense fallback={<AdminFallback />}>
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              </Suspense>
-            }
-          />
-        </Routes>
-      </Router>
-    </AuthProvider>
+    <Router>
+      <RouteAwareThemeSwitcher />
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/*" element={
+          <Suspense fallback={<AdminFallback />}>
+            <AuthenticatedApp />
+          </Suspense>
+        } />
+      </Routes>
+    </Router>
   );
 }
 

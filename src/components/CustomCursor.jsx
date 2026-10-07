@@ -14,7 +14,8 @@ export default function CustomCursor() {
       const mobile = 
         ('ontouchstart' in window) || 
         (navigator.maxTouchPoints > 0) || 
-        (window.matchMedia('(max-width: 768px)').matches);
+        window.matchMedia('(max-width: 768px)').matches ||
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       setIsMobile(mobile);
     };
 

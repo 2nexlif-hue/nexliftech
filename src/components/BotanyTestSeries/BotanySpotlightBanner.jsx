@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Zap, ArrowRight } from 'lucide-react';
-import { getBotanySettings } from '../../utils/botanyFirestoreService';
-import { DEFAULT_SERIES_SETTINGS } from '../../utils/botanyTestSeriesData';
-import './BotanySeries.css';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
+import { DEFAULT_SERIES_SETTINGS } from '../../utils/botanySettings';
+import './BotanySpotlightBanner.css';
 
 export default function BotanySpotlightBanner() {
   const [settings, setSettings] = useState(DEFAULT_SERIES_SETTINGS);
@@ -11,8 +12,10 @@ export default function BotanySpotlightBanner() {
   useEffect(() => {
     async function fetchSettings() {
       try {
-        const s = await getBotanySettings();
-        if (s) setSettings(s);
+        const snapshot = await getDoc(doc(db, 'siteContent', 'botany_test_series_settings'));
+        if (snapshot.exists()) {
+          setSettings({ ...DEFAULT_SERIES_SETTINGS, ...snapshot.data() });
+        }
       } catch (err) {
         console.warn('Could not load spotlight settings:', err);
       }

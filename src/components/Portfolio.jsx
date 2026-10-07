@@ -21,7 +21,7 @@ const DEFAULT_PROJECTS = [
     description: 'Full-stack institutional ERP with automated roll assignment, student database management, and administrative reporting.',
     tech: ['React', 'Firebase', 'Tailwind', 'Node.js'],
     liveLink: 'https://hssshangus.netlify.app/',
-    image: '/erp-preview.png'
+    image: '/erp-preview.webp'
   },
   {
     title: 'Visit Alpines',
@@ -29,7 +29,7 @@ const DEFAULT_PROJECTS = [
     description: 'High-speed travel booking engine with custom interactive itineraries and responsive layout.',
     tech: ['React', 'Vite', 'CSS', 'Framer Motion'],
     liveLink: 'https://visitalpines.com/',
-    image: '/alpine-preview.png'
+    image: '/alpine-preview.webp'
   },
   {
     title: 'WalletVibe',
@@ -48,6 +48,11 @@ const DEFAULT_PROJECTS = [
     image: '/automation-preview.svg'
   }
 ];
+
+const OPTIMIZED_PREVIEWS = {
+  '/erp-preview.png': '/erp-preview.webp',
+  '/alpine-preview.png': '/alpine-preview.webp'
+};
 
 export default function Portfolio() {
   const animateRef = useScrollAnimation();
@@ -112,10 +117,11 @@ export default function Portfolio() {
             >
               <div className="project-image-container">
                 <img 
-                  src={project.image} 
+                  src={OPTIMIZED_PREVIEWS[project.image] || project.image}
                   alt={project.title} 
                   className="project-image" 
                   loading="lazy"
+                  decoding="async"
                   onError={(e) => {
                     e.target.onerror = null;
                     e.target.src = "data:image/svg+xml;charset=UTF-8,%3Csvg width='800' height='450' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='450' fill='%2316162a'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='24' fill='%236b6b80' text-anchor='middle' dominant-baseline='middle'%3EPreview Coming Soon%3C/text%3E%3C/svg%3E";

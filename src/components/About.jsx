@@ -211,6 +211,10 @@ export default function About() {
                       src={data.photoURL}
                       alt={data.name}
                       className="avatar-image"
+                      loading="lazy"
+                      decoding="async"
+                      width="133"
+                      height="163"
                     />
                   ) : (
                     <div className="avatar-placeholder">
