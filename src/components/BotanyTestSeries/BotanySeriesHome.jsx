@@ -22,6 +22,7 @@ import { searchSyllabusAdvanced, HighlightMatch } from '../../utils/botanySearch
 import StudentAuthModal from './StudentAuthModal';
 import StudentExamEngine from './StudentExamEngine';
 import StudentResults from './StudentResults';
+import ThemeSwitcher from '../ThemeSwitcher';
 import LogoSVG from '../Logo';
 import './BotanySeries.css';
 
@@ -663,17 +664,21 @@ export default function BotanySeriesHome() {
                 className="btn btn-primary btn-sm cbt-signin-btn"
                 onClick={() => { setAuthPendingAction(null); setShowAuthModal(true); }}
               >
-                <UserCheck size={14} /> <span>Student Sign In</span>
+                <UserCheck size={14} />
+                <span className="cbt-signin-label-full">Student Sign In</span>
+                <span className="cbt-signin-label-short">Sign In</span>
               </button>
               <a 
                 href="/admin/login" 
                 className="btn btn-secondary btn-sm cbt-admin-btn"
-                title="Unified Portal Login"
+                title="Admin sign in"
+                aria-label="Admin sign in"
               >
                 <Lock size={13} /> <span>Admin</span>
               </a>
             </div>
           )}
+          <ThemeSwitcher inline />
         </div>
       </header>
 
@@ -749,10 +754,9 @@ export default function BotanySeriesHome() {
         <section className="botany-hero-compact">
           <div className="hero-compact-top">
             <div className="hero-academic-meta">
-              <span className="academic-badge">PSC Entrance 2026</span>
               <span className="academic-curator">
                 <GraduationCap size={14} className="curator-icon" />
-                <span>Curated by: <strong>Dr. Aubid Hussain Malik</strong> (Assistant Professor)</span>
+                <span>By <strong>Dr. Aubid Hussain Malik</strong></span>
               </span>
             </div>
 

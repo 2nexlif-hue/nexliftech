@@ -196,19 +196,6 @@
   font-size: 0.72rem;
 }
 
-.academic-badge {
-  font-size: 0.66rem;
-  font-weight: 800;
-  color: var(--success);
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.22);
-  padding: 0.12rem 0.45rem;
-  border-radius: 999px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-}
-
 .academic-curator {
   display: inline-flex;
   align-items: center;
@@ -1938,6 +1925,8 @@
   font-size: 0.76rem;
 }
 
+.cbt-signin-label-short { display: none; }
+
 .cbt-admin-btn {
   padding: 0.35rem 0.5rem;
   font-size: 0.76rem;
@@ -3062,7 +3051,6 @@
 }
 
 .hero-academic-meta { gap: 0.5rem 0.75rem; font-size: 0.8rem; }
-.academic-badge { padding: 0.35rem 0.65rem; font-size: 0.7rem; }
 .hero-compact-actions { flex-wrap: wrap; gap: 0.55rem; }
 .hero-btn-demo, .hero-btn-enroll { min-height: 44px; padding: 0.6rem 0.9rem; font-size: 0.8rem; border-radius: 9px; }
 .hero-btn-enroll, .hero-btn-enroll:hover { background: var(--accent-green); border-color: var(--accent-green); color: var(--text-inverse) !important; }
@@ -3206,10 +3194,16 @@ html[data-theme="cyber"] .cbt-table-action-btn.start { background: var(--accent-
 }
 
 @media (max-width: 480px) {
-  .botany-portal-page > .cbt-topbar { padding: 0.6rem 0.75rem; }
-  .botany-portal-page .cbt-brand-text { font-size: 0.95rem; }
-  .botany-portal-page .cbt-brand-back svg { width: 19px; }
-  .cbt-guest-actions-bar .cbt-admin-btn { min-width: 44px; padding-inline: 0.5rem; }
+  .botany-portal-page > .cbt-topbar { padding: 0.5rem 0.5rem; gap: 0.3rem; }
+  .botany-portal-page .cbt-brand-back { gap: 0.2rem; }
+  .botany-portal-page .cbt-brand-text { font-size: 0.9rem; }
+  .botany-portal-page .cbt-brand-back svg { width: 18px; }
+  .botany-portal-page .cbt-topbar-right,
+  .botany-portal-page .cbt-guest-actions-bar { gap: 0.2rem; }
+  .botany-portal-page .cbt-signin-btn { min-height: 44px; padding-inline: 0.45rem; gap: 0.25rem; }
+  .botany-portal-page .cbt-signin-label-full { display: none; }
+  .botany-portal-page .cbt-signin-label-short { display: inline; }
+  .cbt-guest-actions-bar .cbt-admin-btn { min-width: 44px; min-height: 44px; padding: 0; justify-content: center; }
   .cbt-guest-actions-bar .cbt-admin-btn span { display: none; }
   .cbt-user-actions-bar { gap: 0.25rem; }
   .cbt-user-actions-bar .btn { min-width: 44px; min-height: 44px; padding: 0.5rem; }
@@ -3240,9 +3234,8 @@ html[data-theme="cyber"] .cbt-table-action-btn.start { background: var(--accent-
 .cbt-submit-confirm-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; }
 .cbt-submit-confirm-actions .btn { flex: 1 1 145px; min-height: 44px; }
 @media (max-width: 380px) {
-  .botany-portal-page > .cbt-topbar .cbt-brand-text,
-  .botany-portal-page > .cbt-topbar .cbt-brand-dot { display: none; }
-  .botany-portal-page .cbt-signin-btn { padding-inline: 0.5rem; font-size: 0.72rem; }
+  .botany-portal-page > .cbt-topbar { flex-wrap: wrap; }
+  .botany-portal-page .cbt-signin-btn { font-size: 0.72rem; }
   .botany-portal-page .cbt-signin-btn span { white-space: nowrap; }
   .hero-compact-actions .btn { flex-basis: 100%; }
   .botany-modal-overlay { padding: 0.5rem; }

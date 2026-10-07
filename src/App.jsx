@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { useNotifications } from './hooks/useNotifications';
 
@@ -75,12 +75,17 @@ function LandingPage() {
   );
 }
  
+function RouteAwareThemeSwitcher() {
+  const { pathname } = useLocation();
+  return pathname === '/botany-test-series' ? null : <ThemeSwitcher />;
+}
+
 function App() {
   return (
     <AuthProvider>
       <SecurityGuard />
-      <ThemeSwitcher />
       <Router>
+        <RouteAwareThemeSwitcher />
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route

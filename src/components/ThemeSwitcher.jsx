@@ -8,7 +8,7 @@ const THEMES = [
   { id: 'cyber', name: 'Cyber Neon', icon: Zap }
 ];
 
-export default function ThemeSwitcher() {
+export default function ThemeSwitcher({ inline = false }) {
   const [currentTheme, setCurrentTheme] = useState('light');
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef(null);
@@ -42,7 +42,7 @@ export default function ThemeSwitcher() {
   const ActiveIcon = currentTheme === 'dark' ? Moon : currentTheme === 'cyber' ? Zap : Sun;
 
   return (
-    <div className="theme-switcher-wrapper" ref={wrapperRef}>
+    <div className={`theme-switcher-wrapper ${inline ? 'theme-switcher-inline' : ''}`} ref={wrapperRef}>
       {isOpen && (
         <div className="theme-menu-popup">
           <div style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '0.25rem 0.5rem', color: 'var(--text-secondary)' }}>
@@ -70,8 +70,8 @@ export default function ThemeSwitcher() {
         type="button"
         className="theme-trigger-btn"
         onClick={() => setIsOpen(prev => !prev)}
-        title="Change Theme (Default: Light)"
-        aria-label="Toggle Theme Switcher"
+        title="Change theme"
+        aria-label="Change theme"
       >
         <ActiveIcon size={22} />
       </button>

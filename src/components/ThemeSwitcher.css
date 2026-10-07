@@ -6,6 +6,25 @@
   z-index: 9999;
 }
 
+.theme-switcher-wrapper.theme-switcher-inline {
+  position: relative;
+  inset: auto;
+  flex: 0 0 auto;
+  z-index: 30;
+}
+
+.theme-switcher-inline .theme-trigger-btn {
+  width: 44px;
+  height: 44px;
+}
+
+.theme-switcher-inline .theme-menu-popup {
+  top: calc(100% + 0.5rem);
+  bottom: auto;
+  left: auto;
+  right: 0;
+}
+
 .theme-trigger-btn {
   width: 52px;
   height: 52px;
