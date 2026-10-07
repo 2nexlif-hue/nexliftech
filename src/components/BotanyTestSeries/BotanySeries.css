@@ -832,6 +832,29 @@
 }
 
 /* Pricing Cards Grid */
+.pricing-mobile-quick-buy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  margin: 0 0 0.85rem;
+  padding: 0.75rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--success);
+  border-radius: 12px;
+}
+
+.pricing-mobile-quick-buy-copy {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.pricing-mobile-quick-buy-copy strong { color: var(--text-primary); font-size: 0.88rem; }
+.pricing-mobile-quick-buy-copy span { color: var(--text-secondary); font-size: 0.76rem; }
+.pricing-mobile-quick-buy .btn { min-height: 44px; white-space: nowrap; }
+
 .botany-pricing-cards-container {
   display: flex;
   flex-direction: column;
@@ -2820,6 +2843,7 @@
 
 @media (min-width: 1024px) {
   /* Pricing: show all 3 cards in grid, hide mobile tabs */
+  .pricing-mobile-quick-buy { display: none; }
   .pricing-mobile-tab-bar {
     display: none;
   }

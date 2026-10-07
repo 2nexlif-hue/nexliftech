@@ -277,6 +277,16 @@ export default function BotanySeriesHome() {
     setTimeout(() => {
       if (tabsNavRef.current) {
         tabsNavRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const nav = tabsNavRef.current.querySelector('.botany-subnav-tabs');
+        const selectedTab = nav?.querySelector('[aria-selected="true"]');
+        if (nav && selectedTab) {
+          const navRect = nav.getBoundingClientRect();
+          const tabRect = selectedTab.getBoundingClientRect();
+          nav.scrollTo({
+            left: nav.scrollLeft + (tabRect.left + tabRect.right - navRect.left - navRect.right) / 2,
+            behavior: 'smooth'
+          });
+        }
       }
     }, 40);
   }
@@ -1103,6 +1113,18 @@ export default function BotanySeriesHome() {
                   </div>
                 </button>
               </div>
+
+              {activePricingTab === 'full' && (
+                <div className="pricing-mobile-quick-buy">
+                  <div className="pricing-mobile-quick-buy-copy">
+                    <strong>Full Series Pass</strong>
+                    <span>₹{finalPrice} · 35 tests across 10 units</span>
+                  </div>
+                  <button type="button" className="btn btn-primary" onClick={() => handleEnrollClick('full_series')}>
+                    Buy Full Series <ArrowRight size={16} />
+                  </button>
+                </div>
+              )}
 
               <div className="botany-pricing-cards-container">
                 {/* Card 1: Complete 35-Test Series Master Pass */}
