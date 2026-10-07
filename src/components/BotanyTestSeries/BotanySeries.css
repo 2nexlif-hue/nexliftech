@@ -3154,6 +3154,7 @@ html[data-theme="cyber"] .cbt-table-action-btn.start { background: var(--accent-
 }
 
 @media (max-width: 1023px) {
+  .pricing-card-box.featured-pass .p-enroll-action-btn { display: none; }
   .schedule-table-wrapper { overflow: visible; border: 0; }
   .schedule-data-table, .schedule-data-table tbody { display: block; }
   .schedule-data-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
