@@ -3094,7 +3094,7 @@
 .botany-portal-page section { padding: 0; overflow: visible; }
 .botany-portal-page {
   --botany-accent: var(--accent-green);
-  background: radial-gradient(circle at 90% 4%, var(--gradient-subtle), transparent 35%), var(--bg-primary);
+  background: radial-gradient(circle at 8% 8%, color-mix(in srgb, var(--accent-green) 9%, transparent), transparent 28%), radial-gradient(circle at 92% 13%, color-mix(in srgb, var(--accent-primary) 10%, transparent), transparent 31%), var(--bg-primary);
 }
 
 .botany-portal-page > .cbt-topbar {
@@ -3110,12 +3110,14 @@
 .botany-hero-compact {
   border-radius: 13px;
   margin-bottom: 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--accent-green) 24%, var(--border-light));
   box-shadow: var(--shadow-sm);
 }
 
 .hero-compact-top {
   padding: 0.9rem clamp(1.25rem, 2.5vw, 2.25rem);
   gap: 0.85rem;
+  background: linear-gradient(100deg, color-mix(in srgb, var(--accent-green) 10%, var(--bg-secondary)), color-mix(in srgb, var(--accent-primary) 7%, var(--bg-secondary)));
 }
 
 .hero-academic-meta { gap: 0.5rem 0.75rem; font-size: 0.8rem; }
@@ -3137,13 +3139,18 @@
 .hero-chip:nth-child(6) { animation-delay: 0.40s; }
 .hero-chip:hover { border-color: var(--border-glow); box-shadow: var(--shadow-sm); }
 .chip-val { font-size: clamp(1.15rem, 2vw, 1.5rem); line-height: 1.2; color: var(--accent-green); }
+.hero-chip:nth-child(3n + 1) { border-color: color-mix(in srgb, var(--accent-green) 28%, var(--border-light)); background: color-mix(in srgb, var(--accent-green) 5%, var(--bg-elevated)); }
+.hero-chip:nth-child(3n + 2) { border-color: color-mix(in srgb, var(--accent-primary) 28%, var(--border-light)); background: color-mix(in srgb, var(--accent-primary) 5%, var(--bg-elevated)); }
+.hero-chip:nth-child(3n + 2) .chip-val { color: var(--accent-primary); }
+.hero-chip:nth-child(3n) { border-color: color-mix(in srgb, var(--accent-pink) 25%, var(--border-light)); background: color-mix(in srgb, var(--accent-pink) 5%, var(--bg-elevated)); }
+.hero-chip:nth-child(3n) .chip-val { color: var(--accent-pink); }
 .chip-lbl { font-size: 0.76rem; line-height: 1.35; }
 .hero-chip + .chip-dot, .chip-dot { display: none; }
 
 .botany-main-explorer { scroll-margin-top: 90px; }
 .botany-subnav-tabs { gap: 0.25rem; padding: 0.3rem; margin-bottom: 0.6rem; border-radius: 10px; box-shadow: var(--shadow-sm); }
 .subnav-tab-btn { min-height: 44px; padding: 0.5rem 0.7rem; font-size: 0.82rem; border-radius: 8px; }
-.subnav-tab-btn.active { background: var(--gradient-subtle); border-color: var(--border-glow); color: var(--text-primary); }
+.subnav-tab-btn.active { background: color-mix(in srgb, var(--accent-primary) 12%, var(--bg-secondary)); border-color: color-mix(in srgb, var(--accent-primary) 35%, var(--border-light)); color: var(--text-primary); }
 .explorer-content-card { padding: clamp(0.85rem, 1.4vw, 1.25rem); border-radius: 12px; box-shadow: var(--shadow-sm); }
 .pricing-content-card { padding: clamp(1rem, 1.8vw, 1.5rem); }
 .content-card-header { margin-bottom: 0.75rem; padding-bottom: 0.6rem; gap: 0.7rem; }
@@ -3164,7 +3171,7 @@
 .schedule-table-wrapper { border-radius: 12px; }
 .schedule-data-table th { padding: 0.8rem 0.75rem; font-size: 0.68rem; }
 .schedule-data-table td { padding: 0.8rem 0.75rem; }
-.schedule-data-table tbody tr:nth-child(even) td { background: var(--gradient-subtle); }
+.schedule-data-table tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--accent-primary) 3%, var(--bg-secondary)); }
 .schedule-data-table tr:hover td { background: var(--bg-elevated); }
 .t-name { font-size: 0.86rem; line-height: 1.4; }
 .t-coverage { font-size: 0.75rem; line-height: 1.4; }
@@ -3447,4 +3454,46 @@ html[data-theme="cyber"] .cbt-table-action-btn.start { background: var(--accent-
   .explorer-content-card {
     padding: 2.25rem;
   }
+}
+
+/* Compact phone layout for discovery, enrollment, exam and results. */
+@media (max-width: 600px) {
+  .botany-container { padding: 0.45rem 0.5rem 1.5rem; }
+  .botany-hero-compact { margin-bottom: 0.45rem; }
+  .hero-compact-top { padding: 0.55rem 0.7rem; gap: 0.4rem; }
+  .hero-academic-meta { font-size: 0.72rem; }
+  .hero-compact-body { padding: 0.65rem; gap: 0.6rem; }
+  .hero-compact-title { font-size: clamp(1.3rem, 5vw, 1.6rem); line-height: 1.17; margin-bottom: 0.2rem; }
+  .hero-compact-subtitle { font-size: 0.78rem; line-height: 1.35; }
+  .hero-compact-actions { gap: 0.35rem; }
+  .hero-compact-actions .btn { min-height: 44px; flex: 1 1 135px; padding: 0.45rem 0.55rem; font-size: 0.74rem; }
+  .hero-compact-chips { gap: 0.3rem; padding-top: 0.6rem; }
+  .hero-chip { padding: 0.45rem 0.4rem; }
+  .chip-val { font-size: 1rem; }
+  .chip-lbl { font-size: 0.67rem; }
+  .botany-subnav-tabs { gap: 0.15rem; padding: 0.2rem; margin-bottom: 0.45rem; }
+  .subnav-tab-btn { min-height: 44px; padding: 0.35rem 0.5rem; font-size: 0.72rem; }
+  .explorer-content-card, .pricing-content-card { padding: 0.65rem; border-radius: 10px; }
+  .content-card-header { gap: 0.35rem; margin-bottom: 0.5rem; padding-bottom: 0.4rem; }
+  .content-card-header h3 { margin-bottom: 0.2rem; font-size: 1.08rem; }
+  .content-card-header p { font-size: 0.76rem; line-height: 1.35; }
+  .schedule-filter-controls { gap: 0.35rem; margin-bottom: 0.45rem; }
+  .filter-pill-btn { min-height: 44px; padding: 0.4rem 0.55rem; font-size: 0.72rem; }
+  .schedule-search-box { min-height: 44px; }
+  .schedule-data-table tr { gap: 0.25rem 0.45rem; padding: 0.55rem; margin-bottom: 0.4rem; }
+  .schedule-data-table td::before { margin-bottom: 0.1rem; font-size: 0.6rem; }
+  .t-name { font-size: 0.82rem; }
+  .t-coverage, .test-scope-details { font-size: 0.72rem; line-height: 1.35; }
+  .pricing-card-box { padding: 0.75rem; border-radius: 11px; }
+  .features-showcase-grid { gap: 0.5rem; }
+  .unit-accordion-trigger, .faq-trigger { padding: 0.6rem 0.7rem; font-size: 0.78rem; }
+  .botany-modal-card { padding: 0.8rem; border-radius: 12px; }
+  .cbt-question-pane { padding: 0.65rem; }
+  .cbt-question-body { padding: 0.7rem 0; }
+  .cbt-question-text { font-size: 1rem; line-height: 1.45; margin-bottom: 0.75rem; }
+  .cbt-options-list { gap: 0.45rem; }
+  .cbt-option-item { min-height: 44px; padding: 0.6rem 0.7rem; gap: 0.5rem; }
+  .cbt-opt-text { font-size: 0.86rem; line-height: 1.4; }
+  .cbt-results-container { padding: 0.6rem; }
+  .cbt-scorecard, .analysis-card, .results-list-card, .results-detail-summary, .results-answer-card { padding: 0.7rem; border-radius: 11px; }
 }

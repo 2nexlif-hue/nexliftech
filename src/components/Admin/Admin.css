@@ -562,6 +562,9 @@
   position: static;
 }
 
+.dashboard-topbar-left { display: flex; align-items: center; gap: 1.25rem; min-width: 0; }
+.preview-label-short { display: none; }
+
 .topbar-right {
   display: flex;
   align-items: center;
@@ -786,6 +789,27 @@
   padding: 1.25rem 1.5rem 3rem;
   position: relative;
   z-index: 1;
+}
+
+.dashboard-container.botany-dashboard-container {
+  max-width: none;
+  width: 100%;
+  padding-inline: clamp(0.7rem, 1.4vw, 1.75rem);
+}
+
+@media (max-width: 600px) {
+  .dashboard-topbar.botany-dashboard-topbar { flex-direction: row; align-items: center; gap: 0.35rem; padding: 0.45rem 0.6rem; }
+  .botany-dashboard-topbar .dashboard-topbar-left { gap: 0; flex: 0 1 auto; }
+  .botany-dashboard-topbar .botany-workspace-mark,
+  .botany-dashboard-topbar .topbar-user-badge { display: none; }
+  .botany-dashboard-topbar .topbar-right { flex-wrap: nowrap; gap: 0.3rem; margin-left: auto; }
+  .botany-dashboard-topbar .admin-back-link,
+  .botany-dashboard-topbar .topbar-right .btn { min-height: 44px; padding: 0.45rem 0.6rem; font-size: 0.75rem !important; white-space: nowrap; }
+  .botany-dashboard-topbar .preview-label-full,
+  .botany-dashboard-topbar .logout-label { display: none; }
+  .botany-dashboard-topbar .preview-label-short { display: inline; }
+  .botany-dashboard-topbar .topbar-right > button.btn { min-width: 44px; padding: 0.45rem; justify-content: center; }
+  .dashboard-container.botany-dashboard-container { padding: 0.55rem 0.55rem 1.5rem; }
 }
 
 .dashboard-header {

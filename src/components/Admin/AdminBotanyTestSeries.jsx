@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { 
-  BookOpen, Calendar, FileSpreadsheet, Settings, Users,
+  Calendar, FileSpreadsheet, Settings, Users,
   Download, Upload, RefreshCw, CheckCircle, AlertCircle,
-  RotateCcw, ChevronDown, ChevronUp, Save, Sparkles, Layers, CheckCircle2,
+  RotateCcw, Save, Sparkles, Layers, CheckCircle2,
   Tag, Trash2, Plus, X, UserPlus
 } from 'lucide-react';
 import { 
@@ -18,7 +18,6 @@ import {
   rollbackUnitToVersion,
   getAllUnitsQuestionStats,
   getTestQuestionStats,
-  commitAllSeedBanksToFirestore,
   grantManualSubscription
 } from '../../utils/botanyFirestoreService';
 import { 
@@ -28,14 +27,13 @@ import {
 } from '../../utils/botanyExcelEngine';
 import { computeQuestionBankDiff } from '../../utils/botanyDiff';
 import { BOTANY_AVAILABILITY_OPTIONS, getBotanyTestAvailability } from '../../utils/botanyAvailability';
-import { searchSyllabusAdvanced, HighlightMatch } from '../../utils/botanySearch';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase';
 import './AdminBotanyTestSeries.css';
 
 export default function AdminBotanyTestSeries({ currentUser }) {
   // Navigation
-  const [subTab, setSubTab] = useState('schedule'); // 'syllabus' | 'schedule' | 'settings' | 'subscribers'
+  const [subTab, setSubTab] = useState('schedule'); // 'schedule' | 'settings' | 'subscribers'
 
   // Data states
   const [settings, setSettings] = useState(null);
@@ -52,8 +50,8 @@ export default function AdminBotanyTestSeries({ currentUser }) {
   useEffect(() => () => window.clearTimeout(toastTimerRef.current), []);
 
   // Excel Hub State
-  const [excelBankMode, setExcelBankMode] = useState('units'); // 'units' | 'demo' | 'tests'
-  const [selectedUnitId, setSelectedUnitId] = useState('unit_1');
+  const [excelBankMode, setExcelBankMode] = useState('tests'); // 'units' | 'demo' | 'tests'
+  const [selectedUnitId, setSelectedUnitId] = useState('test_DT_F');
   const [unitActiveData, setUnitActiveData] = useState(null);
   const [unitVersions, setUnitVersions] = useState([]);
   const [loadingUnit, setLoadingUnit] = useState(false);
@@ -164,10 +162,6 @@ export default function AdminBotanyTestSeries({ currentUser }) {
       setEnrolling(false);
     }
   }
-
-  // Syllabus UI
-  const [expandedUnits, setExpandedUnits] = useState({ unit_1: true });
-  const [syllabusSearch, setSyllabusSearch] = useState('');
 
   // Schedule UI
   const [scheduleFilter, setScheduleFilter] = useState('all');
@@ -658,28 +652,6 @@ export default function AdminBotanyTestSeries({ currentUser }) {
     }
   }
 
-  // 1-Click Sync all 10 verified unit seed banks (100 MCQs) into Firestore
-  async function handleCommitAllSeedBanks() {
-    if (!window.confirm('Sync and commit all 10 verified unit question banks (100 MCQs with 100% 4-option rationale) to Firebase Firestore?')) {
-      return;
-    }
-    setSaving(true);
-    try {
-      await commitAllSeedBanksToFirestore(currentUser?.email || 'admin');
-      await refreshStats(syllabus);
-      const activeData = await getUnitQuestions(selectedUnitId);
-      const versions = await getUnitVersions(selectedUnitId);
-      setUnitActiveData(activeData);
-      setUnitVersions(versions);
-      showToast('success', '🚀 All 10 unit question banks (100 MCQs) successfully synced to Firebase!');
-    } catch (err) {
-      console.error('Error committing all seed banks:', err);
-      showToast('error', err.message || 'Failed to sync seed banks to Firebase.');
-    } finally {
-      setSaving(false);
-    }
-  }
-
   // Rollback to specific version
   async function handleRollback(versionItem) {
     const confirmRollback = window.confirm(
@@ -717,25 +689,6 @@ export default function AdminBotanyTestSeries({ currentUser }) {
     }
   }
 
-  // Toggle unit accordion
-  function toggleUnit(unitId) {
-    setExpandedUnits(prev => ({ ...prev, [unitId]: !prev[unitId] }));
-  }
-
-  // Advanced Fuzzy & Semantic Syllabus Search in Admin
-  const { results: filteredSyllabus, matchingUnitIds: adminMatchingUnits } = useMemo(() => {
-    return searchSyllabusAdvanced(syllabus, syllabusSearch);
-  }, [syllabus, syllabusSearch]);
-
-  // Auto-expand matched units in admin syllabus
-  useEffect(() => {
-    if (syllabusSearch.trim() && adminMatchingUnits && adminMatchingUnits.size > 0) {
-      const openObj = {};
-      adminMatchingUnits.forEach(id => { openObj[id] = true; });
-      setExpandedUnits(openObj);
-    }
-  }, [syllabusSearch, adminMatchingUnits]);
-
   // Filter by the categories in the revised source calendar.
   const filteredSchedule = schedule.filter(t => {
     const matchesFilter = scheduleFilter === 'all' ||
@@ -770,16 +723,10 @@ export default function AdminBotanyTestSeries({ currentUser }) {
       {/* Sub Navigation Bar */}
       <div className="botany-nav-tabs">
         <button 
-          className={`botany-subtab-btn ${subTab === 'syllabus' ? 'active' : ''}`}
-          onClick={() => setSubTab('syllabus')}
-        >
-          <BookOpen size={15} /> <span>Syllabus</span>
-        </button>
-        <button 
           className={`botany-subtab-btn ${subTab === 'schedule' ? 'active' : ''}`}
           onClick={() => setSubTab('schedule')}
         >
-          <Calendar size={15} /> <span>Tests &amp; banks</span>
+          <Calendar size={15} /> <span className="tab-label-full">Tests &amp; banks</span><span className="tab-label-mobile">Tests</span>
         </button>
         <button 
           className={`botany-subtab-btn ${subTab === 'settings' ? 'active' : ''}`}
@@ -791,106 +738,9 @@ export default function AdminBotanyTestSeries({ currentUser }) {
           className={`botany-subtab-btn ${subTab === 'subscribers' ? 'active' : ''}`}
           onClick={() => setSubTab('subscribers')}
         >
-          <Users size={15} /> <span>Subscribers ({subscribers.length})</span>
+          <Users size={15} /> <span className="tab-label-full">Subscribers ({subscribers.length})</span><span className="tab-label-mobile">Students ({subscribers.length})</span>
         </button>
       </div>
-
-      {/* SUBTAB 2: SYLLABUS REFERENCE */}
-      {subTab === 'syllabus' && (
-        <div className="botany-card">
-          <div className="botany-card-header">
-            <div>
-              <h3>Official Public Service Commission Syllabus (10 Units)</h3>
-              <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Compiled by Sheikh Gulfam (1 July 2023) • Curated by Dr. Aubid Hussain Malik, Assistant Professor (Botany).
-              </p>
-            </div>
-            <div className="botany-card-actions">
-              <button type="button" className="btn btn-secondary btn-sm" onClick={handleCommitAllSeedBanks} disabled={saving}><RefreshCw size={13} /> Sync unit banks</button>
-              <button 
-                type="button"
-                className="btn btn-secondary btn-sm"
-                onClick={() => {
-                  const allExpanded = {};
-                  syllabus.forEach(u => allExpanded[u.unitId] = true);
-                  setExpandedUnits(allExpanded);
-                }}
-              >
-                Expand All
-              </button>
-              <button 
-                type="button"
-                className="btn btn-secondary btn-sm"
-                onClick={() => setExpandedUnits({})}
-              >
-                Collapse All
-              </button>
-            </div>
-          </div>
-
-          <div className="syllabus-search-bar">
-            <input 
-              type="text" 
-              className="syllabus-search-input"
-              placeholder="Search topics (e.g., TMV, Alexopolous, Bryophyta, APG-IV, Operon, CRISPR, ANOVA)..."
-              value={syllabusSearch}
-              onChange={(e) => setSyllabusSearch(e.target.value)}
-            />
-          </div>
-
-          <div className="syllabus-units-list">
-            {filteredSyllabus.map((unit) => {
-              const isOpen = !!expandedUnits[unit.unitId];
-              return (
-                <div key={unit.unitId} className="syllabus-unit-item">
-                  <button 
-                    type="button" 
-                    className="syllabus-unit-trigger"
-                    onClick={() => toggleUnit(unit.unitId)}
-                  >
-                    <div className="syllabus-unit-trigger-left">
-                      <span className="unit-number-badge">U{unit.unitNumber}</span>
-                      <span>
-                        Unit-{unit.unitNumber}: <HighlightMatch text={unit.title} query={syllabusSearch} matchedTerms={unit.matchedTerms} />
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                        {unit.subunits?.length || 0} Subunits
-                      </span>
-                      {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                    </div>
-                  </button>
-
-                  <div className="syllabus-bank-actions">
-                    <span>{questionStats?.unitStats?.[unit.unitId]?.questionCount || 0} / {questionStats?.unitStats?.[unit.unitId]?.targetCount || unit.estimatedQuestions || 50} bank questions</span>
-                    <button type="button" className="btn btn-secondary btn-sm" onClick={() => handleDownloadBankTemplate(unit.unitId)}><Download size={13} /> Template</button>
-                    <button type="button" className="btn btn-secondary btn-sm" onClick={() => chooseBankFile(unit.unitId)} disabled={saving}><Upload size={13} /> Upload</button>
-                    <button type="button" className="btn btn-secondary btn-sm" onClick={() => inspectBank(unit.unitId)}><FileSpreadsheet size={13} /> Inspect</button>
-                  </div>
-
-                  {isOpen && (
-                    <div className="syllabus-unit-body">
-                      <div className="subunits-grid">
-                        {unit.subunits?.map((sub) => (
-                          <div key={sub.id} className={`subunit-card ${sub.isMatched ? 'is-matched' : ''}`}>
-                            <div className="subunit-title">
-                              <HighlightMatch text={sub.title} query={syllabusSearch} matchedTerms={sub.matchedTerms} />
-                            </div>
-                            <p className="subunit-desc">
-                              <HighlightMatch text={sub.description} query={syllabusSearch} matchedTerms={sub.matchedTerms} />
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
 
       {/* SUBTAB 3: TEST SCHEDULE */}
       {subTab === 'schedule' && (
@@ -898,11 +748,11 @@ export default function AdminBotanyTestSeries({ currentUser }) {
           <div className="botany-card-header">
             <div>
               <h3>50-Test Subunit-Wise Calendar &amp; Schedule</h3>
-              <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Set availability and download a question template for each scheduled test.
+              <p className="schedule-header-help" style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                Review syllabus scope, manage question banks, and set availability for each test.
               </p>
             </div>
-            <div className="botany-card-actions" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <div className="botany-card-actions schedule-header-actions" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               <button type="button" className="btn btn-secondary btn-sm" onClick={() => inspectBank('diagnostic_demo')}>
                 <FileSpreadsheet size={14} /> Free demo bank
               </button>
@@ -911,7 +761,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
               </button>
               <input
                 type="text"
-                placeholder="Search tests..."
+                placeholder="Search tests or topics..."
                 value={scheduleSearch}
                 onChange={(e) => setScheduleSearch(e.target.value)}
                 style={{ padding: '0.45rem 0.75rem', borderRadius: '6px', background: 'var(--bg-elevated)', color: 'var(--text-primary)', border: '1px solid var(--border-light)', fontSize: '0.82rem', width: '150px' }}
@@ -966,9 +816,10 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                       <td data-label="Test and syllabus" style={{ fontWeight: 600 }}>
                         {t.title}
                         {t.description && (
-                          <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '2px', fontWeight: 400 }}>
-                            {t.description}
-                          </div>
+                          <details className="admin-test-scope">
+                            <summary>View syllabus scope</summary>
+                            <p>{t.description}</p>
+                          </details>
                         )}
                       </td>
                       <td data-label="Category">
@@ -1560,7 +1411,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                 </h3>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.3rem', flexWrap: 'wrap' }}>
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                    Target Unit:
+                    Target bank:
                   </span>
                   <select
                     value={uploadPreview.detectedUnitId || selectedUnitId}
@@ -1577,13 +1428,6 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                   >
                     <optgroup label="Free Entrance Assessment">
                       <option value="diagnostic_demo">🎯 Diagnostic Demo Entrance Test (10-30 MCQs)</option>
-                    </optgroup>
-                    <optgroup label="PSC Curriculum Units (Units 1 to 10)">
-                      {syllabus.map(u => (
-                        <option key={u.unitId} value={u.unitId}>
-                          Unit {u.unitNumber}: {u.title}
-                        </option>
-                      ))}
                     </optgroup>
                     <optgroup label="Official Calendar Entries">
                       {schedule.filter(t => t.isTest).map(t => (

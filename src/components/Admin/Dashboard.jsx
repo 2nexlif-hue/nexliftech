@@ -1082,14 +1082,14 @@ export default function Dashboard() {
       )}
 
       {/* Top bar */}
-      <div className="dashboard-topbar">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+      <div className={`dashboard-topbar ${isBotanyAdminOnly ? 'botany-dashboard-topbar' : ''}`}>
+        <div className="dashboard-topbar-left">
           <a href="/" className="admin-back-link">
             <ArrowLeft size={16} /> <span>Back to Site</span>
           </a>
           
           {isBotanyAdminOnly ? (
-            <div style={{
+            <div className="botany-workspace-mark" style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.5rem',
@@ -1131,7 +1131,7 @@ export default function Dashboard() {
             className="btn btn-secondary btn-sm" 
             style={{ gap: '0.4rem', fontSize: '0.78rem' }}
           >
-            <Eye size={14} /> {isBotanyAdminOnly ? 'Preview Test Series' : 'Preview Site'}
+            <Eye size={14} /> {isBotanyAdminOnly ? <><span className="preview-label-full">Preview Test Series</span><span className="preview-label-short">Preview</span></> : 'Preview Site'}
           </a>
 
           <div className="topbar-user-badge" style={isBotanyAdminOnly ? { borderColor: 'rgba(16, 185, 129, 0.35)', background: 'rgba(16, 185, 129, 0.08)' } : {}}>
@@ -1149,12 +1149,12 @@ export default function Dashboard() {
           </div>
 
           <button onClick={() => setConfirmModal({ title: 'Sign out?', message: 'You can sign in again to return to this workspace.', actionText: 'Sign Out', icon: 'logout', onConfirm: () => { setConfirmModal(null); handleLogout(); } })} className="btn btn-secondary btn-sm" style={{ color: '#f43f5e', borderColor: 'rgba(244, 63, 94, 0.25)', background: 'rgba(244, 63, 94, 0.08)' }}>
-            <LogOut size={14} /> Logout
+            <LogOut size={14} /> <span className="logout-label">Logout</span>
           </button>
         </div>
       </div>
 
-      <div className="dashboard-container">
+      <div className={`dashboard-container ${workspace === 'botany' ? 'botany-dashboard-container' : ''}`}>
         {!isBotanyAdminOnly && (
           <div className="dashboard-workspace-bar">
             <button
@@ -1209,7 +1209,7 @@ export default function Dashboard() {
               {workspace === 'cms' 
                 ? 'Manage site content, portfolio, pricing, and incoming messages.'
                 : workspace === 'botany'
-                ? 'Curated by Dr. Aubid Hussain Malik. Manage syllabus, test calendar, Excel question banks, versioning, and subscriptions.'
+                ? 'Curated by Dr. Aubid Hussain Malik. Manage test scopes, the calendar, Excel question banks, versioning, and subscriptions.'
                 : 'Official government inspection checklists, personal apps, and Firestore records.'}
             </p>
           </div>
