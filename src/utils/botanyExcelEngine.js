@@ -59,7 +59,7 @@ export const OFFICIAL_SAMPLE_QUESTIONS = [
   }
 ];
 
-export function downloadExcelTemplate(unitId = 'unit_1', unitTitle = 'Unit 1', targetCount) {
+export function downloadExcelTemplate(unitId = 'unit_1', unitTitle = 'Unit 1', targetCount, details = {}) {
   const isDemo = unitId === 'diagnostic_demo';
   const count = Number.isInteger(targetCount) && targetCount > 0 ? targetCount : (isDemo ? 30 : 50);
   const rows = Array.from({ length: count }, (_, idx) => ({ 'S.No': idx + 1 }));
@@ -70,14 +70,21 @@ export function downloadExcelTemplate(unitId = 'unit_1', unitTitle = 'Unit 1', t
 
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, isDemo ? 'Diagnostic Demo Bank' : 'Question Bank');
+  const scopeTopics = String(details.description || '').split(';').map(topic => topic.trim()).filter(Boolean);
   const instructions = XLSX.utils.aoa_to_sheet([
     ['Bank', unitTitle],
     ['Bank ID', unitId],
+    ...(details.code ? [['Schedule code', details.code]] : []),
+    ...(details.category ? [['Category', details.category]] : []),
+    ...(details.unitCovered ? [['Coverage', details.unitCovered]] : []),
+    ...(details.durationMinutes ? [['Duration (minutes)', details.durationMinutes]] : []),
     ['Question target', count],
+    ...scopeTopics.map((topic, index) => [`Syllabus scope ${index + 1}`, topic]),
     ['How to use', 'Fill the numbered rows in the first sheet. Keep the column headings unchanged.'],
     ['Required', 'Question, Options A–D, and Correct Answer (Key) as A, B, C, or D.'],
     ['Recommended', 'Explain all four options and add a Context Note for complete quality metrics.'],
     ['Upload', 'Upload this .xlsx file from the matching bank row. The filename identifies its bank.'],
+    ...(details.code ? [['Schedule alignment', 'Write questions only for this scheduled test and its syllabus scope; the workbook does not check topic relevance automatically.']] : []),
     ['Important', 'Do not put instructions or extra rows above the headings in the first sheet.']
   ]);
   instructions['!cols'] = [{ wch: 22 }, { wch: 92 }];

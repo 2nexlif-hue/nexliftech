@@ -92,7 +92,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
         downloadExcelTemplate(bankId, 'Diagnostic Demo Entrance Test', 30);
       } else if (bankId.startsWith('test_')) {
         const test = schedule.find(item => item.id === bankId);
-        downloadExcelTemplate(bankId, test?.title || bankId, test?.questionCount || 50);
+        downloadExcelTemplate(bankId, test?.title || bankId, test?.questionCount || 50, test || {});
       } else {
         const unit = syllabus.find(item => item.unitId === bankId);
         const target = questionStats?.unitStats?.[bankId]?.targetCount || unit?.estimatedQuestions || 50;
@@ -996,7 +996,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
             <div>
               <h3>50-Test Subunit-Wise Calendar &amp; Schedule</h3>
               <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Set the public label and availability for each test.
+                Set availability and download a question template for each scheduled test.
               </p>
             </div>
             <div className="botany-card-actions" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -1085,6 +1085,15 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                                 )}
                               </div>
                             )}
+                            <button
+                              type="button"
+                              className="schedule-template-btn"
+                              onClick={() => handleDownloadBankTemplate(t.id)}
+                              title={`Download ${t.code} question bank template for ${t.questionCount} questions`}
+                              aria-label={`Download ${t.code} question bank template`}
+                            >
+                              <Download size={13} /> Template .xlsx
+                            </button>
                           </div>
                         ) : (
                           <span style={{ color: 'var(--text-muted)' }}>—</span>

@@ -308,6 +308,29 @@
   background: var(--bg-elevated);
 }
 
+.schedule-template-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  width: fit-content;
+  min-height: 32px;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.schedule-template-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+.schedule-template-btn:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+
+@media (max-width: 768px) { .schedule-template-btn { min-height: 44px; } }
+
 .schedule-badge {
   display: inline-block;
   font-size: 0.72rem;
