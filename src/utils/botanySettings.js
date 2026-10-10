@@ -23,5 +23,8 @@ export function normalizeBotanySettings(saved = {}) {
   if (settings.flashDetails?.includes('35 planned tests')) {
     settings.flashDetails = settings.flashDetails.replace('35 planned tests', '50 coded tests');
   }
+  if (settings.flashDetails?.startsWith('Targeted 35-Test Calendar covering all 10 PSC Units')) {
+    settings.flashDetails = '50 coded tests across 10 PSC units, with 3,650 planned questions, full mocks, a grand finale and a real exam experience.';
+  }
   return settings;
 }

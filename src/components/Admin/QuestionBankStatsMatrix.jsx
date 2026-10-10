@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { 
   FileSpreadsheet, CheckCircle2, AlertTriangle, Layers, 
   BarChart3, ArrowRight, Sparkles, Check, ChevronDown, 
-  ChevronUp, ShieldCheck, Database, Award, RefreshCw 
+  ChevronUp, ShieldCheck, Database, Award, RefreshCw, Upload
 } from 'lucide-react';
 import './QuestionBankStatsMatrix.css';
 
@@ -10,12 +10,26 @@ export default function QuestionBankStatsMatrix({
   questionStats,
   onSelectUnit,
   onCommitAllSeed,
+  onUploadUnitFile,
   committing = false,
   mode = 'banner', // 'banner' | 'full'
   onRefresh
 }) {
   const [isExpanded, setIsExpanded] = useState(mode === 'full');
   const [activeUnitFilter, setActiveUnitFilter] = useState('all');
+  const rowFileInputRef = useRef(null);
+  const uploadUnitRef = useRef(null);
+
+  function chooseRowFile(unitId) {
+    uploadUnitRef.current = unitId;
+    rowFileInputRef.current?.click();
+  }
+
+  function handleRowFileChange(event) {
+    const file = event.target.files?.[0];
+    if (file && uploadUnitRef.current) onUploadUnitFile?.(file, uploadUnitRef.current);
+    event.target.value = '';
+  }
 
   if (!questionStats) {
     return (
@@ -52,6 +66,7 @@ export default function QuestionBankStatsMatrix({
 
   return (
     <div className={`question-stats-matrix-container ${mode}`}>
+      {onUploadUnitFile && <input ref={rowFileInputRef} className="matrix-file-input" type="file" accept=".xlsx,.xls" aria-label="Choose a question bank workbook" onChange={handleRowFileChange} />}
       {/* EXECUTIVE KPI BAR */}
       <div className="matrix-kpi-banner">
         <div className="kpi-banner-top">
@@ -266,25 +281,25 @@ export default function QuestionBankStatsMatrix({
                   <th style={{ width: '110px' }}>Context Notes</th>
                   <th style={{ width: '140px' }}>Answer Key Spread</th>
                   <th style={{ width: '85px' }}>Version</th>
-                  {onSelectUnit && <th style={{ width: '100px', textAlign: 'right' }}>Action</th>}
+                  {(onSelectUnit || onUploadUnitFile) && <th style={{ width: '160px', textAlign: 'right' }}>Actions</th>}
                 </tr>
               </thead>
               <tbody>
                 {/* Free Diagnostic Demo CBT Row */}
                 {(activeUnitFilter === 'all' || activeUnitFilter === 'demo') && (
                   <tr className="row-active" style={{ background: 'rgba(124, 58, 237, 0.05)' }}>
-                    <td className="unit-num-cell">
+                    <td className="unit-num-cell" data-label="Bank">
                       <span className="unit-num-badge" style={{ background: 'rgba(124, 58, 237, 0.15)', color: 'var(--accent-primary)', borderColor: 'rgba(124, 58, 237, 0.3)' }}>
                         🎯
                       </span>
                     </td>
-                    <td className="unit-title-cell">
+                    <td className="unit-title-cell" data-label="Title">
                       <div className="unit-name-text" style={{ fontWeight: 700, color: 'var(--accent-primary)' }}>
                         Diagnostic Demo Entrance Test (Free CBT)
                       </div>
                       <div className="unit-file-text">{demoStats?.fileName || 'Botany_Entrance_30_MCQ_Mixed.xlsx'}</div>
                     </td>
-                    <td className="unit-count-cell">
+                    <td className="unit-count-cell" data-label="MCQs">
                       <div className="count-primary">
                         <strong>{demoStats?.questionCount || 0}</strong>
                         <span className="count-slash">/ 30 Q</span>
@@ -296,34 +311,36 @@ export default function QuestionBankStatsMatrix({
                         ></div>
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Coverage">
                       <span className="status-pill full">
                         {demoStats?.questionCount >= 30 ? '100% Ready' : `${demoStats?.questionCount || 0} Qs Active`}
                       </span>
                     </td>
-                    <td>
+                    <td data-label="Analysis">
                       <div className="quality-metric">
                         <CheckCircle2 size={13} className="text-success" />
                         <span>100% Complete</span>
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Context">
                       <div className="quality-metric">
                         <Award size={13} className="text-accent" />
                         <span>100% Attached</span>
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Answer keys">
                       <div className="key-dist-chips">
                         <span className="k-chip a" style={{ background: 'rgba(124, 58, 237, 0.1)', color: 'var(--accent-primary)' }}>Balanced Spread</span>
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Version">
                       <span className="version-tag">v{demoStats?.version || 1}</span>
                     </td>
-                    {onSelectUnit && (
-                      <td style={{ textAlign: 'right' }}>
-                        <button
+                    {(onSelectUnit || onUploadUnitFile) && (
+                      <td data-label="Actions">
+                        <div className="matrix-row-actions">
+                        {onUploadUnitFile && <button type="button" className="matrix-upload-btn" onClick={() => chooseRowFile('diagnostic_demo')} disabled={committing} aria-label="Upload Excel question bank for diagnostic demo"><Upload size={13} /><span>Upload</span></button>}
+                        {onSelectUnit && <button
                           type="button"
                           className="btn btn-primary btn-xs select-unit-btn"
                           onClick={() => onSelectUnit('diagnostic_demo')}
@@ -331,7 +348,8 @@ export default function QuestionBankStatsMatrix({
                         >
                           <span>Manage</span>
                           <ArrowRight size={12} />
-                        </button>
+                        </button>}
+                        </div>
                       </td>
                     )}
                   </tr>
@@ -344,14 +362,14 @@ export default function QuestionBankStatsMatrix({
 
                     return (
                       <tr key={unit.unitId} className={unit.questionCount > 0 ? 'row-active' : 'row-empty'}>
-                        <td className="unit-num-cell">
+                        <td className="unit-num-cell" data-label="Bank">
                           <span className="unit-num-badge">{unit.unitNumber}</span>
                         </td>
-                        <td className="unit-title-cell">
+                        <td className="unit-title-cell" data-label="Title">
                           <div className="unit-name-text">{unit.title}</div>
                           <div className="unit-file-text">{unit.fileName || `${unit.unitId}.xlsx`}</div>
                         </td>
-                        <td className="unit-count-cell">
+                        <td className="unit-count-cell" data-label="MCQs">
                           <div className="count-primary">
                             <strong>{unit.questionCount}</strong>
                             <span className="count-slash">/ {unit.targetCount} Q</span>
@@ -363,24 +381,24 @@ export default function QuestionBankStatsMatrix({
                             ></div>
                           </div>
                         </td>
-                        <td>
+                        <td data-label="Coverage">
                           <span className={`status-pill ${unit.questionCount >= unit.targetCount ? 'full' : unit.questionCount > 0 ? 'partial' : 'empty'}`}>
                             {unit.questionCount >= unit.targetCount ? '100% Ready' : `${coverage}% Prepared`}
                           </span>
                         </td>
-                        <td>
+                        <td data-label="Analysis">
                           <div className="quality-metric">
                             <CheckCircle2 size={13} className="text-success" />
                             <span>{unit.fourOptionAnalysisPct}% Complete</span>
                           </div>
                         </td>
-                        <td>
+                        <td data-label="Context">
                           <div className="quality-metric">
                             <Award size={13} className="text-accent" />
                             <span>{unit.contextNotePct}% Attached</span>
                           </div>
                         </td>
-                        <td>
+                        <td data-label="Answer keys">
                           <div className="key-dist-chips">
                             <span className="k-chip a">A:{uKeys.A}</span>
                             <span className="k-chip b">B:{uKeys.B}</span>
@@ -388,12 +406,14 @@ export default function QuestionBankStatsMatrix({
                             <span className="k-chip d">D:{uKeys.D}</span>
                           </div>
                         </td>
-                        <td>
+                        <td data-label="Version">
                           <span className="version-tag">v{unit.version || 1}</span>
                         </td>
-                        {onSelectUnit && (
-                          <td style={{ textAlign: 'right' }}>
-                            <button
+                        {(onSelectUnit || onUploadUnitFile) && (
+                          <td data-label="Actions">
+                            <div className="matrix-row-actions">
+                            {onUploadUnitFile && <button type="button" className="matrix-upload-btn" onClick={() => chooseRowFile(unit.unitId)} disabled={committing} aria-label={`Upload Excel question bank for Unit ${unit.unitNumber}`}><Upload size={13} /><span>Upload</span></button>}
+                            {onSelectUnit && <button
                               type="button"
                               className="btn btn-secondary btn-xs select-unit-btn"
                               onClick={() => onSelectUnit(unit.unitId)}
@@ -401,7 +421,8 @@ export default function QuestionBankStatsMatrix({
                             >
                               <span>Manage</span>
                               <ArrowRight size={12} />
-                            </button>
+                            </button>}
+                            </div>
                           </td>
                         )}
                       </tr>

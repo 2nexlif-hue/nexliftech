@@ -1075,7 +1075,7 @@ export default function Dashboard() {
 
       {/* Toast notification */}
       {toast.show && (
-        <div className={`admin-toast ${toast.type}`}>
+        <div className={`admin-toast ${toast.type}`} role={toast.type === 'error' ? 'alert' : 'status'} aria-live={toast.type === 'error' ? 'assertive' : 'polite'}>
           {toast.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
           {toast.message}
         </div>

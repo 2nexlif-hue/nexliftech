@@ -116,10 +116,18 @@ export async function saveBotanySchedule(schedule, userEmail = 'admin') {
  * Synchronize / seed default data to Firestore if not already present
  */
 export async function syncBotanyDataToFirestore(userEmail = 'admin') {
+  const currentSchedule = await getBotanySchedule();
+  const currentById = new Map(currentSchedule.map(test => [test.id, test]));
+  const scheduleWithLabels = BOTANY_TEST_SCHEDULE.map(test => {
+    const current = currentById.get(test.id);
+    return current?.availabilityStatus
+      ? { ...test, availabilityStatus: current.availabilityStatus, availabilityLabel: current.availabilityLabel || '' }
+      : test;
+  });
   await Promise.all([
     saveBotanySettings(DEFAULT_SERIES_SETTINGS, userEmail),
     saveBotanySyllabus(BOTANY_SYLLABUS, userEmail),
-    saveBotanySchedule(BOTANY_TEST_SCHEDULE, userEmail)
+    saveBotanySchedule(scheduleWithLabels, userEmail)
   ]);
   return true;
 }

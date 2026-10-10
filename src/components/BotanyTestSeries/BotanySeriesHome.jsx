@@ -18,6 +18,7 @@ import {
 import { initiateRazorpayPayment } from '../../utils/razorpayService';
 import { printSubscriptionReceipt } from '../../utils/botanyEmailService';
 import { BOTANY_SEED_QUESTION_BANKS } from '../../utils/botanySeedQuestionBanks';
+import { getBotanyTestAvailability } from '../../utils/botanyAvailability';
 import { searchSyllabusAdvanced, HighlightMatch } from '../../utils/botanySearch';
 import StudentAuthModal from './StudentAuthModal';
 import StudentExamEngine from './StudentExamEngine';
@@ -386,6 +387,14 @@ export default function BotanySeriesHome() {
 
   async function handleLaunchTest(test) {
     const isDemo = test.id === 'diagnostic_demo';
+    const uploadedCount = isDemo
+      ? (questionStats?.demoStats?.questionCount || demoQuestions.length)
+      : (questionStats?.testBankStats?.[test.id]?.questionCount || 0);
+    const availability = getBotanyTestAvailability(test, uploadedCount);
+    if (!availability.canStart) {
+      setTestNotification(`${test.code} is ${availability.label.toLowerCase()}. Check back for availability.`);
+      return;
+    }
 
     if (isDemo) {
       // Diagnostic Demo - 30 MCQs instantly available without blocking signin
@@ -458,6 +467,11 @@ export default function BotanySeriesHome() {
   }
 
   async function handleDemoCbtClick() {
+    const demoTest = schedule.find(test => test.id === 'diagnostic_demo');
+    if (demoTest && !getBotanyTestAvailability(demoTest, questionStats?.demoStats?.questionCount || demoQuestions.length).canStart) {
+      setTestNotification('The free demo is currently unavailable. Please check back soon.');
+      return;
+    }
     // 1-Click Launch: Open Free Demo CBT immediately
     try {
       const fresh = await getUnitQuestions('diagnostic_demo');
@@ -761,32 +775,6 @@ export default function BotanySeriesHome() {
               Prepare across 10 Botany units with {testCount} coded tests, including {subunitCount} subunit tests and {mockCount} mocks.
             </p>
 
-            <div className="hero-compact-chips">
-              <div className="hero-chip">
-                <span className="chip-val">{testCount}</span>
-                <span className="chip-lbl">Tests in Series</span>
-              </div>
-              <div className="hero-chip">
-                <span className="chip-val">10</span>
-                <span className="chip-lbl">Botany Units</span>
-              </div>
-              <div className="hero-chip">
-                <span className="chip-val">{mockCount}</span>
-                <span className="chip-lbl">Full Mock Tests</span>
-              </div>
-              <div className="hero-chip">
-                <span className="chip-val">{questionStats?.totalUploadedQuestions ?? 0}</span>
-                <span className="chip-lbl">Unit Bank MCQs</span>
-              </div>
-              <div className="hero-chip">
-                <span className="chip-val">-0.25</span>
-                <span className="chip-lbl">Per Wrong Answer</span>
-              </div>
-              <div className="hero-chip">
-                <span className="chip-val">100%</span>
-                <span className="chip-lbl">Answers Explained</span>
-              </div>
-            </div>
           </div>
         </section>
 
@@ -924,7 +912,9 @@ export default function BotanySeriesHome() {
                     {filteredSchedule.map((t) => {
                       const testBankStats = getTestQuestionStats(t, questionStats?.testBankStats);
                       const isAccessible = hasTestAccess(t);
-                      const bankReady = testBankStats.uploadedCount >= t.questionCount;
+                      const availability = getBotanyTestAvailability(t, t.id === 'diagnostic_demo'
+                        ? (questionStats?.demoStats?.questionCount || demoQuestions.length)
+                        : testBankStats.uploadedCount);
 
                       return (
                         <tr key={t.id}>
@@ -958,16 +948,17 @@ export default function BotanySeriesHome() {
                             <span className="t-date-text">{t.unitCovered}</span>
                           </td>
                           <td data-label="Access" className="schedule-action-cell">
+                            <span className={`test-availability-badge ${availability.tone}`}>{availability.label}</span>
                             {isAccessible ? (
                               <button
                                 type="button"
                                 className="btn btn-sm cbt-table-action-btn start"
                                 onClick={() => handleLaunchTest(t)}
-                                disabled={testLaunchLoading || !bankReady}
-                                title={bankReady ? 'Start this test' : 'Question bank is being prepared'}
+                                disabled={testLaunchLoading || !availability.canStart}
+                                title={availability.canStart ? 'Start this test' : availability.label}
                               >
                                 <Play size={11} />
-                                <span>{bankReady ? 'Start Test' : 'Coming Soon'}</span>
+                                <span>Start Test</span>
                               </button>
                             ) : (
                               <button

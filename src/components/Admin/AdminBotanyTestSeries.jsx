@@ -1,15 +1,16 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { 
-  GraduationCap, BookOpen, Calendar, FileSpreadsheet, Settings, Users, 
-  Download, Upload, RefreshCw, CheckCircle, AlertCircle, Clock, Eye, 
-  RotateCcw, ChevronDown, ChevronUp, Save, ArrowRight, Sparkles, Layers, CheckCircle2,
-  Tag, Trash2, Plus, Edit3, X, UserPlus
+  BookOpen, Calendar, FileSpreadsheet, Settings, Users,
+  Download, Upload, RefreshCw, CheckCircle, AlertCircle, Eye,
+  RotateCcw, ChevronDown, ChevronUp, Save, Sparkles, Layers, CheckCircle2,
+  Tag, Trash2, Plus, X, UserPlus
 } from 'lucide-react';
 import { 
   getBotanySettings, 
   saveBotanySettings, 
   getBotanySyllabus, 
   getBotanySchedule, 
+  saveBotanySchedule,
   syncBotanyDataToFirestore,
   getUnitQuestions,
   getUnitVersions,
@@ -28,6 +29,7 @@ import {
   exportQuestionsToExcel 
 } from '../../utils/botanyExcelEngine';
 import { computeQuestionBankDiff } from '../../utils/botanyDiff';
+import { BOTANY_AVAILABILITY_OPTIONS, getBotanyTestAvailability } from '../../utils/botanyAvailability';
 import { searchSyllabusAdvanced, HighlightMatch } from '../../utils/botanySearch';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase';
@@ -35,7 +37,7 @@ import './AdminBotanyTestSeries.css';
 
 export default function AdminBotanyTestSeries({ currentUser }) {
   // Navigation
-  const [subTab, setSubTab] = useState('overview'); // 'overview' | 'syllabus' | 'schedule' | 'excel' | 'settings' | 'subscribers'
+  const [subTab, setSubTab] = useState('excel'); // 'syllabus' | 'schedule' | 'excel' | 'settings' | 'subscribers'
 
   // Data states
   const [settings, setSettings] = useState(null);
@@ -47,6 +49,9 @@ export default function AdminBotanyTestSeries({ currentUser }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState({ show: false, type: '', message: '' });
+  const toastTimerRef = useRef(null);
+
+  useEffect(() => () => window.clearTimeout(toastTimerRef.current), []);
 
   // Excel Hub State
   const [excelBankMode, setExcelBankMode] = useState('units'); // 'units' | 'demo' | 'tests'
@@ -134,10 +139,54 @@ export default function AdminBotanyTestSeries({ currentUser }) {
   // Schedule UI
   const [scheduleFilter, setScheduleFilter] = useState('all');
   const [scheduleSearch, setScheduleSearch] = useState('');
+  const [statusDrafts, setStatusDrafts] = useState({});
+  const [savingTestStatus, setSavingTestStatus] = useState('');
+
+  function updateStatusDraft(test, patch) {
+    setStatusDrafts(prev => ({
+      ...prev,
+      [test.id]: {
+        status: test.availabilityStatus || 'auto',
+        label: test.availabilityLabel || '',
+        ...prev[test.id],
+        ...patch
+      }
+    }));
+  }
+
+  async function saveTestStatus(test) {
+    const draft = statusDrafts[test.id];
+    if (!draft) return;
+    const label = draft.label.trim().slice(0, 40);
+    if (draft.status === 'custom' && !label) {
+      showToast('error', 'Enter a custom label before saving.');
+      return;
+    }
+    setSavingTestStatus(test.id);
+    try {
+      const updated = schedule.map(item => item.id === test.id
+        ? { ...item, availabilityStatus: draft.status, availabilityLabel: draft.status === 'custom' ? label : '' }
+        : item);
+      await saveBotanySchedule(updated, currentUser?.email || 'admin');
+      setSchedule(updated);
+      setStatusDrafts(prev => {
+        const next = { ...prev };
+        delete next[test.id];
+        return next;
+      });
+      showToast('success', `${test.code} public label updated.`);
+    } catch (err) {
+      console.error('Could not update test label:', err);
+      showToast('error', 'Could not save this test label. Please try again.');
+    } finally {
+      setSavingTestStatus('');
+    }
+  }
 
   function showToast(type, message) {
+    window.clearTimeout(toastTimerRef.current);
     setToast({ show: true, type, message });
-    setTimeout(() => setToast({ show: false, type: '', message: '' }), 4000);
+    toastTimerRef.current = window.setTimeout(() => setToast({ show: false, type: '', message: '' }), 4000);
   }
 
   // Refresh question bank statistics across all 10 units
@@ -375,7 +424,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
   }, [questionDiff?.modifiedCount, uploadPreview?.fileName]);
 
   // Unified Excel File Processing (Single or Multi-file up to all 10 units)
-  async function processFiles(rawFiles) {
+  async function processFiles(rawFiles, forcedUnitId = null) {
     if (!rawFiles || !rawFiles.length) return;
 
     // Filter to valid Excel files and exclude temporary lock files (~$...)
@@ -395,6 +444,14 @@ export default function AdminBotanyTestSeries({ currentUser }) {
 
     try {
       const parsedList = await Promise.all(files.map(f => parseExcelFile(f)));
+
+      if (forcedUnitId) {
+        const detected = parsedList[0]?.detectedUnitId;
+        if (detected && detected !== forcedUnitId) {
+          throw new Error(`This workbook is identified as ${detected.replaceAll('_', ' ')}. Select its matching row, or rename the file before uploading here.`);
+        }
+        parsedList[0].detectedUnitId = forcedUnitId;
+      }
 
       // Auto-assign unit if not detected based on current mode & selection
       parsedList.forEach((item) => {
@@ -764,90 +821,54 @@ export default function AdminBotanyTestSeries({ currentUser }) {
   return (
     <div className="botany-admin-suite">
       {toast.show && (
-        <div className={`admin-toast ${toast.type}`}>
+        <div className={`admin-toast ${toast.type}`} role={toast.type === 'error' ? 'alert' : 'status'} aria-live={toast.type === 'error' ? 'assertive' : 'polite'}>
           {toast.type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
           <span>{toast.message}</span>
         </div>
       )}
 
-      {/* Main Suite Header */}
-      <div className="botany-admin-header">
-        <div className="botany-header-title-area">
-          <h2>
-            <GraduationCap className="accent-icon" size={24} />
-            <span>Botany Assistant Professor Examination Suite</span>
-            <span className="botany-header-badge">PSC Entrance 2026</span>
-          </h2>
-          <p className="botany-header-subtitle">
-            Curated by Dr. Aubid Hussain Malik, Assistant Professor (Botany). Managed, hosted, and deployed via NexLifTech.
-          </p>
+      <div className="botany-admin-toolbar">
+        <div className="botany-toolbar-summary" aria-label="Botany workspace summary">
+          <strong>Botany workspace</strong>
+          <span>{syllabus.length || 10} units</span>
+          <span>{schedule.length || 50} tests</span>
+          <span>{questionStats ? questionStats.totalBankQuestions : '—'} MCQs live</span>
+          <span>{subscribers.length} enrolled</span>
         </div>
-
-        <div className="botany-header-stats">
-          <div className="botany-stat-pill" title="10 Official PSC Curriculum Units">
-            <span className="botany-stat-label">Syllabus Units</span>
-            <span className="botany-stat-val">{syllabus.length || 10}</span>
-          </div>
-          <div className="botany-stat-pill" title="Actual Questions Uploaded & Available across 10-Unit banks & Demo CBT">
-            <span className="botany-stat-label">Bank MCQs Available</span>
-            <span className="botany-stat-val" style={{ color: 'var(--accent-primary)' }}>
-              {questionStats ? (questionStats.totalUploadedQuestions + (questionStats.demoStats?.questionCount || 0)) : 130}
-            </span>
-          </div>
-          <div className="botany-stat-pill" title="Units with Question Banks Loaded into System">
-            <span className="botany-stat-label">Units Loaded</span>
-            <span className="botany-stat-val" style={{ color: '#10b981' }}>
-              {questionStats ? `${questionStats.unitsLoadedCount}/10` : '10/10'}
-            </span>
-          </div>
-          <div className="botany-stat-pill" title="Free Diagnostic Demo Entrance Assessment Questions Live">
-            <span className="botany-stat-label">Demo CBT Live</span>
-            <span className="botany-stat-val" style={{ color: '#10b981' }}>
-              {questionStats?.demoStats ? `${questionStats.demoStats.questionCount} Qs` : '30 Qs'}
-            </span>
-          </div>
-          <div className="botany-stat-pill" title="Diagnostic, 44 subunit tests, 3 mocks, grand finale and real exam experience">
-            <span className="botany-stat-label">Series Target</span>
-            <span className="botany-stat-val">{schedule.length} Tests ({questionStats?.seriesTotalTarget?.toLocaleString() || '3,650'} Qs)</span>
-          </div>
-          <div className="botany-stat-pill" title="Registered & Enrolled Students">
-            <span className="botany-stat-label">Enrolled Students</span>
-            <span className="botany-stat-val">{subscribers.length}</span>
-          </div>
+        <div className="botany-toolbar-actions">
+          <button type="button" className="btn btn-secondary btn-sm" onClick={handleMasterSync} disabled={saving} title="Refresh the master syllabus and schedule in Firebase">
+            <RefreshCw size={14} className={saving ? 'spin' : ''} /> Sync master data
+          </button>
+          <a href="/botany-test-series" target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm">
+            <Eye size={14} /> Student view
+          </a>
         </div>
       </div>
-
       {/* Sub Navigation Bar */}
       <div className="botany-nav-tabs">
-        <button 
-          className={`botany-subtab-btn ${subTab === 'overview' ? 'active' : ''}`}
-          onClick={() => setSubTab('overview')}
-        >
-          <Eye size={15} /> <span>Overview &amp; Launch</span>
-        </button>
         <button 
           className={`botany-subtab-btn ${subTab === 'syllabus' ? 'active' : ''}`}
           onClick={() => setSubTab('syllabus')}
         >
-          <BookOpen size={15} /> <span>10-Unit Syllabus</span>
+          <BookOpen size={15} /> <span>Syllabus</span>
         </button>
         <button 
           className={`botany-subtab-btn ${subTab === 'schedule' ? 'active' : ''}`}
           onClick={() => setSubTab('schedule')}
         >
-          <Calendar size={15} /> <span>50-Test Schedule</span>
+          <Calendar size={15} /> <span>Tests &amp; schedule</span>
         </button>
         <button 
           className={`botany-subtab-btn ${subTab === 'excel' ? 'active' : ''}`}
           onClick={() => setSubTab('excel')}
         >
-          <FileSpreadsheet size={15} /> <span>Excel Question Bank &amp; Versioning</span>
+          <FileSpreadsheet size={15} /> <span>Question banks</span>
         </button>
         <button 
           className={`botany-subtab-btn ${subTab === 'settings' ? 'active' : ''}`}
           onClick={() => setSubTab('settings')}
         >
-          <Settings size={15} /> <span>Pricing &amp; Prominence</span>
+          <Settings size={15} /> <span>Settings</span>
         </button>
         <button 
           className={`botany-subtab-btn ${subTab === 'subscribers' ? 'active' : ''}`}
@@ -856,115 +877,6 @@ export default function AdminBotanyTestSeries({ currentUser }) {
           <Users size={15} /> <span>Subscribers ({subscribers.length})</span>
         </button>
       </div>
-
-      {/* SUBTAB 1: OVERVIEW */}
-      {subTab === 'overview' && (
-        <div className="botany-card">
-          <div className="botany-card-header">
-            <h3>Examination Structure &amp; Rapid Controls</h3>
-            <div className="botany-card-actions">
-              <button 
-                type="button" 
-                className="btn btn-secondary btn-sm"
-                onClick={handleMasterSync}
-                disabled={saving}
-                title="Initialize or reset Firestore documents with default syllabus and test schedule"
-              >
-                <RefreshCw size={14} className={saving ? 'spin' : ''} />
-                <span>Sync Master Data to Firebase</span>
-              </button>
-              <a 
-                href="/botany-test-series" 
-                target="_blank" 
-                rel="noreferrer" 
-                className="btn btn-primary btn-sm"
-              >
-                <Eye size={14} /> <span>Open Student Portal View</span>
-              </a>
-            </div>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginTop: '0.5rem' }}>
-            <div className="subunit-card">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <CheckCircle size={18} style={{ color: '#10b981' }} />
-                <h4 style={{ margin: 0, fontSize: '0.92rem', color: 'var(--text-primary)' }}>Prominent on Website</h4>
-              </div>
-              <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                Status: {settings?.isProminent ? <strong style={{ color: '#10b981' }}>Active Banner &amp; Spotlight</strong> : <span style={{ color: 'var(--text-muted)' }}>Inactive</span>}
-              </p>
-              <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                Active Until: {settings?.prominentUntil || 'Not configured'}
-              </p>
-            </div>
-
-            <div className="subunit-card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <FileSpreadsheet size={18} style={{ color: 'var(--accent-primary)' }} />
-                  <h4 style={{ margin: 0, fontSize: '0.92rem', color: 'var(--text-primary)' }}>Excel Question Hub</h4>
-                </div>
-                <span style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--accent-primary)', background: 'rgba(124, 58, 237, 0.12)', padding: '0.15rem 0.5rem', borderRadius: '8px' }}>
-                  {questionStats ? `${(questionStats.totalUploadedQuestions || 0) + (questionStats.demoStats?.questionCount || 0)} MCQs Live` : '130 MCQs Ready'}
-                </span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', margin: '0 0 0.75rem 0', fontSize: '0.79rem', color: 'var(--text-secondary)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>10 Units Syllabus Banks:</span>
-                  <strong style={{ color: 'var(--text-primary)' }}>{questionStats?.totalUploadedQuestions ?? 100} / 500 Qs ({questionStats?.unitsLoadedCount ?? 10}/10 Units)</strong>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Free Entrance Demo CBT:</span>
-                  <strong style={{ color: '#10b981' }}>{questionStats?.demoStats?.questionCount ?? 30} MCQs Live</strong>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>4-Option Rationale:</span>
-                  <strong style={{ color: 'var(--accent-primary)' }}>{questionStats?.overallAnalysisPct ?? 100}% Complete</strong>
-                </div>
-              </div>
-              <button 
-                type="button" 
-                onClick={() => setSubTab('excel')} 
-                className="btn btn-secondary btn-sm"
-                style={{ fontSize: '0.78rem', padding: '0.35rem 0.65rem', width: '100%', justifyContent: 'center' }}
-              >
-                Go to Excel Hub &amp; Upload <ArrowRight size={13} />
-              </button>
-            </div>
-
-            <div className="subunit-card">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <Clock size={18} style={{ color: '#f59e0b' }} />
-                <h4 style={{ margin: 0, fontSize: '0.92rem', color: 'var(--text-primary)' }}>Calendar Progression</h4>
-              </div>
-              <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                Diagnostic → 44 subunit tests → 3 mocks → grand finale → real exam experience. Dates are not specified.
-              </p>
-              <button 
-                type="button" 
-                onClick={() => setSubTab('schedule')} 
-                className="btn btn-secondary btn-sm"
-                style={{ fontSize: '0.78rem', padding: '0.35rem 0.65rem' }}
-              >
-                Inspect Schedule <ArrowRight size={13} />
-              </button>
-            </div>
-          </div>
-
-          <div style={{ marginTop: '1.25rem' }}>
-            <QuestionBankStatsMatrix 
-              questionStats={questionStats}
-              mode="banner"
-              committing={saving}
-              onCommitAllSeed={handleCommitAllSeedBanks}
-              onSelectUnit={(unitId) => {
-                setSelectedUnitId(unitId);
-                setSubTab('excel');
-              }}
-            />
-          </div>
-        </div>
-      )}
 
       {/* SUBTAB 2: SYLLABUS REFERENCE */}
       {subTab === 'syllabus' && (
@@ -1062,7 +974,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
             <div>
               <h3>50-Test Subunit-Wise Calendar &amp; Schedule</h3>
               <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                50 coded tests from the diagnostic to the real exam experience. Dates are not specified in the source calendar.
+                50 coded tests from the diagnostic to the real exam experience. Set a public label for any test below.
               </p>
             </div>
             <div className="botany-card-actions" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -1078,8 +990,8 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                 onChange={(e) => setScheduleFilter(e.target.value)}
                 style={{ padding: '0.45rem 0.75rem', borderRadius: '6px', background: 'var(--bg-elevated)', color: 'var(--text-primary)', border: '1px solid var(--border-light)', fontSize: '0.82rem' }}
               >
-                <option value="all">All Tests &amp; Days</option>
-                <option value="unit">Unit Tests Only</option>
+                <option value="all">All 50 Tests</option>
+                <option value="unit">Subunit Tests Only</option>
                 <option value="final">Finale &amp; Real Exam</option>
                 <option value="mock">Full Mocks Only</option>
               </select>
@@ -1109,6 +1021,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                   <th>Coverage</th>
                   <th>Questions &amp; Bank Status</th>
                   <th>Duration</th>
+                  <th>Public label</th>
                 </tr>
               </thead>
               <tbody>
@@ -1119,12 +1032,19 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                   else if (t.category.includes('Review') || t.category.includes('Analysis')) badgeClass = 'badge-review';
 
                   const testStats = getTestQuestionStats(t, questionStats?.testBankStats);
+                  const draft = statusDrafts[t.id] || { status: t.availabilityStatus || 'auto', label: t.availabilityLabel || '' };
+                  const availability = getBotanyTestAvailability(
+                    { ...t, availabilityStatus: draft.status, availabilityLabel: draft.label },
+                    t.id === 'diagnostic_demo' ? (questionStats?.demoStats?.questionCount || 0) : testStats.uploadedCount
+                  );
+                  const statusChanged = draft.status !== (t.availabilityStatus || 'auto') ||
+                    (draft.status === 'custom' && draft.label.trim() !== (t.availabilityLabel || ''));
 
                   return (
                     <tr key={t.id}>
-                      <td style={{ color: 'var(--text-muted)', fontWeight: 600 }}>{t.sequence}</td>
-                      <td style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>{t.code}</td>
-                      <td style={{ fontWeight: 600 }}>
+                      <td data-label="Number" style={{ color: 'var(--text-muted)', fontWeight: 600 }}>{t.sequence}</td>
+                      <td data-label="Code" style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>{t.code}</td>
+                      <td data-label="Test and syllabus" style={{ fontWeight: 600 }}>
                         {t.title}
                         {t.description && (
                           <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '2px', fontWeight: 400 }}>
@@ -1132,11 +1052,11 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                           </div>
                         )}
                       </td>
-                      <td>
+                      <td data-label="Category">
                         <span className={`schedule-badge ${badgeClass}`}>{t.category}</span>
                       </td>
-                      <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{t.unitCovered}</td>
-                      <td>
+                      <td data-label="Coverage" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{t.unitCovered}</td>
+                      <td data-label="Question bank">
                         {t.questionCount > 0 ? (
                           <div className="schedule-q-cell">
                             <div className="q-target-line">{t.questionCount} Q Target</div>
@@ -1157,8 +1077,45 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                           <span style={{ color: 'var(--text-muted)' }}>—</span>
                         )}
                       </td>
-                      <td style={{ color: 'var(--text-muted)' }}>
+                      <td data-label="Duration" style={{ color: 'var(--text-muted)' }}>
                         {t.durationMinutes > 0 ? `${t.durationMinutes} min` : 'Rest / Analysis'}
+                      </td>
+                      <td data-label="Public label">
+                        <div className="test-status-editor">
+                          <span className={`test-status-preview ${availability.tone}`}>{availability.label}</span>
+                          <label className="sr-only" htmlFor={`test-status-${t.id}`}>Public status for {t.code}</label>
+                          <select
+                            id={`test-status-${t.id}`}
+                            value={draft.status}
+                            onChange={(event) => updateStatusDraft(t, { status: event.target.value })}
+                            disabled={Boolean(savingTestStatus)}
+                          >
+                            {BOTANY_AVAILABILITY_OPTIONS.map(option => (
+                              <option key={option.value} value={option.value}>{option.label}</option>
+                            ))}
+                          </select>
+                          {draft.status === 'custom' && (
+                            <input
+                              type="text"
+                              maxLength={40}
+                              aria-label={`Custom public label for ${t.code}`}
+                              placeholder="e.g. Opens next week"
+                              value={draft.label}
+                              onChange={(event) => updateStatusDraft(t, { label: event.target.value })}
+                              disabled={Boolean(savingTestStatus)}
+                            />
+                          )}
+                          {statusChanged && (
+                            <button
+                              type="button"
+                              className="btn btn-primary btn-sm"
+                              onClick={() => saveTestStatus(t)}
+                              disabled={Boolean(savingTestStatus) || (draft.status === 'custom' && !draft.label.trim())}
+                            >
+                              <Save size={14} /> {savingTestStatus === t.id ? 'Saving…' : 'Save label'}
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
@@ -1178,6 +1135,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
             mode="full"
             committing={saving}
             onCommitAllSeed={handleCommitAllSeedBanks}
+            onUploadUnitFile={(file, unitId) => processFiles([file], unitId)}
             onSelectUnit={(unitId) => {
               if (unitId === 'diagnostic_demo') {
                 setExcelBankMode('demo');
@@ -1336,7 +1294,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                   </div>
                   <div className="demo-status-item">
                     <span className="demo-status-label">Active in Database</span>
-                    <span className="demo-status-val" style={{ color: '#10b981' }}>
+                    <span className="demo-status-val" style={{ color: 'var(--success)' }}>
                       {unitActiveData && selectedUnitId === 'diagnostic_demo'
                         ? unitActiveData.questions?.length
                         : questionStats?.demoStats?.questionCount || 30} Questions Live
@@ -1348,7 +1306,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                   </div>
                   <div className="demo-status-item">
                     <span className="demo-status-label">Candidate Access</span>
-                    <span className="demo-status-val" style={{ color: '#10b981' }}>🟢 Instant Free Access</span>
+                    <span className="demo-status-val" style={{ color: 'var(--success)' }}>🟢 Instant Free Access</span>
                   </div>
                 </div>
               )}
@@ -1442,7 +1400,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                         e.stopPropagation();
                         handleLoadDocsSampleFiles();
                       }}
-                      style={{ borderColor: 'rgba(16, 185, 129, 0.4)', background: 'rgba(16, 185, 129, 0.12)', color: '#10b981', fontWeight: 700 }}
+                      style={{ borderColor: 'rgba(16, 185, 129, 0.4)', background: 'rgba(16, 185, 129, 0.12)', color: 'var(--success)', fontWeight: 700 }}
                     >
                       <Sparkles size={14} /> <span>⚡ Load &amp; Preview All 10 Units from docs/</span>
                     </button>
@@ -1642,7 +1600,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                   value={settings?.razorpayKey || ''}
                   onChange={(e) => setSettings({ ...settings, razorpayKey: e.target.value })}
                 />
-                <span style={{ fontSize: '0.74rem', color: '#10b981' }}>
+                <span style={{ fontSize: '0.74rem', color: 'var(--success)' }}>
                   ✓ Approved Domain: <strong>https://nexliftech.space/</strong> (Live Key: <code>rzp_live_TGUYt8AMIuHwLa</code>)
                 </span>
               </div>
@@ -1811,7 +1769,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                       </div>
 
                       <div className="promo-card-actions">
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer', fontSize: '0.74rem', color: p.isActive !== false ? '#10b981' : 'var(--text-muted)' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer', fontSize: '0.74rem', color: p.isActive !== false ? 'var(--success)' : 'var(--text-muted)' }}>
                           <input 
                             type="checkbox"
                             checked={p.isActive !== false}
@@ -1901,7 +1859,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                               Free / Admin Grant
                             </span>
                           ) : (
-                            <span style={{ fontWeight: 700, color: '#10b981' }}>₹{sub.amountPaid}</span>
+                            <span style={{ fontWeight: 700, color: 'var(--success)' }}>₹{sub.amountPaid}</span>
                           )}
                         </td>
                         <td style={{ fontSize: '0.74rem', fontFamily: 'var(--font-mono)' }}>
@@ -1999,7 +1957,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                       ALL {batchUploadList.length} UNITS DETECTED: Click tabs to preview questions
                     </span>
                   </div>
-                  <span style={{ fontSize: '0.76rem', color: '#10b981', fontWeight: 700, background: 'rgba(16, 185, 129, 0.1)', padding: '0.15rem 0.55rem', borderRadius: '10px' }}>
+                  <span style={{ fontSize: '0.76rem', color: 'var(--success)', fontWeight: 700, background: 'rgba(16, 185, 129, 0.1)', padding: '0.15rem 0.55rem', borderRadius: '10px' }}>
                     Total: {batchUploadList.reduce((acc, b) => acc + b.validCount, 0)} Questions
                   </span>
                 </div>
@@ -2027,7 +1985,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                         className={`btn btn-sm ${isActive ? 'btn-primary' : 'btn-secondary'}`}
                         style={{ fontSize: '0.76rem', padding: '0.3rem 0.65rem', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
                       >
-                        {bItem.invalidCount > 0 ? <AlertCircle size={12} color="#ef4444" /> : <CheckCircle2 size={12} color="#10b981" />}
+                        {bItem.invalidCount > 0 ? <AlertCircle size={12} color="var(--danger)" /> : <CheckCircle2 size={12} color="var(--success)" />}
                         <span>{label} ({bItem.validCount} Qs)</span>
                       </button>
                     );
@@ -2242,16 +2200,16 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                           {/* Option analyses preview */}
                           <div className="preview-analyses-box">
                             <div style={{ marginBottom: '0.2rem' }}>
-                              <strong style={{ color: q.correctOption === 'A' ? '#10b981' : 'var(--text-secondary)' }}>Analysis A:</strong> {q.analysisA || '—'}
+                              <strong style={{ color: q.correctOption === 'A' ? 'var(--success)' : 'var(--text-secondary)' }}>Analysis A:</strong> {q.analysisA || '—'}
                             </div>
                             <div style={{ marginBottom: '0.2rem' }}>
-                              <strong style={{ color: q.correctOption === 'B' ? '#10b981' : 'var(--text-secondary)' }}>Analysis B:</strong> {q.analysisB || '—'}
+                              <strong style={{ color: q.correctOption === 'B' ? 'var(--success)' : 'var(--text-secondary)' }}>Analysis B:</strong> {q.analysisB || '—'}
                             </div>
                             <div style={{ marginBottom: '0.2rem' }}>
-                              <strong style={{ color: q.correctOption === 'C' ? '#10b981' : 'var(--text-secondary)' }}>Analysis C:</strong> {q.analysisC || '—'}
+                              <strong style={{ color: q.correctOption === 'C' ? 'var(--success)' : 'var(--text-secondary)' }}>Analysis C:</strong> {q.analysisC || '—'}
                             </div>
                             <div style={{ marginBottom: '0.2rem' }}>
-                              <strong style={{ color: q.correctOption === 'D' ? '#10b981' : 'var(--text-secondary)' }}>Analysis D:</strong> {q.analysisD || '—'}
+                              <strong style={{ color: q.correctOption === 'D' ? 'var(--success)' : 'var(--text-secondary)' }}>Analysis D:</strong> {q.analysisD || '—'}
                             </div>
                             {q.referenceNote && (
                               <div style={{ color: 'var(--accent-primary)', fontWeight: 600, marginTop: '0.4rem', borderTop: '1px dashed var(--border-light)', paddingTop: '0.4rem', fontSize: '0.8rem' }}>

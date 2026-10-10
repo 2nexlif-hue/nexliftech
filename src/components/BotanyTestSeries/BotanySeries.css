@@ -781,7 +781,7 @@
 }
 
 .tab-meta-badge.demo-badge {
-  color: #a855f7;
+  color: var(--accent-primary);
   background: rgba(168, 85, 247, 0.1);
 }
 
@@ -813,12 +813,12 @@
 
 .pricing-mobile-tab-btn.active.tab-demo {
   border-color: #a855f7;
-  color: #a855f7;
+  color: var(--accent-primary);
 }
 
 .pricing-mobile-tab-btn.active.tab-demo .tab-meta-badge {
   background: rgba(168, 85, 247, 0.15);
-  color: #a855f7;
+  color: var(--accent-primary);
 }
 
 /* Pricing Cards Grid */
@@ -910,7 +910,7 @@
 }
 
 .p-plan-badge.free {
-  color: #a855f7;
+  color: var(--accent-primary);
   background: rgba(168, 85, 247, 0.08);
 }
 
@@ -1046,7 +1046,7 @@
 }
 
 .p-coupon-msg.success { color: var(--success); }
-.p-coupon-msg.error { color: #ef4444; }
+.p-coupon-msg.error { color: var(--danger); }
 
 /* Unit Selector */
 .p-unit-select-box {
@@ -1362,7 +1362,7 @@
 }
 
 .p-coupon-applied-pill .remove-coupon-btn:hover {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 /* --- 9. FEATURES & FAQ ----------------------------------------------- */
@@ -1682,7 +1682,7 @@
 .botany-modal-alert.error {
   background: rgba(239, 68, 68, 0.08);
   border: 1px solid rgba(239, 68, 68, 0.25);
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .botany-modal-alert.success {
@@ -1698,7 +1698,7 @@
   margin-top: 0.15rem;
   background: rgba(239, 68, 68, 0.12);
   border: 1px solid rgba(239, 68, 68, 0.35);
-  color: #ef4444;
+  color: var(--danger);
   font-size: 0.7rem;
   font-weight: 700;
   padding: 0.15rem 0.45rem;
@@ -1988,7 +1988,7 @@
 .cbt-timer.urgent {
   background: rgba(239, 68, 68, 0.12);
   border-color: #ef4444;
-  color: #ef4444;
+  color: var(--danger);
   animation: pulse 1s infinite;
 }
 
@@ -2180,7 +2180,7 @@
 .btn-secondary.is-marked {
   background: rgba(168, 85, 247, 0.12);
   border-color: #a855f7;
-  color: #a855f7;
+  color: var(--accent-primary);
 }
 
 /* Palette — hidden by default on mobile, shown via drawer */
@@ -2368,7 +2368,7 @@
 }
 
 .metric-box.green .metric-value { color: var(--success); }
-.metric-box.red .metric-value { color: #ef4444; }
+.metric-box.red .metric-value { color: var(--danger); }
 .metric-box.grey .metric-value { color: var(--text-muted); }
 
 .metric-value {
@@ -2491,7 +2491,7 @@
 }
 
 .pill.green { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-.pill.red { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.pill.red { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
 .pill.grey { background: var(--bg-elevated); color: var(--text-muted); }
 
 .analysis-q-text {
@@ -3111,9 +3111,9 @@
 .hero-compact-actions { flex-wrap: wrap; gap: 0.55rem; }
 .hero-btn-demo, .hero-btn-enroll { min-height: 44px; padding: 0.6rem 0.9rem; font-size: 0.8rem; border-radius: 9px; }
 .hero-btn-enroll, .hero-btn-enroll:hover { background: var(--accent-green); border-color: var(--accent-green); color: var(--text-inverse) !important; }
-.hero-compact-body { padding: clamp(1.5rem, 3vw, 2.75rem); }
+.hero-compact-body { padding: clamp(1.1rem, 2vw, 1.6rem); }
 .hero-compact-title { font-size: clamp(1.8rem, 3.4vw, 3.25rem); line-height: 1.12; letter-spacing: -0.04em; max-width: 800px; margin-bottom: 0.85rem; }
-.hero-compact-subtitle { font-size: clamp(0.95rem, 1.35vw, 1.08rem); line-height: 1.65; max-width: 880px; margin-bottom: 1.6rem; }
+.hero-compact-subtitle { font-size: clamp(0.95rem, 1.35vw, 1.08rem); line-height: 1.55; max-width: 880px; margin-bottom: 0; }
 .hero-compact-chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.7rem; padding-top: 1.4rem; }
 .hero-chip { align-items: flex-start; flex-direction: column; gap: 0.1rem; padding: 0.9rem 1rem; background: var(--bg-elevated); border: 1px solid var(--border-light); border-radius: 11px; animation: heroChipFadeIn 0.45s ease-out both; transition: border-color var(--transition-fast), box-shadow var(--transition-fast); }
 .hero-chip:nth-child(1) { animation-delay: 0.05s; }
@@ -3161,6 +3161,10 @@
 .test-scope-details p { margin: 0 0 0.4rem; overflow-wrap: anywhere; }
 .cbt-table-action-btn { min-height: 42px; padding: 0.55rem 0.7rem; font-size: 0.75rem; }
 .schedule-action-cell { text-align: right; }
+.test-availability-badge { display: inline-flex; align-items: center; max-width: 100%; padding: 0.35rem 0.55rem; margin: 0 0 0.4rem auto; border: 1px solid var(--border-light); border-radius: 999px; background: var(--bg-elevated); color: var(--accent-primary); font-size: 0.7rem; font-weight: 800; line-height: 1.25; text-align: center; overflow-wrap: anywhere; }
+.test-availability-badge.ready { color: var(--success); }
+.test-availability-badge.paused { color: var(--accent-pink); }
+.schedule-action-cell .cbt-table-action-btn { display: flex; margin-left: auto; }
 .t-study-day-tag { display: inline-flex; align-items: center; min-height: 42px; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--border-light); color: var(--text-secondary); background: var(--bg-elevated); font-size: 0.76rem; font-weight: 700; }
 html[data-theme="cyber"] .cbt-table-action-btn.start { background: var(--accent-primary); color: var(--text-inverse); }
 .schedule-empty-state { display: grid; justify-items: center; gap: 0.55rem; padding: 2.5rem 1rem; text-align: center; color: var(--text-secondary); }
@@ -3269,6 +3273,7 @@ html[data-theme="cyber"] .cbt-table-action-btn.start { background: var(--accent-
   .schedule-data-table td:nth-child(4) { grid-column: 2; }
   .schedule-data-table td:nth-child(5) { grid-column: 1; }
   .schedule-data-table td:nth-child(6) { grid-column: 2; text-align: right; }
+  .test-availability-badge { margin-bottom: 0.5rem; }
   .t-name { font-size: 0.94rem; }
   .t-coverage { font-size: 0.8rem; }
   .cbt-table-action-btn { width: 100%; max-width: 150px; }
@@ -3280,7 +3285,7 @@ html[data-theme="cyber"] .cbt-table-action-btn.start { background: var(--accent-
   .hero-compact-top { padding: 0.9rem 1rem; }
   .hero-compact-actions { width: 100%; }
   .hero-compact-actions .btn { flex: 1 1 170px; }
-  .hero-compact-body { padding: 1.4rem 1rem; }
+  .hero-compact-body { padding: 1.1rem 1rem; }
   .hero-compact-chips { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; padding-top: 0.9rem; }
   .hero-chip { padding: 0.55rem 0.5rem; }
   .botany-subnav-tabs { position: sticky; top: 68px; z-index: 20; }
