@@ -20,7 +20,7 @@ export function buildSubscriptionEmailContent(subData) {
   });
 
   const syllabusScope = subData.allowedUnits?.includes('all') || subData.planType === 'full_series'
-    ? 'Complete 10-Unit PSC Syllabus (All 35 Tests, Clusters, Specials & 9 Grand Mocks)'
+    ? 'Complete 10-Unit PSC Syllabus (50 tests: diagnostic, 44 subunit tests, 3 mocks, grand finale and real exam experience)'
     : `Targeted Unit Pass (${subData.allowedUnits?.join(', ') || 'Single Unit'})`;
 
   // 1. Pristine Plain-Text Alternative (Crucial for passing SpamAssassin and DKIM filters)

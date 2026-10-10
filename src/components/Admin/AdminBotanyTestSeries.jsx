@@ -213,7 +213,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
 
   // Handle Sync / Seed master data to Firestore
   async function handleMasterSync() {
-    if (!window.confirm('Sync & seed master 10-Unit syllabus, 35-Test schedule, and default pricing settings to Firebase?')) {
+    if (!window.confirm('Sync & seed master 10-Unit syllabus, 50-Test schedule, and default pricing settings to Firebase?')) {
       return;
     }
     setSaving(true);
@@ -227,7 +227,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
       setSettings(loadedSettings);
       setSyllabus(loadedSyllabus);
       setSchedule(loadedSchedule);
-      showToast('success', 'Master Botany syllabus & 35-test schedule successfully synced to Firebase.');
+      showToast('success', 'Master Botany syllabus & 50-test schedule successfully synced to Firebase.');
     } catch (err) {
       console.error('Sync error:', err);
       showToast('error', 'Failed to sync data with Firebase.');
@@ -402,7 +402,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
           if (excelBankMode === 'demo') {
             item.detectedUnitId = 'diagnostic_demo';
           } else if (excelBankMode === 'tests') {
-            item.detectedUnitId = selectedUnitId.startsWith('test_') ? selectedUnitId : 'test_01';
+            item.detectedUnitId = selectedUnitId.startsWith('test_') ? selectedUnitId : 'test_DT_F';
           } else {
             item.detectedUnitId = selectedUnitId || 'unit_1';
           }
@@ -564,9 +564,10 @@ export default function AdminBotanyTestSeries({ currentUser }) {
     try {
       const targetUnitId = uploadPreview.detectedUnitId || selectedUnitId;
       const targetUnit = syllabus.find(u => u.unitId === targetUnitId);
+      const targetTest = schedule.find(t => t.id === targetUnitId);
       const unitTitle = targetUnit 
         ? `Unit ${targetUnit.unitNumber}: ${targetUnit.title}` 
-        : (targetUnitId === 'diagnostic_demo' ? 'Diagnostic Entrance Assessment Demo (30 MCQs)' : targetUnitId);
+        : (targetTest ? `${targetTest.code}: ${targetTest.title}` : targetUnitId === 'diagnostic_demo' ? 'Diagnostic Entrance Assessment Demo (30 MCQs)' : targetUnitId);
 
       const newRelease = await commitUnitQuestions({
         unitId: targetUnitId,
@@ -621,9 +622,10 @@ export default function AdminBotanyTestSeries({ currentUser }) {
 
         const unitId = batchItem.detectedUnitId || `unit_${i + 1}`;
         const targetUnit = syllabus.find(u => u.unitId === unitId);
+        const targetTest = schedule.find(t => t.id === unitId);
         const unitTitle = unitId === 'diagnostic_demo'
           ? 'Diagnostic Entrance Assessment Demo (30 MCQs)'
-          : (targetUnit ? `Unit ${targetUnit.unitNumber}: ${targetUnit.title}` : unitId);
+          : (targetTest ? `${targetTest.code}: ${targetTest.title}` : targetUnit ? `Unit ${targetUnit.unitNumber}: ${targetUnit.title}` : unitId);
 
         setCommitProgress({ current: i + 1, total: totalUnits, unitTitle });
 
@@ -739,19 +741,17 @@ export default function AdminBotanyTestSeries({ currentUser }) {
     }
   }, [syllabusSearch, adminMatchingUnits]);
 
-  // Filtered schedule
+  // Filter by the categories in the revised source calendar.
   const filteredSchedule = schedule.filter(t => {
-    const matchesFilter = scheduleFilter === 'all' || 
-      (scheduleFilter === 'mock' && t.category.includes('Mock')) ||
-      (scheduleFilter === 'unit' && t.category.includes('Unit')) ||
-      (scheduleFilter === 'cluster' && t.category.includes('Cluster'));
-    
+    const matchesFilter = scheduleFilter === 'all' ||
+      (scheduleFilter === 'mock' && t.category === 'Mock') ||
+      (scheduleFilter === 'unit' && t.category === 'Subunit Test') ||
+      (scheduleFilter === 'final' && ['Finale', 'Real Exam'].includes(t.category));
     if (!matchesFilter) return false;
-    if (!scheduleSearch.trim()) return true;
-    const q = scheduleSearch.toLowerCase();
-    return t.title.toLowerCase().includes(q) || t.dayLabel.toLowerCase().includes(q) || t.unitCovered.toLowerCase().includes(q);
+    const q = scheduleSearch.trim().toLowerCase();
+    return !q || [t.code, t.title, t.description, t.unitCovered, t.category]
+      .some(value => value?.toLowerCase().includes(q));
   });
-
   if (loading) {
     return (
       <div className="inbox-loading" style={{ minHeight: '300px' }}>
@@ -806,9 +806,9 @@ export default function AdminBotanyTestSeries({ currentUser }) {
               {questionStats?.demoStats ? `${questionStats.demoStats.questionCount} Qs` : '30 Qs'}
             </span>
           </div>
-          <div className="botany-stat-pill" title="Complete 35-Test Series Target across Diagnostic, Units, Clusters and Mocks">
+          <div className="botany-stat-pill" title="Diagnostic, 44 subunit tests, 3 mocks, grand finale and real exam experience">
             <span className="botany-stat-label">Series Target</span>
-            <span className="botany-stat-val">35 Tests (~2,700 Qs)</span>
+            <span className="botany-stat-val">{schedule.length} Tests ({questionStats?.seriesTotalTarget?.toLocaleString() || '3,650'} Qs)</span>
           </div>
           <div className="botany-stat-pill" title="Registered & Enrolled Students">
             <span className="botany-stat-label">Enrolled Students</span>
@@ -835,7 +835,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
           className={`botany-subtab-btn ${subTab === 'schedule' ? 'active' : ''}`}
           onClick={() => setSubTab('schedule')}
         >
-          <Calendar size={15} /> <span>35-Test Schedule</span>
+          <Calendar size={15} /> <span>50-Test Schedule</span>
         </button>
         <button 
           className={`botany-subtab-btn ${subTab === 'excel' ? 'active' : ''}`}
@@ -938,7 +938,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                 <h4 style={{ margin: 0, fontSize: '0.92rem', color: 'var(--text-primary)' }}>Calendar Progression</h4>
               </div>
               <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                Diagnostic (10 Oct) → 10 Unit Tests → 5 Clusters → J&amp;K Special → 9 Full Mocks (13 Nov).
+                Diagnostic → 44 subunit tests → 3 mocks → grand finale → real exam experience. Dates are not specified.
               </p>
               <button 
                 type="button" 
@@ -1060,9 +1060,9 @@ export default function AdminBotanyTestSeries({ currentUser }) {
         <div className="botany-card">
           <div className="botany-card-header">
             <div>
-              <h3>35-Test Subunit-Wise Calendar &amp; Schedule</h3>
+              <h3>50-Test Subunit-Wise Calendar &amp; Schedule</h3>
               <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Detailed timetable from Diagnostic test to Mock 9 Grand Finale.
+                50 coded tests from the diagnostic to the real exam experience. Dates are not specified in the source calendar.
               </p>
             </div>
             <div className="botany-card-actions" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -1080,7 +1080,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
               >
                 <option value="all">All Tests &amp; Days</option>
                 <option value="unit">Unit Tests Only</option>
-                <option value="cluster">Cluster Tests Only</option>
+                <option value="final">Finale &amp; Real Exam</option>
                 <option value="mock">Full Mocks Only</option>
               </select>
             </div>
@@ -1103,8 +1103,8 @@ export default function AdminBotanyTestSeries({ currentUser }) {
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Date &amp; Day</th>
-                  <th>Test Title</th>
+                  <th>Code</th>
+                  <th>Test Title &amp; Scope</th>
                   <th>Category</th>
                   <th>Coverage</th>
                   <th>Questions &amp; Bank Status</th>
@@ -1112,18 +1112,18 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                 </tr>
               </thead>
               <tbody>
-                {filteredSchedule.map((t, idx) => {
+                {filteredSchedule.map((t) => {
                   let badgeClass = 'badge-unit';
-                  if (t.category.includes('Mock')) badgeClass = 'badge-mock';
-                  else if (t.category.includes('Cluster')) badgeClass = 'badge-cluster';
+                  if (t.category === 'Mock') badgeClass = 'badge-mock';
+                  else if (['Finale', 'Real Exam'].includes(t.category)) badgeClass = 'badge-cluster';
                   else if (t.category.includes('Review') || t.category.includes('Analysis')) badgeClass = 'badge-review';
 
-                  const testStats = getTestQuestionStats(t, questionStats?.unitStats);
+                  const testStats = getTestQuestionStats(t, questionStats?.testBankStats);
 
                   return (
                     <tr key={t.id}>
-                      <td style={{ color: 'var(--text-muted)', fontWeight: 600 }}>{idx + 1}</td>
-                      <td style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>{t.dayLabel}</td>
+                      <td style={{ color: 'var(--text-muted)', fontWeight: 600 }}>{t.sequence}</td>
+                      <td style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>{t.code}</td>
                       <td style={{ fontWeight: 600 }}>
                         {t.title}
                         {t.description && (
@@ -1148,7 +1148,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                                 <span className="bank-status-dot"></span>
                                 <span className="bank-status-text">{testStats.statusLabel}</span>
                                 {testStats.analysisPct > 0 && (
-                                  <span className="bank-status-badge">100% Explained</span>
+                                  <span className="bank-status-badge">{testStats.analysisPct}% Explained</span>
                                 )}
                               </div>
                             )}
@@ -1232,13 +1232,13 @@ export default function AdminBotanyTestSeries({ currentUser }) {
               onClick={() => {
                 setExcelBankMode('tests');
                 if (!selectedUnitId.startsWith('test_')) {
-                  setSelectedUnitId('test_01');
+                  setSelectedUnitId('test_DT_F');
                 }
               }}
             >
               <Calendar size={16} />
-              <span>📅 Official 35-Test Plan</span>
-              <span className="mode-pill-badge">35 Tests</span>
+              <span>📅 Official 50-Test Plan</span>
+              <span className="mode-pill-badge">50 Tests</span>
             </button>
           </div>
 
@@ -1255,7 +1255,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                   <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                     {excelBankMode === 'units' && 'Upload curriculum questions for Units 1 to 10 with 4 options, answer key, 4-option scientific rationale, and context notes.'}
                     {excelBankMode === 'demo' && 'Upload 10 to 30 mixed-curriculum MCQs for the Free Entrance Assessment CBT. Includes 4-distractor scientific rationales and context notes.'}
-                    {excelBankMode === 'tests' && 'Upload question bank for the selected scheduled test (T01 Diagnostic, Unit Tests T02-T21, Clusters T22-T26, or Full Mocks T27-T35).'}
+                    {excelBankMode === 'tests' && 'Upload a bank for the selected code. Each scheduled test needs its own bank with at least the listed question target.'}
                   </p>
                 </div>
                 <div className="botany-card-actions">
@@ -1365,7 +1365,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                   >
                     {schedule.filter(t => t.isTest).map(t => (
                       <option key={t.id} value={t.id}>
-                        {t.id.replace('test_', 'T')}: {t.title} ({t.category} — {t.questionCount} Qs)
+                        {t.code}: {t.title} ({t.category} — {t.questionCount} Qs)
                       </option>
                     ))}
                   </select>
@@ -1891,7 +1891,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                         <td>
                           <span className="schedule-badge badge-unit">
                             {sub.planType === 'full_series' 
-                              ? 'Full 35-Test Series' 
+                              ? 'Full 50-Test Series'
                               : `Unit Pass (${sub.allowedUnits?.join(', ') || 'Unit 1'})`}
                           </span>
                         </td>
@@ -1970,7 +1970,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                     <optgroup label="Official Calendar Entries">
                       {schedule.filter(t => t.isTest).map(t => (
                         <option key={t.id} value={t.id}>
-                          {t.id.replace('test_', 'T')}: {t.title} ({t.category})
+                          {t.code}: {t.title} ({t.category})
                         </option>
                       ))}
                     </optgroup>
@@ -2413,7 +2413,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                       fontSize: '0.88rem'
                     }}
                   >
-                    <option value="full_series">🌟 Full 35-Test Series (All Units + Mocks + Special)</option>
+                    <option value="full_series">🌟 Full 50-Test Series (All Units + Mocks + Final Exams)</option>
                     <option value="unit_pass">📦 Single Unit-Wise Pass</option>
                   </select>
                 </div>

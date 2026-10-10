@@ -10,7 +10,7 @@ const DEFAULT_PROJECTS = [
     title: 'Botany Assistant Professor CBT Examination Suite',
     category: 'EdTech & Assessment Engines',
     clientTag: 'Curated by Dr. Aubid Hussain Malik (Asst. Professor) • Built & Deployed by NexLifTech',
-    description: 'High-stakes online Computer-Based Testing (CBT) portal developed for Dr. Aubid Hussain Malik, Assistant Professor. Features a 35-test plan, ~2,700 high-yield questions across 10 PSC units, Excel bulk uploads with 3-version rollbacks, automated option analysis, and Razorpay student enrollment workflows.',
+    description: 'Online Computer-Based Testing (CBT) portal developed for Dr. Aubid Hussain Malik, Assistant Professor. Features 50 coded tests and 3,650 planned questions across 10 PSC units, Excel bulk uploads with version rollbacks, option analysis, and Razorpay student enrollment.',
     tech: ['React', 'Firebase', 'Razorpay', 'Excel Engine', 'CBT Analytics'],
     liveLink: '/botany-test-series',
     image: '/botany-suite-preview.svg'

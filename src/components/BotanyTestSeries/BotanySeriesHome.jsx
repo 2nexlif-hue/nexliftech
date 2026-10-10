@@ -103,7 +103,7 @@ const DEMO_QUESTIONS = [
 const FAQ_ITEMS = [
   {
     q: 'What is included in the full pass?',
-    a: 'The full pass includes all 35 planned tests across 10 Botany units, including 9 full mock tests. New dates will appear in the calendar as they are confirmed.'
+    a: 'The full pass includes all 50 tests across 10 Botany units: 1 diagnostic, 44 subunit tests, 3 mocks, a grand finale, and a real exam experience. Dates will be announced separately.'
   },
   {
     q: 'Will I see answer explanations?',
@@ -165,7 +165,7 @@ export default function BotanySeriesHome() {
   const [explorerTab, setExplorerTab] = useState('schedule');
 
   // Search & Filters
-  const [scheduleFilter, setScheduleFilter] = useState('all'); // 'all' | 'unit' | 'cluster' | 'mock' | 'special'
+  const [scheduleFilter, setScheduleFilter] = useState('all'); // 'all' | 'subunit' | 'mock' | 'final'
   const [scheduleSearch, setScheduleSearch] = useState('');
   const [syllabusSearch, setSyllabusSearch] = useState('');
   const [activeUnitAccordion, setActiveUnitAccordion] = useState({ unit_1: true });
@@ -374,9 +374,7 @@ export default function BotanySeriesHome() {
   function hasTestAccess(test) {
     if (hasFullAccess) return true;
     // Test 1 (Diagnostic Entrance Demo) is ALWAYS 100% free for all candidates
-    if (test.testNumber === 'T-1' || test.id === 'test_01' || test.category === 'Diagnostic Test') {
-      return true;
-    }
+    if (test.id === 'diagnostic_demo') return true;
     // Check unit pass access
     const unitMatch = test.unitCovered?.match(/Unit\s*(\d+)/i);
     if (unitMatch) {
@@ -387,7 +385,7 @@ export default function BotanySeriesHome() {
   }
 
   async function handleLaunchTest(test) {
-    const isDemo = test.testNumber === 'T-1' || test.id === 'test_01' || test.category === 'Diagnostic Test';
+    const isDemo = test.id === 'diagnostic_demo';
 
     if (isDemo) {
       // Diagnostic Demo - 30 MCQs instantly available without blocking signin
@@ -422,28 +420,21 @@ export default function BotanySeriesHome() {
       if (testBank?.questions?.length > 0) {
         qList = testBank.questions;
       } else {
-        const unitMatch = test.unitCovered?.match(/Unit\s*(\d+)/i);
-        if (unitMatch) {
-          const unitId = `unit_${unitMatch[1]}`;
-          const unitBank = await getUnitQuestions(unitId).catch(() => null);
-          if (unitBank?.questions?.length > 0) {
-            qList = unitBank.questions;
-          }
-        }
+        // Scheduled subunit tests require their own bank; a whole-unit bank would test the wrong scope.
       }
 
-      if (qList.length > 0) {
+      if (qList.length >= test.questionCount) {
         setActiveTestForCbt({
           id: test.id || test.testNumber,
           testNumber: test.testNumber,
           title: test.title,
           unitCovered: test.unitCovered,
           durationMinutes: test.durationMinutes || 60,
-          questions: qList
+          questions: qList.slice(0, test.questionCount)
         });
         setShowCbtEngine(true);
       } else {
-        setTestNotification(`Questions for "${test.title}" are not ready yet. Please try Unit 1 or the free demo.`);
+        setTestNotification(`The ${test.code} question bank needs ${test.questionCount} questions before this test can start. Try the free demo while it is prepared.`);
         setTimeout(() => setTestNotification(''), 7000);
       }
     } catch (err) {
@@ -504,7 +495,7 @@ export default function BotanySeriesHome() {
 
   function executeCheckout(user, planType) {
     let basePrice = 1499;
-    let planTitle = 'Botany Assistant Professor Entrance Test Series (35 Tests)';
+    let planTitle = 'Botany Assistant Professor Entrance Test Series (50 Tests)';
 
     if (planType === 'unit_pass') {
       basePrice = settings?.unitWisePrice || 199;
@@ -544,39 +535,19 @@ export default function BotanySeriesHome() {
   const basePrice = settings?.fullSeriesPrice || 1499;
   const finalPrice = Math.max(1, basePrice - discountApplied);
   const unitPrice = settings?.unitWisePrice || 199;
-  const testCount = schedule.filter(item => item.isTest !== false && item.questionCount !== 0).length || 35;
-  const remainingTestCount = Math.max(0, 35 - testCount);
-  const studyDayCount = schedule.length - testCount;
+  const testCount = schedule.length;
+  const subunitCount = schedule.filter(item => item.category === 'Subunit Test').length;
+  const mockCount = schedule.filter(item => item.category === 'Mock').length;
 
-  // Filtered Schedule
+  // The source calendar has codes and formats, but no dates.
   const filteredSchedule = schedule.filter(test => {
-    // Type filter
-    if (scheduleFilter === 'unit') {
-      const isUnit = test.category === 'Unit Test' || test.title?.toLowerCase().includes('unit ') || test.unitCovered?.toLowerCase().startsWith('unit');
-      if (!isUnit) return false;
-    }
-    if (scheduleFilter === 'cluster') {
-      const isCluster = test.category === 'Cluster Test' || test.title?.toLowerCase().includes('cluster');
-      if (!isCluster) return false;
-    }
-    if (scheduleFilter === 'mock') {
-      const isMock = test.category === 'Full Mock' || test.title?.toLowerCase().includes('mock');
-      if (!isMock) return false;
-    }
-    if (scheduleFilter === 'special') {
-      const isSpecial = test.category === 'Special Test' || test.title?.toLowerCase().includes('special') || test.title?.toLowerCase().includes('pyq') || test.title?.toLowerCase().includes('himalayan');
-      if (!isSpecial) return false;
-    }
-
-    // Search filter
+    if (scheduleFilter === 'subunit' && test.category !== 'Subunit Test') return false;
+    if (scheduleFilter === 'mock' && test.category !== 'Mock') return false;
+    if (scheduleFilter === 'final' && !['Finale', 'Real Exam'].includes(test.category)) return false;
     if (!scheduleSearch.trim()) return true;
-    const q = scheduleSearch.toLowerCase();
-    return (
-      test.title?.toLowerCase().includes(q) ||
-      test.unitCovered?.toLowerCase().includes(q) ||
-      test.testNumber?.toLowerCase().includes(q) ||
-      test.category?.toLowerCase().includes(q)
-    );
+    const q = scheduleSearch.trim().toLowerCase();
+    return [test.code, test.title, test.description, test.unitCovered, test.category]
+      .some(value => value?.toLowerCase().includes(q));
   });
 
   // Advanced Fuzzy & Semantic Syllabus Search
@@ -787,25 +758,25 @@ export default function BotanySeriesHome() {
               Botany Assistant Professor Test Series
             </h1>
             <p className="hero-compact-subtitle">
-              Prepare across 10 Botany units with {testCount} scheduled tests and 9 full mock tests.
+              Prepare across 10 Botany units with {testCount} coded tests, including {subunitCount} subunit tests and {mockCount} mocks.
             </p>
 
             <div className="hero-compact-chips">
               <div className="hero-chip">
                 <span className="chip-val">{testCount}</span>
-                <span className="chip-lbl">Scheduled Tests</span>
+                <span className="chip-lbl">Tests in Series</span>
               </div>
               <div className="hero-chip">
                 <span className="chip-val">10</span>
                 <span className="chip-lbl">Botany Units</span>
               </div>
               <div className="hero-chip">
-                <span className="chip-val">9</span>
+                <span className="chip-val">{mockCount}</span>
                 <span className="chip-lbl">Full Mock Tests</span>
               </div>
               <div className="hero-chip">
-                <span className="chip-val">{questionStats?.totalUploadedQuestions || 100}+</span>
-                <span className="chip-lbl">Questions Ready</span>
+                <span className="chip-val">{questionStats?.totalUploadedQuestions ?? 0}</span>
+                <span className="chip-lbl">Unit Bank MCQs</span>
               </div>
               <div className="hero-chip">
                 <span className="chip-val">-0.25</span>
@@ -888,7 +859,7 @@ export default function BotanySeriesHome() {
               <div className="content-card-header">
                 <div>
                   <h3>Botany Examination Calendar</h3>
-                  <p>{testCount} tests have dates{remainingTestCount > 0 ? `; ${remainingTestCount} more ${remainingTestCount === 1 ? 'is' : 'are'} planned` : ''}{studyDayCount > 0 ? `. The calendar also includes ${studyDayCount} study days` : ''}.</p>
+                  <p>{testCount} tests in document order. Dates have not been announced.</p>
                 </div>
                 <button type="button" className="btn btn-primary btn-sm" onClick={() => scrollToPricing('full')}>
                   <span>Enroll in Series — ₹{finalPrice}</span>
@@ -906,33 +877,14 @@ export default function BotanySeriesHome() {
                   >
                     All Entries ({schedule.length})
                   </button>
-                  <button
-                    type="button"
-                    className={`filter-pill-btn ${scheduleFilter === 'unit' ? 'active' : ''}`}
-                    onClick={() => setScheduleFilter('unit')}
-                  >
-                    10 Unit Tests
+                  <button type="button" className={`filter-pill-btn ${scheduleFilter === 'subunit' ? 'active' : ''}`} onClick={() => setScheduleFilter('subunit')}>
+                    {subunitCount} Subunit Tests
                   </button>
-                  <button
-                    type="button"
-                    className={`filter-pill-btn ${scheduleFilter === 'cluster' ? 'active' : ''}`}
-                    onClick={() => setScheduleFilter('cluster')}
-                  >
-                    5 Cluster Tests
+                  <button type="button" className={`filter-pill-btn ${scheduleFilter === 'mock' ? 'active' : ''}`} onClick={() => setScheduleFilter('mock')}>
+                    {mockCount} Mocks
                   </button>
-                  <button 
-                    type="button" 
-                    className={`filter-pill-btn ${scheduleFilter === 'mock' ? 'active' : ''}`}
-                    onClick={() => setScheduleFilter('mock')}
-                  >
-                    9 Grand Mocks
-                  </button>
-                  <button 
-                    type="button" 
-                    className={`filter-pill-btn ${scheduleFilter === 'special' ? 'active' : ''}`}
-                    onClick={() => setScheduleFilter('special')}
-                  >
-                    Past Papers &amp; Specials
+                  <button type="button" className={`filter-pill-btn ${scheduleFilter === 'final' ? 'active' : ''}`} onClick={() => setScheduleFilter('final')}>
+                    Finale &amp; Real Exam
                   </button>
                 </div>
 
@@ -964,33 +916,32 @@ export default function BotanySeriesHome() {
                       <th style={{ whiteSpace: 'nowrap' }}>Test Title &amp; Syllabus Coverage</th>
                       <th style={{ width: '140px', whiteSpace: 'nowrap' }}>Questions</th>
                       <th style={{ width: '80px', whiteSpace: 'nowrap' }}>Duration</th>
-                      <th style={{ width: '100px', whiteSpace: 'nowrap' }}>Schedule</th>
+                      <th style={{ width: '100px', whiteSpace: 'nowrap' }}>Unit</th>
                       <th style={{ width: '115px', textAlign: 'right', whiteSpace: 'nowrap' }}>Status</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredSchedule.map((t, idx) => {
-                      const testBankStats = getTestQuestionStats(t, questionStats?.unitStats);
+                    {filteredSchedule.map((t) => {
+                      const testBankStats = getTestQuestionStats(t, questionStats?.testBankStats);
                       const isAccessible = hasTestAccess(t);
-                      const isDemo = t.testNumber === 'T-1' || t.id === 'test_01' || t.category === 'Diagnostic Test';
-                      const isStudyDay = t.isTest === false || t.questionCount === 0;
-                      const entryNumber = schedule.indexOf(t) + 1;
+                      const bankReady = testBankStats.uploadedCount >= t.questionCount;
 
                       return (
-                        <tr key={t.testId || idx}>
+                        <tr key={t.id}>
                           <td data-label="Test">
-                            <span className="test-code-badge">{isStudyDay ? `Day ${entryNumber}` : t.testNumber || `T-${entryNumber}`}</span>
+                            <span className="test-code-badge">{t.code}</span>
                           </td>
                           <td data-label="Title and coverage">
                             <div className="table-test-info">
                               <span className="t-name">{t.title}</span>
-                              <span className="t-coverage">{t.unitCovered}</span>
+                              <span className="t-coverage">{t.category} · {t.unitCovered}</span>
+                              {t.description && <details className="test-scope-details"><summary>View syllabus scope</summary><p>{t.description}</p></details>}
                             </div>
                           </td>
                           <td data-label="Questions">
                             <div className="table-test-info">
-                              <span className="t-badge-mcq">{isStudyDay ? 'Study day' : `${t.questionCount || 50} questions`}</span>
-                              {!isStudyDay && testBankStats?.uploadedCount > 0 && (
+                              <span className="t-badge-mcq">{t.questionCount} questions</span>
+                              {testBankStats.uploadedCount > 0 && (
                                 <span 
                                   className="t-live-bank-tag"
                                   title={`${testBankStats.uploadedCount} questions ready`}
@@ -1001,24 +952,22 @@ export default function BotanySeriesHome() {
                             </div>
                           </td>
                           <td data-label="Duration">
-                            <span className="t-badge-time">{isStudyDay ? 'Self-paced' : `${t.durationMinutes || 60} Mins`}</span>
+                            <span className="t-badge-time">{t.durationMinutes} min</span>
                           </td>
-                          <td data-label="Schedule">
-                            <span className="t-date-text">{t.dayLabel || t.scheduledDate || 'Flexible'}</span>
+                          <td data-label="Unit">
+                            <span className="t-date-text">{t.unitCovered}</span>
                           </td>
                           <td data-label="Access" className="schedule-action-cell">
-                            {isStudyDay ? (
-                              <span className="t-study-day-tag">Study plan</span>
-                            ) : isAccessible ? (
+                            {isAccessible ? (
                               <button
                                 type="button"
-                                className={`btn btn-sm cbt-table-action-btn ${isDemo ? 'demo' : 'start'}`}
+                                className="btn btn-sm cbt-table-action-btn start"
                                 onClick={() => handleLaunchTest(t)}
-                                disabled={testLaunchLoading}
-                                title={isDemo ? 'Try the free demo' : 'Start this test'}
+                                disabled={testLaunchLoading || !bankReady}
+                                title={bankReady ? 'Start this test' : 'Question bank is being prepared'}
                               >
                                 <Play size={11} />
-                                <span>{isDemo ? 'Free Demo' : 'Start Test'}</span>
+                                <span>{bankReady ? 'Start Test' : 'Coming Soon'}</span>
                               </button>
                             ) : (
                               <button
@@ -1121,7 +1070,7 @@ export default function BotanySeriesHome() {
                 <div className="pricing-mobile-quick-buy">
                   <div className="pricing-mobile-quick-buy-copy">
                     <strong>Full Series Pass</strong>
-                    <span>₹{finalPrice} · 35 tests across 10 units</span>
+                    <span>₹{finalPrice} · 50 tests across 10 units</span>
                   </div>
                   <button type="button" className="btn btn-primary" onClick={() => handleEnrollClick('full_series')}>
                     Buy Full Series <ArrowRight size={16} />
@@ -1130,11 +1079,11 @@ export default function BotanySeriesHome() {
               )}
 
               <div className="botany-pricing-cards-container">
-                {/* Card 1: Complete 35-Test Series Master Pass */}
+                {/* Card 1: Complete 50-Test Series Master Pass */}
                 <div className={`pricing-card-box featured-pass ${activePricingTab === 'full' ? 'active-mobile-plan' : ''}`}>
                   <div className="p-card-header">
                     <span className="p-plan-badge">Full Series</span>
-                    <h3 className="p-plan-title">Full 35-Test Series Pass</h3>
+                    <h3 className="p-plan-title">Full 50-Test Series Pass</h3>
                     <p className="p-plan-summary">
                       Practice every Botany unit in one pass.
                     </p>
@@ -1197,7 +1146,7 @@ export default function BotanySeriesHome() {
                     </li>
                     <li>
                       <CheckCircle2 size={15} className="p-check-icon" />
-                      <span>9 full mock tests</span>
+                      <span>3 full mocks, grand finale & real exam</span>
                     </li>
                   </ul>
 

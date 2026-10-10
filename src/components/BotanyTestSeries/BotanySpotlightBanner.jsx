@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Zap, ArrowRight } from 'lucide-react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
-import { DEFAULT_SERIES_SETTINGS } from '../../utils/botanySettings';
+import { DEFAULT_SERIES_SETTINGS, normalizeBotanySettings } from '../../utils/botanySettings';
 import './BotanySpotlightBanner.css';
 
 export default function BotanySpotlightBanner() {
@@ -14,7 +14,7 @@ export default function BotanySpotlightBanner() {
       try {
         const snapshot = await getDoc(doc(db, 'siteContent', 'botany_test_series_settings'));
         if (snapshot.exists()) {
-          setSettings({ ...DEFAULT_SERIES_SETTINGS, ...snapshot.data() });
+          setSettings(normalizeBotanySettings(snapshot.data()));
         }
       } catch (err) {
         console.warn('Could not load spotlight settings:', err);
@@ -45,7 +45,7 @@ export default function BotanySpotlightBanner() {
               {(settings.flashHeadline || 'Botany Test Series for Assistant Professor Exam').replaceAll('Dr. Aubid Ahmad', 'Dr. Aubid Hussain Malik')}
             </h4>
             <p className="hero-flash-details">
-              {(settings.flashDetails || '35 planned tests across 10 units. Try a free practice test.').replaceAll('Dr. Aubid Ahmad', 'Dr. Aubid Hussain Malik')}
+              {(settings.flashDetails || '50 coded tests across 10 units. Try a free practice test.').replaceAll('Dr. Aubid Ahmad', 'Dr. Aubid Hussain Malik')}
             </p>
           </div>
         </div>

@@ -3155,6 +3155,10 @@
 .schedule-data-table tr:hover td { background: var(--bg-elevated); }
 .t-name { font-size: 0.86rem; line-height: 1.4; }
 .t-coverage { font-size: 0.75rem; line-height: 1.4; }
+.test-scope-details { max-width: 72ch; color: var(--text-secondary); font-size: 0.75rem; line-height: 1.5; }
+.test-scope-details summary { width: fit-content; min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--accent-primary); font-weight: 700; }
+.test-scope-details summary:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; border-radius: 4px; }
+.test-scope-details p { margin: 0 0 0.4rem; overflow-wrap: anywhere; }
 .cbt-table-action-btn { min-height: 42px; padding: 0.55rem 0.7rem; font-size: 0.75rem; }
 .schedule-action-cell { text-align: right; }
 .t-study-day-tag { display: inline-flex; align-items: center; min-height: 42px; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--border-light); color: var(--text-secondary); background: var(--bg-elevated); font-size: 0.76rem; font-weight: 700; }

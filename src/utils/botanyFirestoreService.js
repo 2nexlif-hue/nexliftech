@@ -10,7 +10,8 @@ import {
   deleteDoc 
 } from 'firebase/firestore';
 import { db } from '../firebase';
-import { BOTANY_SYLLABUS, BOTANY_TEST_SCHEDULE, DEFAULT_SERIES_SETTINGS } from './botanyTestSeriesData';
+import { BOTANY_SYLLABUS, BOTANY_TEST_SCHEDULE, BOTANY_SCHEDULE_VERSION, DEFAULT_SERIES_SETTINGS } from './botanyTestSeriesData';
+import { normalizeBotanySettings } from './botanySettings';
 import { BOTANY_SEED_QUESTION_BANKS } from './botanySeedQuestionBanks';
 
 const SETTINGS_DOC = 'botany_test_series_settings';
@@ -25,7 +26,7 @@ export async function getBotanySettings() {
     const docRef = doc(db, 'siteContent', SETTINGS_DOC);
     const snap = await getDoc(docRef);
     if (snap.exists()) {
-      return { ...DEFAULT_SERIES_SETTINGS, ...snap.data() };
+      return normalizeBotanySettings(snap.data());
     }
     return DEFAULT_SERIES_SETTINGS;
   } catch (err) {
@@ -86,7 +87,7 @@ export async function getBotanySchedule() {
   try {
     const docRef = doc(db, 'siteContent', SCHEDULE_DOC);
     const snap = await getDoc(docRef);
-    if (snap.exists() && snap.data()?.schedule?.length) {
+    if (snap.exists() && snap.data()?.version === BOTANY_SCHEDULE_VERSION && snap.data()?.schedule?.length) {
       return snap.data().schedule;
     }
     return BOTANY_TEST_SCHEDULE;
@@ -103,6 +104,7 @@ export async function saveBotanySchedule(schedule, userEmail = 'admin') {
   const docRef = doc(db, 'siteContent', SCHEDULE_DOC);
   const payload = {
     schedule,
+    version: BOTANY_SCHEDULE_VERSION,
     updatedAt: new Date().toISOString(),
     updatedBy: userEmail
   };
@@ -319,61 +321,18 @@ export function resolveTestUnits(unitCovered) {
 /**
  * Calculates question bank readiness statistics for a single schedule test
  */
-export function getTestQuestionStats(testItem, unitStatsMap = {}) {
-  const unitNumbers = resolveTestUnits(testItem.unitCovered);
-  if (!unitNumbers.length) {
-    return {
-      hasBank: false,
-      unitNumbers: [],
-      uploadedCount: 0,
-      targetCount: testItem.questionCount || 0,
-      coveragePct: 0,
-      analysisPct: 0,
-      statusLabel: 'Review / Drill Day',
-      statusType: 'neutral'
-    };
-  }
-
-  let totalInBank = 0;
-  let totalAnalysis = 0;
-  let unitCount = 0;
-
-  unitNumbers.forEach((num) => {
-    const uStats = unitStatsMap[`unit_${num}`];
-    if (uStats) {
-      totalInBank += (uStats.questionCount || 0);
-      totalAnalysis += (uStats.fourOptionAnalysisPct || 0);
-      unitCount++;
-    }
-  });
-
-  const avgAnalysis = unitCount > 0 ? Math.round(totalAnalysis / unitCount) : 0;
-  const target = testItem.questionCount || 0;
-  const coveragePct = target > 0 ? Math.min(100, Math.round((totalInBank / target) * 100)) : 100;
-
-  let statusType = 'ready';
-  let statusLabel = `${totalInBank} in Bank`;
-
-  if (totalInBank === 0) {
-    statusType = 'empty';
-    statusLabel = 'Pending Upload';
-  } else if (totalInBank >= target) {
-    statusType = 'complete';
-    statusLabel = `${totalInBank} Q Bank (100% Ready)`;
-  } else {
-    statusType = 'partial';
-    statusLabel = `${totalInBank} in Bank (${coveragePct}%)`;
-  }
-
+export function getTestQuestionStats(testItem, testBankStatsMap = {}) {
+  const uploadedCount = testBankStatsMap[testItem.id]?.questionCount || 0;
+  const targetCount = testItem.questionCount || 0;
+  const coveragePct = targetCount ? Math.min(100, Math.round(uploadedCount / targetCount * 100)) : 0;
   return {
     hasBank: true,
-    unitNumbers,
-    uploadedCount: totalInBank,
-    targetCount: target,
+    uploadedCount,
+    targetCount,
     coveragePct,
-    analysisPct: avgAnalysis,
-    statusLabel,
-    statusType
+    analysisPct: testBankStatsMap[testItem.id]?.fourOptionAnalysisPct || 0,
+    statusLabel: uploadedCount === 0 ? 'Pending Upload' : `${uploadedCount} in Bank (${coveragePct}%)`,
+    statusType: uploadedCount === 0 ? 'empty' : uploadedCount >= targetCount ? 'complete' : 'partial'
   };
 }
 
@@ -492,12 +451,20 @@ export async function getAllUnitsQuestionStats(syllabus = BOTANY_SYLLABUS) {
     lastUpdated: demoBank.lastUpdated
   } : null;
   const totalBankQuestions = totalUploadedQuestions + (demoStats?.questionCount || 0);
+  const testBankStats = Object.fromEntries(BOTANY_TEST_SCHEDULE.map((test) => {
+    const questions = firestoreUnits[test.id]?.questions || [];
+    const explained = questions.filter(q => ['analysisA', 'analysisB', 'analysisC', 'analysisD'].every(key => q[key]?.trim())).length;
+    return [test.id, {
+      questionCount: questions.length,
+      fourOptionAnalysisPct: questions.length ? Math.round(explained / questions.length * 100) : 0
+    }];
+  }));
 
   return {
     totalUploadedQuestions,
     totalBankQuestions,
     totalTargetQuestions,
-    seriesTotalTarget: 2700,
+    seriesTotalTarget: BOTANY_TEST_SCHEDULE.reduce((sum, test) => sum + test.questionCount, 0),
     unitsLoadedCount: unitsWithQuestions,
     totalUnitsCount: syllabus.length,
     overallAnalysisPct,
@@ -505,6 +472,7 @@ export async function getAllUnitsQuestionStats(syllabus = BOTANY_SYLLABUS) {
     overallCoveragePct,
     overallKeyDistribution: overallKeyCounts,
     unitStats: unitsMap,
+    testBankStats,
     demoStats
   };
 }

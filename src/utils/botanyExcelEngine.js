@@ -60,7 +60,7 @@ export const OFFICIAL_SAMPLE_QUESTIONS = [
 ];
 
 export function downloadExcelTemplate(unitId = 'unit_1', unitTitle = 'Unit 1') {
-  const isDemo = unitId === 'diagnostic_demo' || /demo|diagnos/i.test(unitTitle);
+  const isDemo = unitId === 'diagnostic_demo';
   const rows = OFFICIAL_SAMPLE_QUESTIONS.map((q, idx) => ({
     'S.No': idx + 1,
     'Question': q.question,
@@ -86,7 +86,7 @@ export function downloadExcelTemplate(unitId = 'unit_1', unitTitle = 'Unit 1') {
 
   const filePrefix = isDemo 
     ? 'Template_Diagnostic_Entrance_Demo_10_to_30_MCQs.xlsx' 
-    : `Template_${unitTitle.replace(/[^a-zA-Z0-9_-]/g, '_')}_Questions.xlsx`;
+    : `Template_${unitId}_${unitTitle.replace(/[^a-zA-Z0-9_-]/g, '_')}_Questions.xlsx`;
   XLSX.writeFile(workbook, filePrefix);
 }
 
@@ -256,8 +256,11 @@ export function parseExcelBuffer(buffer, fileName = 'question_bank.xlsx') {
   }
 
   let detectedUnitId = null;
+  const codedTestMatch = fileName.match(/test[_-](DT_F|T\d+_[IVX]+|TM_[IVX]+|TGF|TREE)(?:[_\s.-]|$)/i);
   const unitMatch = fileName.match(/unit[_\s-]?0?(\d+)/i);
-  if (unitMatch && unitMatch[1]) {
+  if (codedTestMatch) {
+    detectedUnitId = `test_${codedTestMatch[1].toUpperCase()}`;
+  } else if (unitMatch && unitMatch[1]) {
     detectedUnitId = `unit_${parseInt(unitMatch[1], 10)}`;
   } else if (/demo|diagnos|sample|entrance/i.test(fileName)) {
     detectedUnitId = 'diagnostic_demo';
@@ -342,4 +345,3 @@ export async function parseExcelFile(file) {
     reader.readAsArrayBuffer(file);
   });
 }
-

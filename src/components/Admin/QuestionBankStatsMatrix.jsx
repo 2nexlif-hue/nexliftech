@@ -29,7 +29,7 @@ export default function QuestionBankStatsMatrix({
   const {
     totalUploadedQuestions = 0,
     totalTargetQuestions = 500,
-    seriesTotalTarget = 2700,
+    seriesTotalTarget = 3650,
     unitsLoadedCount = 0,
     totalUnitsCount = 10,
     overallAnalysisPct = 0,

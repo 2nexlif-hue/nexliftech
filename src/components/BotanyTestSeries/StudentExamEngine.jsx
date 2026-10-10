@@ -19,12 +19,9 @@ export default function StudentExamEngine({
 }) {
   const { currentUser, userProfile } = useAuth();
 
-  // Guardrail check: Only Test 1 (Diagnostic Demo) is free; Tests 2-35 require active subscription
+  // The short practice demo is free; the scheduled DT-F diagnostic belongs to the series.
   const isFreeDemo = (
-    testData?.testNumber === 'T-1' || 
-    testData?.id === 'diagnostic_demo' || 
-    testData?.id === 'test_01' || 
-    testData?.category === 'Diagnostic Test'
+    testData?.id === 'diagnostic_demo'
   );
 
   const emailLower = currentUser?.email?.toLowerCase().trim() || '';
@@ -233,7 +230,7 @@ export default function StudentExamEngine({
           <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-light)', borderRadius: '12px', padding: '1rem', textAlign: 'left', marginBottom: '1.5rem', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)' }}>
               <CheckCircle2 size={16} color="#10b981" />
-              <span>35 planned tests across 10 Botany units</span>
+              <span>50 planned tests across 10 Botany units</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)' }}>
               <CheckCircle2 size={16} color="#10b981" />
@@ -241,7 +238,7 @@ export default function StudentExamEngine({
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)' }}>
               <CheckCircle2 size={16} color="#10b981" />
-              <span>9 full mock tests in the full series</span>
+              <span>3 mocks, grand finale and real exam experience</span>
             </div>
           </div>
 
