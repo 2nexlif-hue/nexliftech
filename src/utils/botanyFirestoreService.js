@@ -88,7 +88,11 @@ export async function getBotanySchedule() {
     const docRef = doc(db, 'siteContent', SCHEDULE_DOC);
     const snap = await getDoc(docRef);
     if (snap.exists() && snap.data()?.version === BOTANY_SCHEDULE_VERSION && snap.data()?.schedule?.length) {
-      return snap.data().schedule;
+      return snap.data().schedule.map(test => {
+        if (test.id !== 'test_T3_V') return test;
+        const canonical = BOTANY_TEST_SCHEDULE.find(item => item.id === test.id);
+        return { ...test, title: canonical.title, description: test.description || canonical.description };
+      });
     }
     return BOTANY_TEST_SCHEDULE;
   } catch (err) {

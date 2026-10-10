@@ -507,13 +507,13 @@ export const BOTANY_TEST_SCHEDULE = [
     "id": "test_T3_V",
     "code": "T3-V",
     "sequence": 14,
-    "title": "Unit 3: Concept and utility of APG-IV classification; Parsimony, Maximum likelihood, and DNA barcoding in phylogenetic analysis",
+    "title": "Unit 3: APG-IV and phylogenetic analysis",
     "category": "Subunit Test",
     "questionCount": 50,
     "durationMinutes": 80,
     "unitCovered": "Unit 3",
     "isTest": true,
-    "description": "",
+    "description": "Concept and utility of APG-IV classification; Parsimony, Maximum likelihood, and DNA barcoding in phylogenetic analysis.",
     "subunitCode": "T3-V"
   },
   {
