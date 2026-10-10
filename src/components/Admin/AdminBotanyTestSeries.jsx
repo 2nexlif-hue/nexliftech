@@ -21,11 +21,9 @@ import {
   commitAllSeedBanksToFirestore,
   grantManualSubscription
 } from '../../utils/botanyFirestoreService';
-import QuestionBankStatsMatrix from './QuestionBankStatsMatrix';
 import { 
   downloadExcelTemplate, 
   parseExcelFile, 
-  parseExcelBuffer, 
   exportQuestionsToExcel 
 } from '../../utils/botanyExcelEngine';
 import { computeQuestionBankDiff } from '../../utils/botanyDiff';
@@ -55,7 +53,6 @@ export default function AdminBotanyTestSeries({ currentUser }) {
 
   // Excel Hub State
   const [excelBankMode, setExcelBankMode] = useState('units'); // 'units' | 'demo' | 'tests'
-  const [matrixFilter, setMatrixFilter] = useState('all');
   const [selectedUnitId, setSelectedUnitId] = useState('unit_1');
   const [unitActiveData, setUnitActiveData] = useState(null);
   const [unitVersions, setUnitVersions] = useState([]);
@@ -67,51 +64,26 @@ export default function AdminBotanyTestSeries({ currentUser }) {
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [committing, setCommitting] = useState(false);
   const [commitProgress, setCommitProgress] = useState({ current: 0, total: 0, unitTitle: '' });
-  const [isDragging, setIsDragging] = useState(false);
-  const dragCounter = useRef(0);
-  const fileInputRef = useRef(null);
   const activeBankRef = useRef(null);
-  const bankToolsRef = useRef(null);
-  const scheduleFileInputRef = useRef(null);
-  const scheduleUploadIdRef = useRef(null);
-  const [showUnitBanks, setShowUnitBanks] = useState(false);
+  const bankFileInputRef = useRef(null);
+  const bankUploadIdRef = useRef(null);
   const [isBankEditorOpen, setIsBankEditorOpen] = useState(false);
-
-  function openUnitBanks() {
-    setShowUnitBanks(true);
-    window.setTimeout(() => bankToolsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
-  }
 
   function inspectBank(bankId) {
     setSelectedUnitId(bankId);
     setExcelBankMode(bankId === 'diagnostic_demo' ? 'demo' : bankId.startsWith('test_') ? 'tests' : 'units');
     setIsBankEditorOpen(true);
-    window.setTimeout(() => {
-      activeBankRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      activeBankRef.current?.focus({ preventScroll: true });
-    }, 0);
   }
 
-  function chooseScheduleFile(bankId) {
-    scheduleUploadIdRef.current = bankId;
-    scheduleFileInputRef.current?.click();
+  function chooseBankFile(bankId) {
+    bankUploadIdRef.current = bankId;
+    bankFileInputRef.current?.click();
   }
 
-  function handleScheduleFileChange(event) {
+  function handleBankFileChange(event) {
     const file = event.target.files?.[0];
-    if (file && scheduleUploadIdRef.current) processFiles([file], scheduleUploadIdRef.current);
+    if (file && bankUploadIdRef.current) processFiles([file], bankUploadIdRef.current);
     event.target.value = '';
-  }
-
-  function changeMatrixFilter(filter) {
-    setMatrixFilter(filter);
-    if (filter === 'demo') {
-      setExcelBankMode('demo');
-      setSelectedUnitId('diagnostic_demo');
-    } else {
-      setExcelBankMode('units');
-      if (!selectedUnitId.startsWith('unit_')) setSelectedUnitId('unit_1');
-    }
   }
 
   function handleDownloadBankTemplate(bankId) {
@@ -533,13 +505,10 @@ export default function AdminBotanyTestSeries({ currentUser }) {
           setSelectedUnitId(single.detectedUnitId);
           if (single.detectedUnitId === 'diagnostic_demo') {
             setExcelBankMode('demo');
-            setMatrixFilter('demo');
           } else if (single.detectedUnitId.startsWith('test_')) {
             setExcelBankMode('tests');
-            setMatrixFilter('all');
           } else {
             setExcelBankMode('units');
-            setMatrixFilter('all');
           }
         }
         setUploadPreview(single);
@@ -561,13 +530,10 @@ export default function AdminBotanyTestSeries({ currentUser }) {
           setSelectedUnitId(parsedList[0].detectedUnitId);
           if (parsedList[0].detectedUnitId === 'diagnostic_demo') {
             setExcelBankMode('demo');
-            setMatrixFilter('demo');
           } else if (parsedList[0].detectedUnitId.startsWith('test_')) {
             setExcelBankMode('tests');
-            setMatrixFilter('all');
           } else {
             setExcelBankMode('units');
-            setMatrixFilter('all');
           }
         }
         setShowPreviewModal(true);
@@ -577,101 +543,6 @@ export default function AdminBotanyTestSeries({ currentUser }) {
     } catch (err) {
       console.error('Excel parse error:', err);
       showToast('error', err.message || 'Failed to parse Excel file.');
-    } finally {
-      setSaving(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  }
-
-  function handleFileSelect(e) {
-    const files = Array.from(e.target.files || []);
-    if (files.length) processFiles(files);
-  }
-
-  function handleDragEnter(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCounter.current += 1;
-    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
-      setIsDragging(true);
-    }
-  }
-
-  function handleDragOver(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!isDragging) setIsDragging(true);
-  }
-
-  function handleDragLeave(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCounter.current -= 1;
-    if (dragCounter.current <= 0) {
-      dragCounter.current = 0;
-      setIsDragging(false);
-    }
-  }
-
-  function handleDrop(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCounter.current = 0;
-    setIsDragging(false);
-    const files = Array.from(e.dataTransfer.files || []);
-    if (files.length > 0) {
-      processFiles(files);
-    }
-  }
-
-  // Load all 10 prepared sample unit files from docs/
-  async function handleLoadDocsSampleFiles() {
-    setSaving(true);
-    showToast('info', 'Loading 10 sample files prepared in docs/ ...');
-    try {
-      const parsedList = [];
-      for (let i = 1; i <= 10; i++) {
-        const padded = i < 10 ? `0${i}` : `${i}`;
-        const fileName = `Botany_Unit_${padded}_MCQ_Question_Bank.xlsx`;
-        const res = await fetch(`/sample_question_banks/${fileName}`);
-        if (!res.ok) throw new Error(`Could not load ${fileName}`);
-        const buf = await res.arrayBuffer();
-        const parsed = parseExcelBuffer(buf, fileName);
-        parsedList.push(parsed);
-      }
-      setBatchUploadList(parsedList);
-      setUploadPreview(parsedList[0]);
-      if (parsedList[0].detectedUnitId) {
-        setSelectedUnitId(parsedList[0].detectedUnitId);
-      }
-      setShowPreviewModal(true);
-      showToast('success', 'All 10 sample unit question banks loaded with 100 questions ready for preview!');
-    } catch (err) {
-      console.error('Error loading sample files:', err);
-      showToast('error', err.message || 'Could not load sample files.');
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  // Load prepared 30-MCQ Entrance Demo file from docs/
-  async function handleLoadEntranceDemoFile() {
-    setSaving(true);
-    showToast('info', 'Loading 30-MCQ Entrance Demo prepared in docs/ ...');
-    try {
-      const fileName = 'Botany_Entrance_30_MCQ_Mixed.xlsx';
-      const res = await fetch(`/sample_question_banks/${fileName}`);
-      if (!res.ok) throw new Error(`Could not load ${fileName}`);
-      const buf = await res.arrayBuffer();
-      const parsed = parseExcelBuffer(buf, fileName);
-      setBatchUploadList([]);
-      setUploadPreview(parsed);
-      setSelectedUnitId('diagnostic_demo');
-      setShowPreviewModal(true);
-      showToast('success', 'Loaded 30-MCQ Entrance Demo ready for preview!');
-    } catch (err) {
-      console.error('Error loading demo file:', err);
-      showToast('error', err.message || 'Could not load demo file.');
     } finally {
       setSaving(false);
     }
@@ -894,6 +765,8 @@ export default function AdminBotanyTestSeries({ currentUser }) {
         </div>
       )}
 
+      <input ref={bankFileInputRef} className="schedule-file-input" type="file" accept=".xlsx,.xls" aria-label="Choose question bank workbook" onChange={handleBankFileChange} />
+
       {/* Sub Navigation Bar */}
       <div className="botany-nav-tabs">
         <button 
@@ -933,6 +806,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
               </p>
             </div>
             <div className="botany-card-actions">
+              <button type="button" className="btn btn-secondary btn-sm" onClick={handleCommitAllSeedBanks} disabled={saving}><RefreshCw size={13} /> Sync unit banks</button>
               <button 
                 type="button"
                 className="btn btn-secondary btn-sm"
@@ -988,6 +862,13 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                     </div>
                   </button>
 
+                  <div className="syllabus-bank-actions">
+                    <span>{questionStats?.unitStats?.[unit.unitId]?.questionCount || 0} / {questionStats?.unitStats?.[unit.unitId]?.targetCount || unit.estimatedQuestions || 50} bank questions</span>
+                    <button type="button" className="btn btn-secondary btn-sm" onClick={() => handleDownloadBankTemplate(unit.unitId)}><Download size={13} /> Template</button>
+                    <button type="button" className="btn btn-secondary btn-sm" onClick={() => chooseBankFile(unit.unitId)} disabled={saving}><Upload size={13} /> Upload</button>
+                    <button type="button" className="btn btn-secondary btn-sm" onClick={() => inspectBank(unit.unitId)}><FileSpreadsheet size={13} /> Inspect</button>
+                  </div>
+
                   {isOpen && (
                     <div className="syllabus-unit-body">
                       <div className="subunits-grid">
@@ -1022,8 +903,8 @@ export default function AdminBotanyTestSeries({ currentUser }) {
               </p>
             </div>
             <div className="botany-card-actions" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <button type="button" className="btn btn-secondary btn-sm" onClick={openUnitBanks}>
-                <BookOpen size={14} /> Unit &amp; demo banks
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => inspectBank('diagnostic_demo')}>
+                <FileSpreadsheet size={14} /> Free demo bank
               </button>
               <button type="button" className="btn btn-secondary btn-sm" onClick={handleMasterSync} disabled={saving} title="Refresh the master syllabus and schedule in Firebase">
                 <RefreshCw size={14} className={saving ? 'spin' : ''} /> Sync master
@@ -1047,8 +928,6 @@ export default function AdminBotanyTestSeries({ currentUser }) {
               </select>
             </div>
           </div>
-
-          <input ref={scheduleFileInputRef} className="schedule-file-input" type="file" accept=".xlsx,.xls" aria-label="Choose scheduled test workbook" onChange={handleScheduleFileChange} />
 
           <div className="schedule-table-wrapper">
             <table className="schedule-table">
@@ -1114,7 +993,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                             )}
                             <div className="schedule-bank-actions">
                               <button type="button" className="schedule-template-btn" onClick={() => handleDownloadBankTemplate(t.id)} title={`Download ${t.code} question bank template for ${t.questionCount} questions`} aria-label={`Download ${t.code} question bank template`}><Download size={14} /><span>Template</span></button>
-                              <button type="button" className="schedule-template-btn" onClick={() => chooseScheduleFile(t.id)} disabled={saving} title={`Upload ${t.code} question bank`} aria-label={`Upload question bank for ${t.code}`}><Upload size={14} /><span>Upload</span></button>
+                              <button type="button" className="schedule-template-btn" onClick={() => chooseBankFile(t.id)} disabled={saving} title={`Upload ${t.code} question bank`} aria-label={`Upload question bank for ${t.code}`}><Upload size={14} /><span>Upload</span></button>
                               <button type="button" className="schedule-template-btn" onClick={() => inspectBank(t.id)} title={`Inspect ${t.code} question bank`} aria-label={`Inspect question bank for ${t.code}`}><FileSpreadsheet size={14} /><span>Inspect</span></button>
                             </div>
                           </div>
@@ -1171,171 +1050,35 @@ export default function AdminBotanyTestSeries({ currentUser }) {
         </div>
       )}
 
-      {/* UNIT AND DEMO BANKS, WITH THE SHARED BANK EDITOR */}
-      {subTab === 'schedule' && (
-        <div ref={bankToolsRef} className="excel-hub-container combined-bank-tools" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <div className="combined-bank-header">
-            <div><strong>Unit &amp; demo banks</strong><span>10 syllabus banks and the free diagnostic demo</span></div>
-            <button type="button" className="btn btn-secondary btn-sm" onClick={() => setShowUnitBanks(value => !value)} aria-expanded={showUnitBanks}>
-              {showUnitBanks ? 'Hide banks' : 'Manage banks'}
-            </button>
-          </div>
-          {showUnitBanks && <QuestionBankStatsMatrix
-            questionStats={questionStats}
-            title="Unit & demo banks"
-            showScheduledTests={false}
-            mode="full"
-            activeFilter={matrixFilter}
-            onFilterChange={changeMatrixFilter}
-            committing={saving}
-            onCommitAllSeed={handleCommitAllSeedBanks}
-            onDownloadTemplate={handleDownloadBankTemplate}
-            onUploadUnitFile={(file, unitId) => processFiles([file], unitId)}
-            onSelectUnit={inspectBank}
-          />}
-
-          {isBankEditorOpen && <div className="excel-hub-grid">
+      {/* Selected bank details and version history */}
+      {isBankEditorOpen && (
+        <div className="bank-editor-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) setIsBankEditorOpen(false); }}>
+          <div className="bank-editor-modal" role="dialog" aria-modal="true" aria-label="Question bank details" onKeyDown={(event) => { if (event.key === 'Escape') setIsBankEditorOpen(false); }}>
+            <div className="excel-hub-grid">
             {/* Main Upload Canvas */}
             <div className="botany-card">
               <div className="botany-card-header">
                 <div>
                   <h3>
                     {excelBankMode === 'units' && 'Unit bank'}
-                    {excelBankMode === 'demo' && 'Diagnostic demo bank'}
-                    {excelBankMode === 'tests' && 'Scheduled test bank'}
+                    {excelBankMode === 'demo' && 'Free diagnostic bank'}
+                    {excelBankMode === 'tests' && `${schedule.find(t => t.id === selectedUnitId)?.code || 'Test'} bank`}
                   </h3>
                   <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                    {excelBankMode === 'units' && 'Upload or inspect a unit bank.'}
-                    {excelBankMode === 'demo' && 'Upload or inspect the free diagnostic bank.'}
-                    {excelBankMode === 'tests' && 'Upload or inspect the selected scheduled test bank.'}
+                    {excelBankMode === 'units' && (syllabus.find(u => u.unitId === selectedUnitId)?.title || selectedUnitId)}
+                    {excelBankMode === 'demo' && '30-question free entrance test'}
+                    {excelBankMode === 'tests' && (schedule.find(t => t.id === selectedUnitId)?.title || selectedUnitId)}
                   </p>
                 </div>
                 <div className="botany-card-actions">
-                  <button type="button" className="btn btn-secondary btn-sm" onClick={() => setIsBankEditorOpen(false)}>Close editor</button>
-                </div>
-              </div>
-
-              {/* Mode-Specific Selectors & Quick Bars */}
-              {excelBankMode === 'units' && (
-                <div style={{ marginBottom: '0.75rem' }}>
-                  <label htmlFor="selected-unit-bank" style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)' }}>Selected unit bank</label>
-                  <select 
-                    id="selected-unit-bank"
-                    value={selectedUnitId}
-                    onChange={(e) => setSelectedUnitId(e.target.value)}
-                    style={{ width: '100%', padding: '0.65rem 0.9rem', borderRadius: '8px', background: 'var(--bg-elevated)', color: 'var(--text-primary)', border: '1px solid var(--border-light)', fontSize: '0.9rem' }}
-                  >
-                    {syllabus.map(u => {
-                      const count = questionStats?.unitStats?.[u.unitId]?.questionCount || 0;
-                      return (
-                        <option key={u.unitId} value={u.unitId}>
-                          Unit {u.unitNumber}: {u.title} ({count} Qs active in DB)
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
-              )}
-
-              {excelBankMode === 'tests' && (
-                <div style={{ marginBottom: '1.25rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
-                    Select Scheduled Test to Manage:
-                  </label>
-                  <select 
-                    value={selectedUnitId}
-                    onChange={(e) => setSelectedUnitId(e.target.value)}
-                    style={{ width: '100%', padding: '0.65rem 0.9rem', borderRadius: '8px', background: 'var(--bg-elevated)', color: 'var(--text-primary)', border: '1px solid var(--border-light)', fontSize: '0.9rem' }}
-                  >
-                    {schedule.filter(t => t.isTest).map(t => (
-                      <option key={t.id} value={t.id}>
-                        {t.code}: {t.title} ({t.category} — {t.questionCount} Qs)
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {/* Mode-Tailored Drop Zone */}
-              <div 
-                className={`excel-drop-zone ${isDragging ? 'dragover' : ''}`}
-                onClick={() => fileInputRef.current?.click()}
-                onDragEnter={handleDragEnter}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-              >
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleFileSelect} 
-                  accept=".xlsx, .xls" 
-                  multiple={excelBankMode === 'units'}
-                  style={{ display: 'none' }} 
-                />
-                <div className="excel-drop-icon">
-                  <Upload size={24} />
-                </div>
-                <div className="excel-drop-title">
-                  {isDragging 
-                    ? '📥 Release to Upload Selected File(s)' 
-                    : (excelBankMode === 'units' 
-                        ? 'Click to Browse or Drag & Drop 10-Unit Excel File(s)' 
-                        : (excelBankMode === 'demo' 
-                            ? 'Click to Browse or Drag & Drop Demo Test File (.xlsx)' 
-                            : 'Click to Browse or Drag & Drop Scheduled Test File (.xlsx)'))}
-                </div>
-                <div className="excel-drop-desc">
-                  {excelBankMode === 'units' && (
-                    'Supports uploading all 10 Unit files simultaneously (e.g. Unit_01 to Unit_10), or any individual unit. Drag & drop or select all 10 files using Ctrl+A in the file picker.'
-                  )}
-                  {excelBankMode === 'demo' && (
-                    'Upload 10 to 30 mixed-curriculum MCQs for the Free Diagnostic Entrance CBT (e.g. Botany_Entrance_30_MCQ_Mixed.xlsx). Questions will update live on the candidate entrance test.'
-                  )}
-                  {excelBankMode === 'tests' && (
-                    'Upload question bank for the selected scheduled test (e.g. Test_01_Diagnostic.xlsx). Files will be parsed and verified against test requirements.'
-                  )}
-                </div>
-                <div style={{ display: 'flex', gap: '0.65rem', marginTop: '0.85rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-                  <span className="btn btn-primary btn-sm">
-                    <Upload size={14} /> 
-                    <span>
-                      {excelBankMode === 'units' && 'Choose Unit .xlsx File(s) (Multi-Select Enabled)'}
-                      {excelBankMode === 'demo' && 'Choose Demo .xlsx File'}
-                      {excelBankMode === 'tests' && 'Choose Test .xlsx File'}
-                    </span>
-                  </span>
-                  {excelBankMode === 'demo' && (
-                    <button
-                      type="button"
-                      className="btn btn-secondary btn-sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleLoadEntranceDemoFile();
-                      }}
-                      style={{ borderColor: 'rgba(124, 58, 237, 0.4)', background: 'rgba(124, 58, 237, 0.12)', color: 'var(--accent-primary)', fontWeight: 700 }}
-                    >
-                      <Sparkles size={14} /> <span>⚡ Load 30-MCQ Demo from docs/</span>
-                    </button>
-                  )}
-                  {excelBankMode === 'units' && (
-                    <button
-                      type="button"
-                      className="btn btn-secondary btn-sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleLoadDocsSampleFiles();
-                      }}
-                      style={{ borderColor: 'rgba(16, 185, 129, 0.4)', background: 'rgba(16, 185, 129, 0.12)', color: 'var(--success)', fontWeight: 700 }}
-                    >
-                      <Sparkles size={14} /> <span>⚡ Load &amp; Preview All 10 Units from docs/</span>
-                    </button>
-                  )}
+                  {excelBankMode === 'demo' && <button type="button" className="btn btn-secondary btn-sm" onClick={() => handleDownloadBankTemplate('diagnostic_demo')}><Download size={13} /> Template</button>}
+                  {excelBankMode === 'demo' && <button type="button" className="btn btn-secondary btn-sm" onClick={() => chooseBankFile('diagnostic_demo')} disabled={saving}><Upload size={13} /> Upload</button>}
+                  <button type="button" className="btn btn-secondary btn-sm" onClick={() => setIsBankEditorOpen(false)} autoFocus>Close</button>
                 </div>
               </div>
 
               {/* Currently Active Release Summary */}
-              <div ref={activeBankRef} tabIndex={-1} className="active-bank-detail" style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-light)' }}>
+              <div ref={activeBankRef} tabIndex={-1} className="active-bank-detail">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <h4 style={{ margin: 0, fontSize: '0.95rem', color: 'var(--text-primary)' }}>
                     Active Database Questions: {
@@ -1445,7 +1188,8 @@ export default function AdminBotanyTestSeries({ currentUser }) {
               </div>
             )}
           </div>
-        </div>}
+            </div>
+          </div>
         </div>
       )}
 
@@ -1833,9 +1577,9 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                     onChange={(e) => {
                       const newUId = e.target.value;
                       setSelectedUnitId(newUId);
-                      if (newUId === 'diagnostic_demo') { setExcelBankMode('demo'); setMatrixFilter('demo'); }
-                      else if (newUId.startsWith('test_')) { setExcelBankMode('tests'); setMatrixFilter('all'); }
-                      else { setExcelBankMode('units'); setMatrixFilter('all'); }
+                      if (newUId === 'diagnostic_demo') { setExcelBankMode('demo'); }
+                      else if (newUId.startsWith('test_')) { setExcelBankMode('tests'); }
+                      else { setExcelBankMode('units'); }
                       setUploadPreview(prev => ({ ...prev, detectedUnitId: newUId }));
                       setBatchUploadList(prev => prev.map(item => item.fileName === uploadPreview.fileName ? { ...item, detectedUnitId: newUId } : item));
                     }}
@@ -1903,9 +1647,9 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                           setUploadPreview(bItem);
                           if (bItem.detectedUnitId) {
                             setSelectedUnitId(bItem.detectedUnitId);
-                            if (bItem.detectedUnitId === 'diagnostic_demo') { setExcelBankMode('demo'); setMatrixFilter('demo'); }
-                            else if (bItem.detectedUnitId.startsWith('test_')) { setExcelBankMode('tests'); setMatrixFilter('all'); }
-                            else { setExcelBankMode('units'); setMatrixFilter('all'); }
+                            if (bItem.detectedUnitId === 'diagnostic_demo') { setExcelBankMode('demo'); }
+                            else if (bItem.detectedUnitId.startsWith('test_')) { setExcelBankMode('tests'); }
+                            else { setExcelBankMode('units'); }
                           }
                         }}
                         className={`btn btn-sm ${isActive ? 'btn-primary' : 'btn-secondary'}`}
