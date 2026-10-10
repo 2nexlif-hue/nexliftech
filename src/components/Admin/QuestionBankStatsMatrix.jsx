@@ -1,22 +1,23 @@
 import React, { useRef, useState } from 'react';
 import { 
-  FileSpreadsheet, CheckCircle2, AlertTriangle, Layers, 
-  BarChart3, ArrowRight, Sparkles, Check, ChevronDown, 
+  FileSpreadsheet, CheckCircle2,
+  BarChart3, ArrowRight, ChevronDown,
   ChevronUp, ShieldCheck, Database, Award, RefreshCw, Upload
 } from 'lucide-react';
 import './QuestionBankStatsMatrix.css';
 
 export default function QuestionBankStatsMatrix({
   questionStats,
+  schedule = [],
+  activeFilter = 'all',
+  onFilterChange,
   onSelectUnit,
   onCommitAllSeed,
   onUploadUnitFile,
   committing = false,
-  mode = 'banner', // 'banner' | 'full'
-  onRefresh
+  mode = 'banner' // 'banner' | 'full'
 }) {
   const [isExpanded, setIsExpanded] = useState(mode === 'full');
-  const [activeUnitFilter, setActiveUnitFilter] = useState('all');
   const rowFileInputRef = useRef(null);
   const uploadUnitRef = useRef(null);
 
@@ -63,12 +64,12 @@ export default function QuestionBankStatsMatrix({
   const keyPctD = Math.round(((overallKeyDistribution.D || 0) / keyTotal) * 100);
 
   const unitsList = Object.values(unitStats).sort((a, b) => a.unitNumber - b.unitNumber);
+  const scheduledTests = schedule.filter(test => test.isTest);
 
   return (
     <div className={`question-stats-matrix-container ${mode}`}>
       {onUploadUnitFile && <input ref={rowFileInputRef} className="matrix-file-input" type="file" accept=".xlsx,.xls" aria-label="Choose a question bank workbook" onChange={handleRowFileChange} />}
-      {/* EXECUTIVE KPI BAR */}
-      <div className="matrix-kpi-banner">
+      {mode !== 'full' && <div className="matrix-kpi-banner">
         <div className="kpi-banner-top">
           <div className="kpi-banner-headline">
             <div className="headline-icon-badge">
@@ -234,38 +235,45 @@ export default function QuestionBankStatsMatrix({
             </div>
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* EXPANDABLE 10-UNIT AUDIT MATRIX */}
       {isExpanded && (
         <div className="matrix-expanded-details">
           <div className="matrix-table-toolbar">
             <div className="matrix-toolbar-title">
-              <h5>Unit-by-Unit Question Bank Breakdown (Units 1 to 10)</h5>
-              <span>Auditing row counts, distractors, and balance per unit file</span>
+              <h5>Question banks</h5>
             </div>
             <div className="matrix-filter-buttons">
               <button 
                 type="button" 
-                className={`matrix-filter-btn ${activeUnitFilter === 'all' ? 'active' : ''}`}
-                onClick={() => setActiveUnitFilter('all')}
+                className={`matrix-filter-btn ${activeFilter === 'all' ? 'active' : ''}`}
+                onClick={() => onFilterChange?.('all')}
               >
-                All 10 Units ({unitsList.length})
+                Units + demo ({unitsList.length + 1})
               </button>
               <button 
                 type="button" 
-                className={`matrix-filter-btn ${activeUnitFilter === 'uploaded' ? 'active' : ''}`}
-                onClick={() => setActiveUnitFilter('uploaded')}
+                className={`matrix-filter-btn ${activeFilter === 'uploaded' ? 'active' : ''}`}
+                onClick={() => onFilterChange?.('uploaded')}
               >
-                Loaded Banks ({unitsList.filter(u => u.questionCount > 0).length})
+                Loaded ({unitsList.filter(u => u.questionCount > 0).length})
               </button>
               <button 
                 type="button" 
-                className={`matrix-filter-btn ${activeUnitFilter === 'demo' ? 'active' : ''}`}
-                onClick={() => setActiveUnitFilter('demo')}
+                className={`matrix-filter-btn ${activeFilter === 'demo' ? 'active' : ''}`}
+                onClick={() => onFilterChange?.('demo')}
               >
-                🎯 Demo CBT ({demoStats?.questionCount || 0} Qs)
+                Demo ({demoStats?.questionCount || 0})
               </button>
+              <button
+                type="button"
+                className={`matrix-filter-btn ${activeFilter === 'tests' ? 'active' : ''}`}
+                onClick={() => onFilterChange?.('tests')}
+              >
+                Tests ({scheduledTests.length})
+              </button>
+              {onCommitAllSeed && <button type="button" className="matrix-filter-btn matrix-sync-btn" onClick={onCommitAllSeed} disabled={committing}><Database size={13} /> {committing ? 'Syncing…' : 'Sync banks'}</button>}
             </div>
           </div>
 
@@ -273,68 +281,41 @@ export default function QuestionBankStatsMatrix({
             <table className="unit-audit-table">
               <thead>
                 <tr>
-                  <th style={{ width: '45px' }}>#</th>
-                  <th>Unit Title</th>
-                  <th style={{ width: '150px' }}>Bank MCQs</th>
-                  <th style={{ width: '120px' }}>Coverage</th>
-                  <th style={{ width: '130px' }}>4-Option Analysis</th>
-                  <th style={{ width: '110px' }}>Context Notes</th>
-                  <th style={{ width: '140px' }}>Answer Key Spread</th>
-                  <th style={{ width: '85px' }}>Version</th>
-                  {(onSelectUnit || onUploadUnitFile) && <th style={{ width: '160px', textAlign: 'right' }}>Actions</th>}
+                  <th>Bank</th>
+                  <th>Questions</th>
+                  <th>Quality</th>
+                  <th>Answer keys</th>
+                  {(onSelectUnit || onUploadUnitFile) && <th>Actions</th>}
                 </tr>
               </thead>
               <tbody>
                 {/* Free Diagnostic Demo CBT Row */}
-                {(activeUnitFilter === 'all' || activeUnitFilter === 'demo') && (
+                {(activeFilter === 'all' || activeFilter === 'demo') && (
                   <tr className="row-active" style={{ background: 'rgba(124, 58, 237, 0.05)' }}>
-                    <td className="unit-num-cell" data-label="Bank">
-                      <span className="unit-num-badge" style={{ background: 'rgba(124, 58, 237, 0.15)', color: 'var(--accent-primary)', borderColor: 'rgba(124, 58, 237, 0.3)' }}>
-                        🎯
-                      </span>
-                    </td>
-                    <td className="unit-title-cell" data-label="Title">
-                      <div className="unit-name-text" style={{ fontWeight: 700, color: 'var(--accent-primary)' }}>
-                        Diagnostic Demo Entrance Test (Free CBT)
+                    <td className="unit-title-cell" data-label="Bank">
+                      <div className="matrix-unit-title">
+                        <span className="unit-num-badge" aria-hidden="true">🎯</span>
+                        <span className="unit-name-text" style={{ color: 'var(--accent-primary)' }}>Diagnostic Demo Entrance Test</span>
                       </div>
-                      <div className="unit-file-text">{demoStats?.fileName || 'Botany_Entrance_30_MCQ_Mixed.xlsx'}</div>
+                      <div className="unit-file-text">{demoStats?.fileName || 'Botany_Entrance_30_MCQ_Mixed.xlsx'} · v{demoStats?.version || 1}</div>
                     </td>
-                    <td className="unit-count-cell" data-label="MCQs">
+                    <td className="unit-count-cell" data-label="Questions">
                       <div className="count-primary">
                         <strong>{demoStats?.questionCount || 0}</strong>
                         <span className="count-slash">/ 30 Q</span>
                       </div>
-                      <div className="unit-mini-progress">
-                        <div 
-                          className="unit-mini-bar" 
-                          style={{ width: `${Math.min(100, Math.round(((demoStats?.questionCount || 0) / 30) * 100))}%`, background: 'var(--accent-primary)' }}
-                        ></div>
-                      </div>
+                      <span className="matrix-coverage-text">{Math.min(100, Math.round(((demoStats?.questionCount || 0) / 30) * 100))}% ready</span>
                     </td>
-                    <td data-label="Coverage">
-                      <span className="status-pill full">
-                        {demoStats?.questionCount >= 30 ? '100% Ready' : `${demoStats?.questionCount || 0} Qs Active`}
-                      </span>
-                    </td>
-                    <td data-label="Analysis">
-                      <div className="quality-metric">
-                        <CheckCircle2 size={13} className="text-success" />
-                        <span>100% Complete</span>
-                      </div>
-                    </td>
-                    <td data-label="Context">
-                      <div className="quality-metric">
-                        <Award size={13} className="text-accent" />
-                        <span>100% Attached</span>
+                    <td data-label="Quality">
+                      <div className="matrix-quality-stack">
+                        <span><CheckCircle2 size={13} /> 100% analysis</span>
+                        <span><Award size={13} /> 100% notes</span>
                       </div>
                     </td>
                     <td data-label="Answer keys">
                       <div className="key-dist-chips">
                         <span className="k-chip a" style={{ background: 'rgba(124, 58, 237, 0.1)', color: 'var(--accent-primary)' }}>Balanced Spread</span>
                       </div>
-                    </td>
-                    <td data-label="Version">
-                      <span className="version-tag">v{demoStats?.version || 1}</span>
                     </td>
                     {(onSelectUnit || onUploadUnitFile) && (
                       <td data-label="Actions">
@@ -344,9 +325,9 @@ export default function QuestionBankStatsMatrix({
                           type="button"
                           className="btn btn-primary btn-xs select-unit-btn"
                           onClick={() => onSelectUnit('diagnostic_demo')}
-                          title="Inspect and manage Free Entrance Demo questions in Excel Hub"
+                          title="View the diagnostic bank, export questions, and review versions"
                         >
-                          <span>Manage</span>
+                          <span>Inspect</span>
                           <ArrowRight size={12} />
                         </button>}
                         </div>
@@ -355,47 +336,28 @@ export default function QuestionBankStatsMatrix({
                   </tr>
                 )}
                 {unitsList
-                  .filter(u => activeUnitFilter === 'all' || (activeUnitFilter === 'uploaded' && u.questionCount > 0))
+                  .filter(u => activeFilter === 'all' || (activeFilter === 'uploaded' && u.questionCount > 0))
                   .map((unit) => {
                     const coverage = unit.coveragePercent || 0;
                     const uKeys = unit.keyDistribution || { A: 0, B: 0, C: 0, D: 0 };
 
                     return (
                       <tr key={unit.unitId} className={unit.questionCount > 0 ? 'row-active' : 'row-empty'}>
-                        <td className="unit-num-cell" data-label="Bank">
-                          <span className="unit-num-badge">{unit.unitNumber}</span>
+                        <td className="unit-title-cell" data-label="Bank">
+                          <div className="matrix-unit-title"><span className="unit-num-badge">{unit.unitNumber}</span><span className="unit-name-text">{unit.title}</span></div>
+                          <div className="unit-file-text">{unit.fileName || `${unit.unitId}.xlsx`} · v{unit.version || 1}</div>
                         </td>
-                        <td className="unit-title-cell" data-label="Title">
-                          <div className="unit-name-text">{unit.title}</div>
-                          <div className="unit-file-text">{unit.fileName || `${unit.unitId}.xlsx`}</div>
-                        </td>
-                        <td className="unit-count-cell" data-label="MCQs">
+                        <td className="unit-count-cell" data-label="Questions">
                           <div className="count-primary">
                             <strong>{unit.questionCount}</strong>
                             <span className="count-slash">/ {unit.targetCount} Q</span>
                           </div>
-                          <div className="unit-mini-progress">
-                            <div 
-                              className="unit-mini-bar" 
-                              style={{ width: `${coverage}%` }}
-                            ></div>
-                          </div>
+                          <span className="matrix-coverage-text">{coverage}% ready</span>
                         </td>
-                        <td data-label="Coverage">
-                          <span className={`status-pill ${unit.questionCount >= unit.targetCount ? 'full' : unit.questionCount > 0 ? 'partial' : 'empty'}`}>
-                            {unit.questionCount >= unit.targetCount ? '100% Ready' : `${coverage}% Prepared`}
-                          </span>
-                        </td>
-                        <td data-label="Analysis">
-                          <div className="quality-metric">
-                            <CheckCircle2 size={13} className="text-success" />
-                            <span>{unit.fourOptionAnalysisPct}% Complete</span>
-                          </div>
-                        </td>
-                        <td data-label="Context">
-                          <div className="quality-metric">
-                            <Award size={13} className="text-accent" />
-                            <span>{unit.contextNotePct}% Attached</span>
+                        <td data-label="Quality">
+                          <div className="matrix-quality-stack">
+                            <span><CheckCircle2 size={13} /> {unit.fourOptionAnalysisPct}% analysis</span>
+                            <span><Award size={13} /> {unit.contextNotePct}% notes</span>
                           </div>
                         </td>
                         <td data-label="Answer keys">
@@ -406,9 +368,6 @@ export default function QuestionBankStatsMatrix({
                             <span className="k-chip d">D:{uKeys.D}</span>
                           </div>
                         </td>
-                        <td data-label="Version">
-                          <span className="version-tag">v{unit.version || 1}</span>
-                        </td>
                         {(onSelectUnit || onUploadUnitFile) && (
                           <td data-label="Actions">
                             <div className="matrix-row-actions">
@@ -417,9 +376,9 @@ export default function QuestionBankStatsMatrix({
                               type="button"
                               className="btn btn-secondary btn-xs select-unit-btn"
                               onClick={() => onSelectUnit(unit.unitId)}
-                              title={`Inspect and manage Unit ${unit.unitNumber} questions in Excel Hub`}
+                              title={`View Unit ${unit.unitNumber} questions, export, and review versions`}
                             >
-                              <span>Manage</span>
+                              <span>Inspect</span>
                               <ArrowRight size={12} />
                             </button>}
                             </div>
@@ -428,6 +387,30 @@ export default function QuestionBankStatsMatrix({
                       </tr>
                     );
                   })}
+                {activeFilter === 'tests' && scheduledTests.map(test => {
+                  const bank = questionStats.testBankStats?.[test.id];
+                  const count = bank?.questionCount || 0;
+                  const target = test.questionCount || 0;
+                  const coverage = target ? Math.min(100, Math.round(count / target * 100)) : 0;
+                  return (
+                    <tr key={test.id} className={count ? 'row-active' : 'row-empty'}>
+                      <td className="unit-title-cell" data-label="Bank">
+                        <div className="matrix-unit-title"><span className="unit-num-badge">{test.code}</span><span className="unit-name-text">{test.title}</span></div>
+                        <div className="unit-file-text">{test.category} · {test.unitCovered}</div>
+                      </td>
+                      <td className="unit-count-cell" data-label="Questions">
+                        <div className="count-primary"><strong>{count}</strong><span className="count-slash">/ {target} Q</span></div>
+                        <span className="matrix-coverage-text">{coverage}% ready</span>
+                      </td>
+                      <td data-label="Quality"><div className="matrix-quality-stack"><span><CheckCircle2 size={13} /> {bank?.fourOptionAnalysisPct || 0}% analysis</span></div></td>
+                      <td data-label="Answer keys"><span className="matrix-coverage-text">—</span></td>
+                      {(onSelectUnit || onUploadUnitFile) && <td data-label="Actions"><div className="matrix-row-actions">
+                        {onUploadUnitFile && <button type="button" className="matrix-upload-btn" onClick={() => chooseRowFile(test.id)} disabled={committing} aria-label={`Upload Excel question bank for ${test.code}`}><Upload size={13} /><span>Upload</span></button>}
+                        {onSelectUnit && <button type="button" className="btn btn-secondary btn-xs select-unit-btn" onClick={() => onSelectUnit(test.id)} title={`View ${test.code} questions, export, and review versions`}><span>Inspect</span><ArrowRight size={12} /></button>}
+                      </div></td>}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

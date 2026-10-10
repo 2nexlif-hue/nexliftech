@@ -312,10 +312,10 @@
   background: var(--bg-elevated);
   border: 1px solid var(--border-light);
   border-radius: 12px;
-  padding: 1rem 1.25rem;
+  padding: 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 0.6rem;
   animation: fadeInMatrix 0.25s ease-out;
 }
 
@@ -347,7 +347,10 @@
 .matrix-filter-buttons {
   display: flex;
   gap: 0.35rem;
+  flex-wrap: wrap;
 }
+
+.matrix-sync-btn { display: inline-flex; align-items: center; gap: 0.3rem; }
 
 .matrix-filter-btn {
   padding: 0.3rem 0.65rem;
@@ -382,9 +385,25 @@
 .unit-audit-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
   font-size: 0.82rem;
   text-align: left;
 }
+
+.unit-audit-table th:nth-child(1) { width: 34%; }
+.unit-audit-table th:nth-child(2) { width: 13%; }
+.unit-audit-table th:nth-child(3) { width: 18%; }
+.unit-audit-table th:nth-child(4) { width: 15%; }
+.unit-audit-table th:nth-child(5) { width: 20%; text-align: right; }
+.unit-audit-table th, .unit-audit-table td { min-width: 0; overflow-wrap: anywhere; }
+.matrix-unit-title { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+.matrix-unit-title .unit-num-badge { flex: 0 0 auto; width: auto; min-width: 24px; padding-inline: 0.3rem; }
+.matrix-unit-title .unit-name-text { min-width: 0; }
+.matrix-coverage-text { display: block; margin-top: 0.15rem; color: var(--text-muted); font-size: 0.72rem; font-weight: 700; }
+.matrix-quality-stack { display: grid; gap: 0.2rem; color: var(--text-secondary); font-size: 0.74rem; }
+.matrix-quality-stack span { display: inline-flex; align-items: center; gap: 0.3rem; }
+.matrix-quality-stack svg { color: var(--success); flex: 0 0 auto; }
+.matrix-quality-stack span + span svg { color: var(--accent-primary); }
 
 .unit-audit-table th {
   background: var(--bg-elevated);
@@ -507,9 +526,12 @@
 .key-dist-chips {
   display: flex;
   gap: 0.25rem;
+  flex-wrap: wrap;
 }
 
 .k-chip {
+  flex: 0 0 auto;
+  white-space: nowrap;
   font-size: 0.65rem;
   font-weight: 700;
   padding: 0.1rem 0.35rem;
@@ -632,17 +654,22 @@
 }
 
 /* Mobile & Tablet responsiveness */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .matrix-table-wrapper { overflow: visible; border: 0; background: transparent; }
   .unit-audit-table, .unit-audit-table tbody { display: block; width: 100%; }
   .unit-audit-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
-  .unit-audit-table tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem 0.9rem; padding: 0.9rem; margin-bottom: 0.7rem; border: 1px solid var(--border-light); border-radius: 10px; background: var(--bg-secondary); }
+  .unit-audit-table tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem 0.75rem; padding: 0.7rem; margin-bottom: 0.5rem; border: 1px solid var(--border-light); border-radius: 10px; background: var(--bg-secondary); }
   .unit-audit-table td { display: block; min-width: 0; padding: 0; border: 0; overflow-wrap: anywhere; }
-  .unit-audit-table td::before { content: attr(data-label); display: block; margin-bottom: 0.2rem; color: var(--text-muted); font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
-  .unit-audit-table .unit-title-cell, .unit-audit-table td[data-label="Actions"] { grid-column: 1 / -1; }
+  .unit-audit-table td::before { content: attr(data-label); display: block; margin-bottom: 0.15rem; color: var(--text-muted); font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+  .unit-audit-table .unit-title-cell, .unit-audit-table td[data-label="Answer keys"], .unit-audit-table td[data-label="Actions"] { grid-column: 1 / -1; }
+  .unit-audit-table .unit-title-cell::before, .unit-audit-table td[data-label="Actions"]::before { display: none; }
   .unit-audit-table .unit-file-text { overflow-wrap: anywhere; }
   .unit-audit-table .matrix-row-actions { justify-content: flex-start; }
-  .unit-audit-table td[data-label="Actions"]::before { margin-bottom: 0.4rem; }
+  .unit-audit-table .matrix-quality-stack { gap: 0.1rem; }
+}
+
+@media (max-width: 768px) {
+  .matrix-expanded-details { padding: 0.55rem; }
   .matrix-kpi-banner {
     padding: 0.9rem;
   }

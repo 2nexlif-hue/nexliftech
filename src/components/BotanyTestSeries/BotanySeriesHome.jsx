@@ -549,7 +549,6 @@ export default function BotanySeriesHome() {
   const basePrice = settings?.fullSeriesPrice || 1499;
   const finalPrice = Math.max(1, basePrice - discountApplied);
   const unitPrice = settings?.unitWisePrice || 199;
-  const testCount = schedule.length;
   const subunitCount = schedule.filter(item => item.category === 'Subunit Test').length;
   const mockCount = schedule.filter(item => item.category === 'Mock').length;
 
@@ -598,8 +597,6 @@ export default function BotanySeriesHome() {
             <span className="cbt-brand-text">NexLifTech</span>
             <span className="cbt-brand-dot">.</span>
           </a>
-          <span className="cbt-top-divider">/</span>
-          <span className="cbt-topbar-title">Botany Test Series</span>
         </div>
 
         <div className="cbt-topbar-right">
@@ -737,43 +734,19 @@ export default function BotanySeriesHome() {
 
         {/* 1. COMPACT ACADEMIC HERO HEADER */}
         <section className="botany-hero-compact">
-          <div className="hero-compact-top">
-            <div className="hero-academic-meta">
-              <span className="academic-curator">
-                <GraduationCap size={14} className="curator-icon" />
-                <span>By <strong>Dr. Aubid Hussain Malik</strong></span>
-              </span>
-            </div>
-
-            <div className="hero-compact-actions">
-              <button 
-                type="button" 
-                className="btn btn-secondary btn-sm hero-btn-demo"
-                onClick={handleDemoCbtClick}
-                title="Launch 1-Click Free Diagnostic Demo"
-              >
-                <Play size={12} className="accent-play-icon" />
-                <span>Try Free Demo ({demoQuestions.length} Questions)</span>
-              </button>
-              <button 
-                type="button" 
-                className="btn btn-primary btn-sm hero-btn-enroll"
-                onClick={() => scrollToPricing('full')}
-                title="View All Enrollment Passes"
-              >
-                <span>Enroll in Series — ₹{finalPrice}</span>
-                <ArrowRight size={13} />
-              </button>
-            </div>
-          </div>
-
           <div className="hero-compact-body">
-            <h1 className="hero-compact-title">
-              Botany Assistant Professor Test Series
-            </h1>
-            <p className="hero-compact-subtitle">
-              Prepare across 10 Botany units with {testCount} coded tests, including {subunitCount} subunit tests and {mockCount} mocks.
-            </p>
+            <div className="hero-compact-copy">
+              <h1 className="hero-compact-title">Botany Assistant Professor Test Series</h1>
+              <p className="hero-compact-subtitle">PSC Botany practice curated by Dr. Aubid Hussain Malik.</p>
+            </div>
+            <div className="hero-compact-actions">
+              <button type="button" className="btn btn-secondary btn-sm hero-btn-demo" onClick={handleDemoCbtClick} title="Launch the free diagnostic test">
+                <Play size={12} className="accent-play-icon" /><span>Try free demo</span>
+              </button>
+              <button type="button" className="btn btn-primary btn-sm hero-btn-enroll" onClick={() => scrollToPricing('full')} title="View enrollment passes">
+                <span>View passes</span><ArrowRight size={13} />
+              </button>
+            </div>
 
           </div>
         </section>
@@ -791,7 +764,6 @@ export default function BotanySeriesHome() {
             >
               <Calendar size={15} />
               <span>Test Schedule</span>
-              <span className="tab-pill-count">{testCount}</span>
             </button>
 
             <button
@@ -814,7 +786,6 @@ export default function BotanySeriesHome() {
             >
               <Tag size={15} />
               <span>Choose a Pass</span>
-              <span className="tab-pill-count">₹{unitPrice} / ₹{finalPrice}</span>
             </button>
 
             <button 
@@ -825,8 +796,7 @@ export default function BotanySeriesHome() {
               onClick={() => setExplorerTab('syllabus')}
             >
               <BookOpen size={15} />
-              <span>10-Unit Syllabus</span>
-              <span className="tab-pill-count">{syllabus.length || 10}</span>
+              <span>Syllabus</span>
             </button>
 
             <button 
@@ -844,17 +814,6 @@ export default function BotanySeriesHome() {
           {/* TAB 1: TEST SCHEDULE (DEFAULT FRONT AND CENTER) */}
           {explorerTab === 'schedule' && (
             <div className="explorer-content-card">
-              <div className="content-card-header">
-                <div>
-                  <h3>Botany Examination Calendar</h3>
-                  <p>{testCount} tests in document order. Dates have not been announced.</p>
-                </div>
-                <button type="button" className="btn btn-primary btn-sm" onClick={() => scrollToPricing('full')}>
-                  <span>Enroll in Series — ₹{finalPrice}</span>
-                  <ArrowRight size={13} />
-                </button>
-              </div>
-
               {/* Filter controls */}
               <div className="schedule-filter-controls">
                 <div className="schedule-pill-filters">
@@ -904,7 +863,6 @@ export default function BotanySeriesHome() {
                       <th style={{ whiteSpace: 'nowrap' }}>Test Title &amp; Syllabus Coverage</th>
                       <th style={{ width: '140px', whiteSpace: 'nowrap' }}>Questions</th>
                       <th style={{ width: '80px', whiteSpace: 'nowrap' }}>Duration</th>
-                      <th style={{ width: '100px', whiteSpace: 'nowrap' }}>Unit</th>
                       <th style={{ width: '115px', textAlign: 'right', whiteSpace: 'nowrap' }}>Status</th>
                     </tr>
                   </thead>
@@ -943,9 +901,6 @@ export default function BotanySeriesHome() {
                           </td>
                           <td data-label="Duration">
                             <span className="t-badge-time">{t.durationMinutes} min</span>
-                          </td>
-                          <td data-label="Unit">
-                            <span className="t-date-text">{t.unitCovered}</span>
                           </td>
                           <td data-label="Access" className="schedule-action-cell">
                             <span className={`test-availability-badge ${availability.tone}`}>{availability.label}</span>
@@ -1000,12 +955,6 @@ export default function BotanySeriesHome() {
           {/* TAB 2: PASSES & PRICING */}
           {explorerTab === 'pricing' && (
             <div className="explorer-content-card pricing-content-card">
-              <div className="content-card-header">
-                <div>
-                  <h3>Choose Your Pass</h3>
-                </div>
-              </div>
-
               {/* Mobile Tabbed Switcher */}
               <div className="pricing-mobile-tab-bar" role="tablist" aria-label="Test series package options">
                 <button 

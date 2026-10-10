@@ -680,6 +680,17 @@
   box-shadow: 0 4px 10px rgba(124, 58, 237, 0.35);
 }
 
+.botany-portal-page .cbt-table-action-btn.start:disabled,
+.botany-portal-page .cbt-table-action-btn.start:disabled:hover {
+  background: var(--bg-elevated) !important;
+  color: var(--text-muted) !important;
+  border-color: var(--border-light) !important;
+  box-shadow: none !important;
+  opacity: 1;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .cbt-table-action-btn.demo {
   background: rgba(16, 185, 129, 0.1);
   color: var(--success);
@@ -3087,19 +3098,19 @@
 }
 
 .botany-portal-page > .cbt-topbar {
-  padding: 0.75rem clamp(1rem, 3vw, 2.5rem);
-  min-height: 68px;
+  padding: 0.55rem clamp(0.75rem, 2vw, 1.5rem);
+  min-height: 60px;
 }
 
 .botany-container {
-  max-width: 1280px;
-  padding: clamp(1.25rem, 2.5vw, 2.25rem) clamp(1rem, 3vw, 2.5rem) 5rem;
+  max-width: 1600px;
+  padding: clamp(0.65rem, 1.2vw, 1rem) clamp(0.65rem, 2vw, 1.5rem) 3rem;
 }
 
 .botany-hero-compact {
-  border-radius: 22px;
-  margin-bottom: 1.5rem;
-  box-shadow: var(--shadow-glass);
+  border-radius: 13px;
+  margin-bottom: 0.65rem;
+  box-shadow: var(--shadow-sm);
 }
 
 .hero-compact-top {
@@ -3111,9 +3122,11 @@
 .hero-compact-actions { flex-wrap: wrap; gap: 0.55rem; }
 .hero-btn-demo, .hero-btn-enroll { min-height: 44px; padding: 0.6rem 0.9rem; font-size: 0.8rem; border-radius: 9px; }
 .hero-btn-enroll, .hero-btn-enroll:hover { background: var(--accent-green); border-color: var(--accent-green); color: var(--text-inverse) !important; }
-.hero-compact-body { padding: clamp(1.1rem, 2vw, 1.6rem); }
-.hero-compact-title { font-size: clamp(1.8rem, 3.4vw, 3.25rem); line-height: 1.12; letter-spacing: -0.04em; max-width: 800px; margin-bottom: 0.85rem; }
-.hero-compact-subtitle { font-size: clamp(0.95rem, 1.35vw, 1.08rem); line-height: 1.55; max-width: 880px; margin-bottom: 0; }
+.hero-compact-body { display: flex; align-items: center; justify-content: space-between; gap: 1rem 1.5rem; padding: clamp(0.85rem, 1.5vw, 1.25rem); }
+.hero-compact-copy { min-width: 0; }
+.hero-compact-title { font-size: clamp(1.45rem, 2.2vw, 2.25rem); line-height: 1.15; letter-spacing: -0.03em; max-width: none; margin-bottom: 0.3rem; }
+.hero-compact-subtitle { font-size: clamp(0.82rem, 1vw, 0.95rem); line-height: 1.4; max-width: none; margin-bottom: 0; }
+.hero-compact-actions { flex: 0 0 auto; }
 .hero-compact-chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.7rem; padding-top: 1.4rem; }
 .hero-chip { align-items: flex-start; flex-direction: column; gap: 0.1rem; padding: 0.9rem 1rem; background: var(--bg-elevated); border: 1px solid var(--border-light); border-radius: 11px; animation: heroChipFadeIn 0.45s ease-out both; transition: border-color var(--transition-fast), box-shadow var(--transition-fast); }
 .hero-chip:nth-child(1) { animation-delay: 0.05s; }
@@ -3128,12 +3141,12 @@
 .hero-chip + .chip-dot, .chip-dot { display: none; }
 
 .botany-main-explorer { scroll-margin-top: 90px; }
-.botany-subnav-tabs { gap: 0.4rem; padding: 0.45rem; margin-bottom: 1rem; border-radius: 14px; box-shadow: var(--shadow-sm); }
-.subnav-tab-btn { min-height: 46px; padding: 0.65rem 0.9rem; font-size: 0.84rem; border-radius: 10px; }
+.botany-subnav-tabs { gap: 0.25rem; padding: 0.3rem; margin-bottom: 0.6rem; border-radius: 10px; box-shadow: var(--shadow-sm); }
+.subnav-tab-btn { min-height: 44px; padding: 0.5rem 0.7rem; font-size: 0.82rem; border-radius: 8px; }
 .subnav-tab-btn.active { background: var(--gradient-subtle); border-color: var(--border-glow); color: var(--text-primary); }
-.explorer-content-card { padding: clamp(1.25rem, 2.3vw, 2rem); border-radius: 18px; box-shadow: var(--shadow-glass); }
+.explorer-content-card { padding: clamp(0.85rem, 1.4vw, 1.25rem); border-radius: 12px; box-shadow: var(--shadow-sm); }
 .pricing-content-card { padding: clamp(1rem, 1.8vw, 1.5rem); }
-.content-card-header { margin-bottom: 1.25rem; padding-bottom: 1.1rem; gap: 1rem; }
+.content-card-header { margin-bottom: 0.75rem; padding-bottom: 0.6rem; gap: 0.7rem; }
 .pricing-content-card .content-card-header { margin-bottom: 0.9rem; padding-bottom: 0.7rem; }
 .content-card-header h3 { font-size: clamp(1.2rem, 2vw, 1.55rem); line-height: 1.25; margin-bottom: 0.4rem; }
 .content-card-header p { font-size: 0.89rem; line-height: 1.55; max-width: 780px; }
@@ -3142,9 +3155,9 @@
 .public-stats-badge { font-size: 0.84rem; line-height: 1.45; }
 .public-stats-breakdown { gap: 0.4rem; }
 .stats-tag-item { font-size: 0.72rem; padding: 0.3rem 0.5rem; border-radius: 6px; }
-.schedule-filter-controls { gap: 0.85rem; margin-bottom: 1.15rem; }
-.schedule-pill-filters { gap: 0.45rem; }
-.filter-pill-btn { min-height: 44px; padding: 0.55rem 0.85rem; font-size: 0.78rem; }
+.schedule-filter-controls { gap: 0.5rem; margin-bottom: 0.6rem; }
+.schedule-pill-filters { gap: 0.3rem; }
+.filter-pill-btn { min-height: 44px; padding: 0.5rem 0.7rem; font-size: 0.78rem; }
 .filter-pill-btn.active { background: var(--accent-green); border-color: var(--accent-green); color: var(--text-inverse); }
 .schedule-search-box { min-height: 44px; background: var(--bg-secondary); }
 .schedule-search-box input { font-size: 0.85rem; min-width: 0; }
@@ -3258,37 +3271,41 @@ html[data-theme="cyber"] .cbt-table-action-btn.start { background: var(--accent-
 }
 
 @media (max-width: 1023px) {
+  .hero-compact-body { flex-direction: column; align-items: stretch; }
+  .hero-compact-actions { width: 100%; }
   .pricing-card-box.featured-pass .p-enroll-action-btn { display: none; }
   .schedule-table-wrapper { overflow: visible; border: 0; }
   .schedule-data-table, .schedule-data-table tbody { display: block; }
   .schedule-data-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
-  .schedule-data-table tr { display: grid; position: relative; grid-template-columns: 1fr 1fr; gap: 0.65rem 1rem; padding: 1rem; margin-bottom: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 13px; box-shadow: var(--shadow-sm); }
+  .schedule-data-table tr { display: grid; position: relative; grid-template-columns: minmax(0, 1fr) auto; gap: 0.4rem 0.75rem; padding: 0.75rem; margin-bottom: 0.5rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 10px; box-shadow: var(--shadow-sm); }
   .schedule-data-table td, .schedule-data-table tbody tr:nth-child(even) td { display: block; padding: 0; border: 0; background: transparent; min-width: 0; }
   .schedule-data-table tr:hover td { background: transparent; }
-  .schedule-data-table td::before { content: attr(data-label); display: block; margin-bottom: 0.3rem; color: var(--text-muted); font-size: 0.65rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; }
-  .schedule-data-table td:nth-child(1) { position: absolute; right: 1rem; top: 1rem; }
+  .schedule-data-table td::before { content: attr(data-label); display: block; margin-bottom: 0.2rem; color: var(--text-muted); font-size: 0.65rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; }
+  .schedule-data-table td:nth-child(1) { position: absolute; right: 0.75rem; top: 0.75rem; }
   .schedule-data-table td:nth-child(1)::before { display: none; }
   .schedule-data-table td:nth-child(2) { grid-column: 1 / -1; grid-row: 1; padding-right: 3.5rem; }
-  .schedule-data-table td:nth-child(3) { grid-column: 1; }
-  .schedule-data-table td:nth-child(4) { grid-column: 2; }
-  .schedule-data-table td:nth-child(5) { grid-column: 1; }
-  .schedule-data-table td:nth-child(6) { grid-column: 2; text-align: right; }
+  .schedule-data-table td:nth-child(2)::before, .schedule-data-table td:nth-child(3)::before, .schedule-data-table td:nth-child(4)::before, .schedule-data-table td:nth-child(5)::before { display: none; }
+  .schedule-data-table td:nth-child(3) { grid-column: 1; align-self: center; }
+  .schedule-data-table td:nth-child(3) .table-test-info { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 0.3rem; }
+  .schedule-data-table td:nth-child(4) { grid-column: 2; align-self: center; text-align: right; }
+  .schedule-data-table tbody tr td.schedule-action-cell { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding-top: 0.35rem; border-top: 1px solid var(--border-light); }
   .test-availability-badge { margin-bottom: 0.5rem; }
   .t-name { font-size: 0.94rem; }
   .t-coverage { font-size: 0.8rem; }
-  .cbt-table-action-btn { width: 100%; max-width: 150px; }
+  .schedule-action-cell .test-availability-badge { margin: 0; }
+  .schedule-action-cell .cbt-table-action-btn { width: auto; min-width: 116px; max-width: none; margin-left: 0; }
 }
 
 @media (max-width: 767px) {
   .botany-portal-page > .cbt-topbar { gap: 0.5rem; }
-  .botany-container { padding-top: 1rem; }
+  .botany-container { padding-top: 0.65rem; }
   .hero-compact-top { padding: 0.9rem 1rem; }
   .hero-compact-actions { width: 100%; }
   .hero-compact-actions .btn { flex: 1 1 170px; }
-  .hero-compact-body { padding: 1.1rem 1rem; }
+  .hero-compact-body { padding: 0.9rem; }
   .hero-compact-chips { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; padding-top: 0.9rem; }
   .hero-chip { padding: 0.55rem 0.5rem; }
-  .botany-subnav-tabs { position: sticky; top: 68px; z-index: 20; }
+  .botany-subnav-tabs { position: sticky; top: 60px; z-index: 20; }
   .subnav-tab-btn { flex-shrink: 0; }
   .content-card-header .btn { width: 100%; }
   .schedule-pill-filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.25rem; scrollbar-width: none; }
@@ -3329,7 +3346,7 @@ html[data-theme="cyber"] .cbt-table-action-btn.start { background: var(--accent-
   .hero-compact-chips { gap: 0.4rem; }
   .chip-val { font-size: 1.05rem; }
   .chip-lbl { font-size: 0.7rem; }
-  .explorer-content-card { padding: 1rem; }
+  .explorer-content-card { padding: 0.8rem; }
   .cbt-modal-fullscreen .cbt-brand-text, .cbt-modal-fullscreen .cbt-brand-dot, .cbt-modal-fullscreen .cbt-test-info span { display: none; }
   .cbt-modal-fullscreen .cbt-test-info h2 { max-width: 30vw; font-size: 0.72rem; }
   .cbt-modal-fullscreen .cbt-topbar-left button span { display: none; }
@@ -3411,7 +3428,7 @@ html[data-theme="cyber"] .cbt-table-action-btn.start { background: var(--accent-
 /* --- 20. ULTRA-WIDE DESKTOP (1440px+) -------------------------------- */
 @media (min-width: 1440px) {
   .botany-container {
-    max-width: 1380px;
+    max-width: 1680px;
   }
   .botany-pricing-cards-container {
     gap: 1.5rem;

@@ -1107,7 +1107,7 @@
 
 
 /* Faculty workspace: consistent spacing and usable controls at every width. */
-.botany-admin-suite { min-width: 0; gap: 1.25rem; }
+.botany-admin-suite { min-width: 0; gap: 0.65rem; }
 .botany-admin-suite .botany-admin-header,
 .botany-admin-suite .botany-card { border-radius: 16px; box-shadow: var(--shadow-glass); }
 .botany-admin-suite .botany-admin-header { padding: clamp(1rem, 2vw, 1.75rem); gap: 1rem; }
@@ -1117,11 +1117,11 @@
 .botany-admin-suite .botany-header-stats { gap: 0.6rem; }
 .botany-admin-suite .botany-stat-pill { min-width: 105px; padding: 0.7rem 0.85rem; border-radius: 10px; }
 .botany-admin-suite .botany-stat-val { font-size: 1.35rem; }
-.botany-admin-suite .botany-nav-tabs { border-radius: 12px; padding: 0.45rem; gap: 0.3rem; }
+.botany-admin-suite .botany-nav-tabs { border-radius: 10px; padding: 0.3rem; gap: 0.2rem; }
 .botany-admin-suite .botany-subtab-btn { min-height: 44px; padding: 0.65rem 0.85rem; border-radius: 9px; }
 html[data-theme="cyber"] .botany-admin-suite .botany-subtab-btn.active { color: var(--text-inverse); }
-.botany-admin-suite .botany-card { min-width: 0; padding: clamp(1rem, 2vw, 1.75rem); }
-.botany-admin-suite .botany-card-header { gap: 1rem; padding-bottom: 1rem; margin-bottom: 1.25rem; }
+.botany-admin-suite .botany-card { min-width: 0; padding: clamp(0.75rem, 1.2vw, 1.1rem); }
+.botany-admin-suite .botany-card-header { gap: 0.65rem; padding-bottom: 0.6rem; margin-bottom: 0.8rem; }
 .botany-admin-suite .botany-card-header h3 { font-size: clamp(1.08rem, 1.7vw, 1.35rem); }
 .botany-admin-suite .botany-card-actions { flex-wrap: wrap; }
 .botany-admin-suite .botany-card-actions .btn,
@@ -1145,6 +1145,9 @@ html[data-theme="cyber"] .botany-admin-suite .botany-subtab-btn.active { color: 
 .botany-admin-suite .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .botany-admin-suite .excel-hub-grid > *,
 .botany-admin-suite .settings-form-grid > * { min-width: 0; }
+.botany-admin-suite .active-bank-detail { scroll-margin-top: 90px; border-radius: 6px; }
+.botany-admin-suite .active-bank-detail:focus { outline: 2px solid var(--accent-primary); outline-offset: 4px; }
+.botany-admin-suite .excel-drop-zone { padding: 1.2rem; }
 .botany-admin-suite .promo-cards-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
 .preview-modal-content { max-height: 92dvh; }
 .preview-modal-body { overscroll-behavior: contain; }

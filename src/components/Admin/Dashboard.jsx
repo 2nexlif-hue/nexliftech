@@ -1102,7 +1102,7 @@ export default function Dashboard() {
               fontWeight: 700
             }}>
               <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }}></span>
-              <span>Botany Exam Suite • Faculty Portal</span>
+              <span>Botany Examination Suite</span>
             </div>
           ) : (
             <div style={{
@@ -1155,21 +1155,7 @@ export default function Dashboard() {
       </div>
 
       <div className="dashboard-container">
-        {/* Workspace Mode Category Selector or Isolated Faculty Banner */}
-        {isBotanyAdminOnly ? (
-          <div className="isolated-faculty-workspace-banner">
-            <div className="faculty-workspace-info">
-              <div className="faculty-badge-icon">🌿</div>
-              <div>
-                <h2>Botany Examination Suite</h2>
-                <p>Dedicated Exam & Question Bank Workspace • Dr. Aubid Hussain Malik</p>
-              </div>
-            </div>
-            <div className="faculty-account-pill">
-              <span>Faculty Admin</span>
-            </div>
-          </div>
-        ) : (
+        {!isBotanyAdminOnly && (
           <div className="dashboard-workspace-bar">
             <button
               type="button"
