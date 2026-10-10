@@ -829,21 +829,22 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                       <td data-label="Question bank">
                         {t.questionCount > 0 ? (
                           <div className="schedule-q-cell">
-                            <div className="q-target-line">{t.questionCount} Q Target</div>
+                            <div className={`q-target-line ${testStats.statusType === 'partial' ? 'partial' : ''}`}>
+                              <strong>{testStats.uploadedCount}</strong><span> / {t.questionCount} Q</span>
+                            </div>
                             {testStats.hasBank && (
                               <div 
                                 className={`schedule-bank-status ${testStats.statusType}`}
                                 title={`Live bank coverage: ${testStats.uploadedCount} MCQs with ${testStats.analysisPct}% 4-option scientific rationale`}
                               >
                                 <span className="bank-status-dot"></span>
-                                <span className="bank-status-text">{testStats.statusLabel}</span>
-                                {testStats.analysisPct > 0 && (
-                                  <span className="bank-status-badge">{testStats.analysisPct}% Explained</span>
-                                )}
+                                <span className="bank-status-text">
+                                  {testStats.uploadedCount > 0 ? `${testStats.analysisPct}% explained` : 'Pending upload'}
+                                </span>
                               </div>
                             )}
                             <div className="schedule-bank-actions">
-                              <button type="button" className="schedule-template-btn" onClick={() => handleDownloadBankTemplate(t.id)} title={`Download ${t.code} question bank template for ${t.questionCount} questions`} aria-label={`Download ${t.code} question bank template`}><Download size={14} /><span>Template</span></button>
+                              <button type="button" className="schedule-template-btn" onClick={() => handleDownloadBankTemplate(t.id)} title={`Download ${t.code} question bank template for ${t.questionCount} questions`} aria-label={`Download ${t.code} question bank template`}><Download size={14} /><span>Download</span></button>
                               <button type="button" className="schedule-template-btn" onClick={() => chooseBankFile(t.id)} disabled={saving} title={`Upload ${t.code} question bank`} aria-label={`Upload question bank for ${t.code}`}><Upload size={14} /><span>Upload</span></button>
                               <button type="button" className="schedule-template-btn" onClick={() => inspectBank(t.id)} title={`Inspect ${t.code} question bank`} aria-label={`Inspect question bank for ${t.code}`}><FileSpreadsheet size={14} /><span>Inspect</span></button>
                             </div>

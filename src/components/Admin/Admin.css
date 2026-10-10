@@ -794,6 +794,9 @@
 .dashboard-container.botany-dashboard-container {
   max-width: none;
   width: 100%;
+  z-index: auto;
+  padding-top: 0.65rem;
+  padding-bottom: 1.5rem;
   padding-inline: clamp(0.7rem, 1.4vw, 1.75rem);
 }
 
