@@ -59,34 +59,32 @@ export const OFFICIAL_SAMPLE_QUESTIONS = [
   }
 ];
 
-export function downloadExcelTemplate(unitId = 'unit_1', unitTitle = 'Unit 1') {
+export function downloadExcelTemplate(unitId = 'unit_1', unitTitle = 'Unit 1', targetCount) {
   const isDemo = unitId === 'diagnostic_demo';
-  const rows = OFFICIAL_SAMPLE_QUESTIONS.map((q, idx) => ({
-    'S.No': idx + 1,
-    'Question': q.question,
-    'Option A': q.optionA,
-    'Option B': q.optionB,
-    'Option C': q.optionC,
-    'Option D': q.optionD,
-    'Correct Answer (Key)': q.correctOption,
-    'Analysis - Option A': q.analysisA,
-    'Analysis - Option B': q.analysisB,
-    'Analysis - Option C': q.analysisC,
-    'Analysis - Option D': q.analysisD,
-    'Context Note': q.referenceNote
-  }));
-
-  const worksheet = XLSX.utils.json_to_sheet(rows);
+  const count = Number.isInteger(targetCount) && targetCount > 0 ? targetCount : (isDemo ? 30 : 50);
+  const rows = Array.from({ length: count }, (_, idx) => ({ 'S.No': idx + 1 }));
+  const worksheet = XLSX.utils.json_to_sheet(rows, { header: EXCEL_COLUMNS.map(col => col.label) });
 
   // Set column widths
   worksheet['!cols'] = EXCEL_COLUMNS.map(col => ({ wch: col.width }));
 
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, isDemo ? 'Diagnostic Demo Bank' : 'Question Bank');
+  const instructions = XLSX.utils.aoa_to_sheet([
+    ['Bank', unitTitle],
+    ['Bank ID', unitId],
+    ['Question target', count],
+    ['How to use', 'Fill the numbered rows in the first sheet. Keep the column headings unchanged.'],
+    ['Required', 'Question, Options A–D, and Correct Answer (Key) as A, B, C, or D.'],
+    ['Recommended', 'Explain all four options and add a Context Note for complete quality metrics.'],
+    ['Upload', 'Upload this .xlsx file from the matching bank row. The filename identifies its bank.'],
+    ['Important', 'Do not put instructions or extra rows above the headings in the first sheet.']
+  ]);
+  instructions['!cols'] = [{ wch: 22 }, { wch: 92 }];
+  XLSX.utils.book_append_sheet(workbook, instructions, 'Instructions');
 
-  const filePrefix = isDemo 
-    ? 'Template_Diagnostic_Entrance_Demo_10_to_30_MCQs.xlsx' 
-    : `Template_${unitId}_${unitTitle.replace(/[^a-zA-Z0-9_-]/g, '_')}_Questions.xlsx`;
+  const safeTitle = unitTitle.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_').slice(0, 64);
+  const filePrefix = `Template_${unitId}_${safeTitle}_${count}_Questions.xlsx`;
   XLSX.writeFile(workbook, filePrefix);
 }
 

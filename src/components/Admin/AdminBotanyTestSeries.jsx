@@ -86,6 +86,23 @@ export default function AdminBotanyTestSeries({ currentUser }) {
     }
   }
 
+  function handleDownloadBankTemplate(bankId) {
+    try {
+      if (bankId === 'diagnostic_demo') {
+        downloadExcelTemplate(bankId, 'Diagnostic Demo Entrance Test', 30);
+      } else if (bankId.startsWith('test_')) {
+        const test = schedule.find(item => item.id === bankId);
+        downloadExcelTemplate(bankId, test?.title || bankId, test?.questionCount || 50);
+      } else {
+        const unit = syllabus.find(item => item.unitId === bankId);
+        const target = questionStats?.unitStats?.[bankId]?.targetCount || unit?.estimatedQuestions || 50;
+        downloadExcelTemplate(bankId, unit?.title || bankId, target);
+      }
+    } catch (error) {
+      showToast('error', error.message || 'Could not create the Excel template.');
+    }
+  }
+
   // Question Diff state
   const [diffTargetBank, setDiffTargetBank] = useState(null);
   const [diffFilterTab, setDiffFilterTab] = useState('all'); // 'all' | 'modified' | 'added' | 'deleted' | 'unchanged'
@@ -1134,6 +1151,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
             onFilterChange={changeMatrixFilter}
             committing={saving}
             onCommitAllSeed={handleCommitAllSeedBanks}
+            onDownloadTemplate={handleDownloadBankTemplate}
             onUploadUnitFile={(file, unitId) => processFiles([file], unitId)}
             onSelectUnit={(unitId) => {
               if (unitId === 'diagnostic_demo') {
@@ -1173,17 +1191,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                   <button 
                     type="button"
                     className="btn btn-secondary btn-sm"
-                    onClick={() => {
-                      if (excelBankMode === 'demo' || selectedUnitId === 'diagnostic_demo') {
-                        downloadExcelTemplate('diagnostic_demo', 'Diagnostic Demo Entrance Test (10-30 MCQs)');
-                      } else if (excelBankMode === 'tests' || selectedUnitId.startsWith('test_')) {
-                        const t = schedule.find(item => item.id === selectedUnitId);
-                        downloadExcelTemplate(selectedUnitId, t ? t.title : selectedUnitId);
-                      } else {
-                        const unit = syllabus.find(u => u.unitId === selectedUnitId);
-                        downloadExcelTemplate(selectedUnitId, unit ? unit.title : selectedUnitId);
-                      }
-                    }}
+                    onClick={() => handleDownloadBankTemplate(selectedUnitId)}
                   >
                     <Download size={14} /> 
                     <span>

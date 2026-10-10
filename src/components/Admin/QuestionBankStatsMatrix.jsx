@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { 
   FileSpreadsheet, CheckCircle2,
   BarChart3, ArrowRight, ChevronDown,
-  ChevronUp, ShieldCheck, Database, Award, RefreshCw, Upload
+  ChevronUp, ShieldCheck, Database, Award, RefreshCw, Upload, Download
 } from 'lucide-react';
 import './QuestionBankStatsMatrix.css';
 
@@ -13,6 +13,7 @@ export default function QuestionBankStatsMatrix({
   onFilterChange,
   onSelectUnit,
   onCommitAllSeed,
+  onDownloadTemplate,
   onUploadUnitFile,
   committing = false,
   mode = 'banner' // 'banner' | 'full'
@@ -285,7 +286,7 @@ export default function QuestionBankStatsMatrix({
                   <th>Questions</th>
                   <th>Quality</th>
                   <th>Answer keys</th>
-                  {(onSelectUnit || onUploadUnitFile) && <th>Actions</th>}
+                  {(onSelectUnit || onUploadUnitFile || onDownloadTemplate) && <th>Actions</th>}
                 </tr>
               </thead>
               <tbody>
@@ -317,9 +318,10 @@ export default function QuestionBankStatsMatrix({
                         <span className="k-chip a" style={{ background: 'rgba(124, 58, 237, 0.1)', color: 'var(--accent-primary)' }}>Balanced Spread</span>
                       </div>
                     </td>
-                    {(onSelectUnit || onUploadUnitFile) && (
+                    {(onSelectUnit || onUploadUnitFile || onDownloadTemplate) && (
                       <td data-label="Actions">
                         <div className="matrix-row-actions">
+                        {onDownloadTemplate && <button type="button" className="matrix-template-btn" onClick={() => onDownloadTemplate('diagnostic_demo')} title="Download diagnostic demo Excel template" aria-label="Download diagnostic demo Excel template"><Download size={14} /><span>Template</span></button>}
                         {onUploadUnitFile && <button type="button" className="matrix-upload-btn" onClick={() => chooseRowFile('diagnostic_demo')} disabled={committing} aria-label="Upload Excel question bank for diagnostic demo"><Upload size={13} /><span>Upload</span></button>}
                         {onSelectUnit && <button
                           type="button"
@@ -368,9 +370,10 @@ export default function QuestionBankStatsMatrix({
                             <span className="k-chip d">D:{uKeys.D}</span>
                           </div>
                         </td>
-                        {(onSelectUnit || onUploadUnitFile) && (
+                        {(onSelectUnit || onUploadUnitFile || onDownloadTemplate) && (
                           <td data-label="Actions">
                             <div className="matrix-row-actions">
+                            {onDownloadTemplate && <button type="button" className="matrix-template-btn" onClick={() => onDownloadTemplate(unit.unitId)} title={`Download Unit ${unit.unitNumber} Excel template`} aria-label={`Download Unit ${unit.unitNumber} Excel template`}><Download size={14} /><span>Template</span></button>}
                             {onUploadUnitFile && <button type="button" className="matrix-upload-btn" onClick={() => chooseRowFile(unit.unitId)} disabled={committing} aria-label={`Upload Excel question bank for Unit ${unit.unitNumber}`}><Upload size={13} /><span>Upload</span></button>}
                             {onSelectUnit && <button
                               type="button"
@@ -404,7 +407,8 @@ export default function QuestionBankStatsMatrix({
                       </td>
                       <td data-label="Quality"><div className="matrix-quality-stack"><span><CheckCircle2 size={13} /> {bank?.fourOptionAnalysisPct || 0}% analysis</span></div></td>
                       <td data-label="Answer keys"><span className="matrix-coverage-text">—</span></td>
-                      {(onSelectUnit || onUploadUnitFile) && <td data-label="Actions"><div className="matrix-row-actions">
+                      {(onSelectUnit || onUploadUnitFile || onDownloadTemplate) && <td data-label="Actions"><div className="matrix-row-actions">
+                        {onDownloadTemplate && <button type="button" className="matrix-template-btn" onClick={() => onDownloadTemplate(test.id)} title={`Download ${test.code} Excel template`} aria-label={`Download ${test.code} Excel template`}><Download size={14} /><span>Template</span></button>}
                         {onUploadUnitFile && <button type="button" className="matrix-upload-btn" onClick={() => chooseRowFile(test.id)} disabled={committing} aria-label={`Upload Excel question bank for ${test.code}`}><Upload size={13} /><span>Upload</span></button>}
                         {onSelectUnit && <button type="button" className="btn btn-secondary btn-xs select-unit-btn" onClick={() => onSelectUnit(test.id)} title={`View ${test.code} questions, export, and review versions`}><span>Inspect</span><ArrowRight size={12} /></button>}
                       </div></td>}

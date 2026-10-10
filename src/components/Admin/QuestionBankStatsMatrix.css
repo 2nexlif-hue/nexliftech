@@ -567,7 +567,11 @@
 
 .matrix-file-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .matrix-row-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 0.35rem; }
-.matrix-row-actions .select-unit-btn, .matrix-upload-btn { min-height: 36px; white-space: nowrap; }
+.matrix-row-actions .select-unit-btn, .matrix-upload-btn, .matrix-template-btn { min-height: 36px; white-space: nowrap; }
+.matrix-template-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem; min-width: 36px; padding: 0.35rem; border: 1px solid var(--border-light); border-radius: 7px; background: var(--bg-elevated); color: var(--text-secondary); font: inherit; font-size: 0.72rem; font-weight: 700; cursor: pointer; }
+.matrix-template-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+.matrix-template-btn:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+.matrix-template-btn span { display: none; }
 .matrix-upload-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem; padding: 0.35rem 0.55rem; border: 1px solid var(--accent-primary); border-radius: 7px; background: var(--bg-elevated); color: var(--accent-primary); font: inherit; font-size: 0.72rem; font-weight: 750; cursor: pointer; }
 .matrix-upload-btn:hover { background: var(--accent-primary); color: var(--text-inverse); }
 .matrix-upload-btn:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
@@ -575,7 +579,9 @@
 .question-stats-matrix-container.full .matrix-metrics-grid { display: none; }
 .question-stats-matrix-container.full .matrix-kpi-banner { padding: 0.8rem 1rem; }
 
-@media (max-width: 768px) { .matrix-row-actions .select-unit-btn, .matrix-upload-btn { min-height: 44px; } }
+@media (max-width: 900px) { .matrix-template-btn span { display: inline; } }
+@media (min-width: 1400px) { .matrix-template-btn span { display: inline; } }
+@media (max-width: 768px) { .matrix-row-actions .select-unit-btn, .matrix-upload-btn, .matrix-template-btn { min-height: 44px; } }
 
 /* SCHEDULE TABLE QUESTION CELL & BANK STATUS PILL */
 .schedule-q-cell {
