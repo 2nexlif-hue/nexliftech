@@ -828,8 +828,8 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                       <td data-label="Coverage" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{t.unitCovered}</td>
                       <td data-label="Question bank">
                         {t.questionCount > 0 ? (
-                          <div className="schedule-q-cell">
-                            <div className={`q-target-line ${testStats.statusType === 'partial' ? 'partial' : ''}`}>
+                          <div className={`schedule-q-cell ${testStats.statusType !== 'complete' ? 'incomplete' : ''}`}>
+                            <div className="q-target-line">
                               <strong>{testStats.uploadedCount}</strong><span> / {t.questionCount} Q</span>
                             </div>
                             {testStats.hasBank && (

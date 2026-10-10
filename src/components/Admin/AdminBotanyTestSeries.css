@@ -1226,11 +1226,12 @@ html[data-theme="cyber"] .botany-admin-suite .botany-subtab-btn.active { color: 
 .botany-admin-suite .schedule-table td:nth-child(6) { white-space: normal; }
 .botany-admin-suite .admin-test-scope summary { min-height: 22px; }
 .botany-admin-suite .schedule-q-cell { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0.1rem 0.3rem; }
+.botany-admin-suite .schedule-q-cell.incomplete { padding: 0.18rem 0.25rem; margin: -0.18rem -0.25rem; border-radius: 5px; background: color-mix(in srgb, var(--danger) 8%, transparent); }
 .botany-admin-suite .q-target-line { font-size: 0.78rem; line-height: 1.2; white-space: nowrap; }
 .botany-admin-suite .q-target-line span { color: var(--text-muted); font-weight: 500; }
-.botany-admin-suite .q-target-line.partial,
-.botany-admin-suite .q-target-line.partial span { color: var(--warning); }
-.botany-admin-suite .q-target-line.partial { width: fit-content; padding: 0.1rem 0.3rem; margin-left: -0.3rem; border-radius: 4px; background: rgba(245, 158, 11, 0.12); }
+.botany-admin-suite .schedule-q-cell.incomplete .q-target-line,
+.botany-admin-suite .schedule-q-cell.incomplete .q-target-line span { color: var(--danger); }
+.botany-admin-suite .schedule-q-cell.incomplete .schedule-bank-status.empty { color: var(--danger); }
 .botany-admin-suite .schedule-bank-status { max-width: 100%; padding: 0; border: 0; background: transparent; font-size: 0.7rem; line-height: 1.2; white-space: nowrap; gap: 0.25rem; }
 .botany-admin-suite .schedule-bank-actions { grid-column: 2; grid-row: 1 / span 2; }
 .test-status-editor { display: grid; grid-template-columns: minmax(0, 1fr) minmax(90px, 1.1fr); align-items: center; gap: 0.25rem; min-width: 0; }
