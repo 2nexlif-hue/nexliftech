@@ -308,14 +308,19 @@
   background: var(--bg-elevated);
 }
 
+.schedule-file-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.schedule-bank-actions { display: flex; align-items: center; flex-wrap: nowrap; gap: 0.2rem; }
 .schedule-template-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.3rem;
   width: fit-content;
-  min-height: 32px;
-  padding: 0.25rem 0.5rem;
+  flex: 0 0 auto;
+  width: 29px;
+  min-width: 29px;
+  min-height: 29px;
+  padding: 0;
   border: 1px solid var(--border-light);
   border-radius: 6px;
   background: var(--bg-elevated);
@@ -325,11 +330,17 @@
   font-weight: 700;
   cursor: pointer;
 }
+.schedule-template-btn span { display: none; }
+.schedule-template-btn:disabled { opacity: 0.5; cursor: wait; }
 
 .schedule-template-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
 .schedule-template-btn:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
 
-@media (max-width: 768px) { .schedule-template-btn { min-height: 44px; } }
+@media (max-width: 1100px) {
+  .schedule-bank-actions { flex-wrap: wrap; gap: 0.35rem; }
+  .schedule-template-btn { width: auto; min-height: 44px; padding: 0.35rem 0.55rem; }
+  .schedule-template-btn span { display: inline; }
+}
 
 .schedule-badge {
   display: inline-block;
@@ -1170,6 +1181,11 @@ html[data-theme="cyber"] .botany-admin-suite .botany-subtab-btn.active { color: 
 .botany-admin-suite .settings-form-grid > * { min-width: 0; }
 .botany-admin-suite .active-bank-detail { scroll-margin-top: 90px; border-radius: 6px; }
 .botany-admin-suite .active-bank-detail:focus { outline: 2px solid var(--accent-primary); outline-offset: 4px; }
+.botany-admin-suite .combined-bank-tools { scroll-margin-top: 90px; }
+.botany-admin-suite .combined-bank-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.6rem; padding: 0.65rem 0.85rem; border: 1px solid var(--border-light); border-radius: 10px; background: var(--bg-elevated); }
+.botany-admin-suite .combined-bank-header div { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.5rem; color: var(--text-primary); }
+.botany-admin-suite .combined-bank-header span { color: var(--text-muted); font-size: 0.78rem; }
+.botany-admin-suite .combined-bank-header .btn { min-height: 40px; }
 .botany-admin-suite .excel-drop-zone { padding: 1.2rem; }
 .botany-admin-suite .promo-cards-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
 .preview-modal-content { max-height: 92dvh; }

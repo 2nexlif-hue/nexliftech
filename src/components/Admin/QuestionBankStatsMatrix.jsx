@@ -8,6 +8,8 @@ import './QuestionBankStatsMatrix.css';
 
 export default function QuestionBankStatsMatrix({
   questionStats,
+  title = 'Question banks',
+  showScheduledTests = true,
   schedule = [],
   activeFilter = 'all',
   onFilterChange,
@@ -243,7 +245,7 @@ export default function QuestionBankStatsMatrix({
         <div className="matrix-expanded-details">
           <div className="matrix-table-toolbar">
             <div className="matrix-toolbar-title">
-              <h5>Question banks</h5>
+              <h5>{title}</h5>
             </div>
             <div className="matrix-filter-buttons">
               <button 
@@ -267,13 +269,13 @@ export default function QuestionBankStatsMatrix({
               >
                 Demo ({demoStats?.questionCount || 0})
               </button>
-              <button
+              {showScheduledTests && <button
                 type="button"
                 className={`matrix-filter-btn ${activeFilter === 'tests' ? 'active' : ''}`}
                 onClick={() => onFilterChange?.('tests')}
               >
                 Tests ({scheduledTests.length})
-              </button>
+              </button>}
               {onCommitAllSeed && <button type="button" className="matrix-filter-btn matrix-sync-btn" onClick={onCommitAllSeed} disabled={committing}><Database size={13} /> {committing ? 'Syncing…' : 'Sync banks'}</button>}
             </div>
           </div>
@@ -390,7 +392,7 @@ export default function QuestionBankStatsMatrix({
                       </tr>
                     );
                   })}
-                {activeFilter === 'tests' && scheduledTests.map(test => {
+                {showScheduledTests && activeFilter === 'tests' && scheduledTests.map(test => {
                   const bank = questionStats.testBankStats?.[test.id];
                   const count = bank?.questionCount || 0;
                   const target = test.questionCount || 0;
