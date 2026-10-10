@@ -1,5 +1,6 @@
 export const BOTANY_AVAILABILITY_OPTIONS = [
-  { value: 'auto', label: 'Automatic' },
+  { value: 'auto', label: 'Default: Coming soon' },
+  { value: 'ready', label: 'Ready now' },
   { value: 'coming_soon', label: 'Coming soon' },
   { value: 'preparing', label: 'In preparation' },
   { value: 'paused', label: 'Temporarily paused' },
@@ -15,11 +16,11 @@ const LABELS = {
 export function getBotanyTestAvailability(test, uploadedCount = 0) {
   const status = test.availabilityStatus || 'auto';
   const bankReady = uploadedCount >= test.questionCount && test.questionCount > 0;
-  if (status === 'auto') {
+  if (status === 'ready' && bankReady) {
     return {
-      label: bankReady ? 'Ready now' : 'Coming soon',
-      tone: bankReady ? 'ready' : 'soon',
-      canStart: bankReady
+      label: 'Ready now',
+      tone: 'ready',
+      canStart: true
     };
   }
   return {

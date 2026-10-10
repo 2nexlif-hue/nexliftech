@@ -867,7 +867,7 @@ export default function AdminBotanyTestSeries({ currentUser }) {
                             disabled={Boolean(savingTestStatus)}
                           >
                             {BOTANY_AVAILABILITY_OPTIONS.map(option => (
-                              <option key={option.value} value={option.value}>{option.label}</option>
+                              <option key={option.value} value={option.value} disabled={option.value === 'ready' && testStats.uploadedCount < t.questionCount}>{option.label}</option>
                             ))}
                           </select>
                           {draft.status === 'custom' && (
